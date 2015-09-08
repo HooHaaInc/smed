@@ -1,1 +1,1 @@
-# Proyecto SMED: Sistema...?
+# Proyecto SMED: Sistema de Monitoreo Estudiantil y Docencia.
