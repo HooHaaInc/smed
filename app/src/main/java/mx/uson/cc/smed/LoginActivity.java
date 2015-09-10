@@ -7,6 +7,7 @@ import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,7 +24,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,10 +65,13 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
     private View mProgressView;
     private View mEmailLoginFormView;
     private SignInButton mPlusSignInButton;
+    private Button mSignOutButton;
     private View mSignOutButtons;
     private View mLoginFormView;
+    private EditText mNameView;
 
-
+    private String mName;
+    private boolean signIn = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,10 +80,12 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
 
         // Find the Google+ sign in button.
         mPlusSignInButton = (SignInButton) findViewById(R.id.plus_sign_in_button);
+        mSignOutButton = (Button) findViewById(R.id.plus_disconnect_button);
         if (supportsGooglePlayServices()) {
             // Set a listener to connect the user when the G+ button is clicked.
 
             mPlusSignInButton.setOnClickListener(this);
+            mSignOutButton.setOnClickListener(this);
         } else {
             // Don't offer G+ sign in if the app's version is too low to support Google Play
             // Services.
@@ -101,11 +109,35 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mNameView = (EditText) findViewById(R.id.name);
+        mNameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == R.id.sign_up || id == EditorInfo.IME_NULL) {
+                    attemptSignUp();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        final Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                if(signIn)
+                    attemptLogin();
+                else attemptSignUp();
+            }
+        });
+
+        Switch mEmailSignUpButton = (Switch) findViewById(R.id.email_sign_up_switch);
+        mEmailSignUpButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mNameView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                mEmailSignInButton.setText(isChecked ? R.string.action_sign_up : R.string.action_sign_in);
+                signIn = !isChecked;
             }
         });
 
@@ -113,22 +145,41 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         mProgressView = findViewById(R.id.login_progress);
         mEmailLoginFormView = findViewById(R.id.email_login_form);
         mSignOutButtons = findViewById(R.id.plus_sign_out_buttons);
+
+        if(getIntent().getBooleanExtra("logout", false)){
+            disconnect();
+        }
     }
 
     @Override
     protected void showErrorDialog(ConnectionResult result) {
-        //TODO: Error dialog
         Toast.makeText(this, "ERROR: " + result, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void showSignedOutUI() {
         Toast.makeText(this, "Signed out", Toast.LENGTH_SHORT).show();
+        mPlusSignInButton.setVisibility(View.VISIBLE);
+        mSignOutButtons.setVisibility(View.GONE);
     }
 
     @Override
-    protected void showSignedInUi() {
-        Toast.makeText(this, "Signed in", Toast.LENGTH_SHORT).show();
+    protected void showSignedInUi(String name) {
+        mName = name;
+        Toast.makeText(this, "Welcome " + name, Toast.LENGTH_SHORT).show();
+        mPlusSignInButton.setVisibility(View.GONE);
+        mSignOutButtons.setVisibility(View.VISIBLE);
+        finishedLogin();
+    }
+
+    @Override
+    protected void showLoadingUI() {
+        showProgress(true);
+    }
+
+    @Override
+    protected void hideLoadingUI() {
+        showProgress(false);
     }
 
     private void populateAutoComplete() {
@@ -141,6 +192,60 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         }
     }
 
+    public void attemptSignUp(){
+        if (mAuthTask != null) {
+            return;
+        }
+
+        // Reset errors.
+        mEmailView.setError(null);
+        mPasswordView.setError(null);
+        mNameView.setError(null);
+
+        // Store values at the time of the login attempt.
+        String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
+        String name = mNameView.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // Check for a valid password, if the user entered one.
+        if (!isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email)) {
+            mEmailView.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        } else if (!isEmailValid(email)) {
+            mEmailView.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
+
+        if(TextUtils.isEmpty(name)){
+            mNameView.setError(getString(R.string.error_field_required));
+            focusView = mNameView;
+            cancel = true;
+        }
+
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            showProgress(true);
+            mAuthTask = new UserLoginTask(email, password, name);
+            mAuthTask.execute((Void) null);
+        }
+    }
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -347,32 +452,37 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
 
         private final String mEmail;
         private final String mPassword;
+        private final String mName;
 
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
+            mName = null;
+        }
+
+        UserLoginTask(String email, String password, String name) {
+            mEmail = email;
+            mPassword = password;
+            mName = name;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+            if(mName == null) {
+                // TODO: attempt authentication against a network service.
+                //return Neto.checkLogin(mEmail, mPassword);
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+                for (String credential : DUMMY_CREDENTIALS) {
+                    String[] pieces = credential.split(":");
+                    if (pieces[0].equals(mEmail)) {
+                        // Account exists, return true if the password matches.
+                        return pieces[1].equals(mPassword);
+                    }
                 }
+            } else {
+                // TODO: register the new account here.
+                //Neto.signUp(mEmail, mPassword, mName);
             }
-
-            // TODO: register the new account here.
             return true;
         }
 
@@ -382,7 +492,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             showProgress(false);
 
             if (success) {
-                finish();
+                finishedLogin();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
@@ -394,6 +504,12 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    private void finishedLogin(){
+        Intent main = new Intent(this, MainActivity.class);
+        main.putExtra("name", mName);
+        startActivity(main);
     }
 }
 

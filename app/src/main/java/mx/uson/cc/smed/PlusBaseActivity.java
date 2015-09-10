@@ -13,6 +13,7 @@ import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.model.people.Person;
 
 /**
  * A base class to wrap communication with the Google Play Services PlusClient.
@@ -25,7 +26,7 @@ public abstract class PlusBaseActivity extends AppCompatActivity
     private static String TAG = PlusBaseActivity.class.toString();
     private static final int RC_SIGN_IN = 0;
     private GoogleApiClient mGoogleApiClient;
-
+    private Person person;
 
     /** Is there a ConnectionResult solution in progress? */
     private boolean mIsResolving = false;
@@ -61,7 +62,8 @@ public abstract class PlusBaseActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        //mGoogleApiClient.connect();
+        //showLoadingUI();
     }
 
     @Override
@@ -85,8 +87,10 @@ public abstract class PlusBaseActivity extends AppCompatActivity
                 }
             }else{
                 showErrorDialog(connectionResult);
+                hideLoadingUI();
             }
         }else{
+            hideLoadingUI();
             showSignedOutUI();
         }
     }
@@ -95,7 +99,11 @@ public abstract class PlusBaseActivity extends AppCompatActivity
     public void onConnected(Bundle bundle){
         Log.d(TAG, "onConnected: " + bundle);
         mShouldResolve = false;
-        showSignedInUi();
+        if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null){
+            person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+        }
+        hideLoadingUI();
+        showSignedInUi(person != null ? person.getDisplayName() : "");
     }
 
     @Override
@@ -103,15 +111,39 @@ public abstract class PlusBaseActivity extends AppCompatActivity
         if(v.getId() == R.id.plus_sign_in_button){
             onSignInClicked();
         }
+        //Disconnect
+        if(v.getId() == R.id.plus_disconnect_button){
+            disconnect();
+        }
+        //Switch account
     }
 
     private void onSignInClicked() {
-        mShouldResolve = true;
-        mGoogleApiClient.connect();
+        if(!mGoogleApiClient.isConnected()) {
+            mShouldResolve = true;
+            mGoogleApiClient.connect();
+            showLoadingUI();
+        }
         //mStatusTextView.setText(R.string.signing_in);
+    }
+
+    protected void disconnect(){
+
+        if(mGoogleApiClient.isConnected()){
+            Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+            mGoogleApiClient.disconnect();
+        }if(mGoogleApiClient.isConnecting()){
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    protected GoogleApiClient getApiClient(){
+        return mGoogleApiClient;
     }
 
     protected abstract void showErrorDialog(ConnectionResult result);
     protected abstract void showSignedOutUI();
-    protected abstract void showSignedInUi();
+    protected abstract void showSignedInUi(String name);
+    protected abstract void showLoadingUI();
+    protected abstract void hideLoadingUI();
 }
