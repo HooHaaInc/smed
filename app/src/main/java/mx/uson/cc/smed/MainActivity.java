@@ -1,20 +1,35 @@
 package mx.uson.cc.smed;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
 
+    FragmentManager fm = getFragmentManager();
+    FragmentTransaction ft = fm.beginTransaction();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Insertando el fragment
+        //FragmentManager fm = getFragmentManager();
+        //FragmentTransaction ft = fm.beginTransaction();
+        if (fm.findFragmentById(android.R.id.content) == null) {
+            MainActivityFragment Tlist = new MainActivityFragment();
+            ft.add(android.R.id.content, Tlist);
+            //ft.addToBackStack(null);
+            ft.commit();
+        }
         setContentView(R.layout.activity_main);
-        ((TextView)findViewById(R.id.hello)).setText("Hello "
-                + getIntent().getExtras().getString("name", ""));
+
+        //((TextView)findViewById(R.id.hello)).setText("Hello "
+       //         + getIntent().getExtras().getString("name", ""));
+        System.out.println("derp");
     }
 
 
@@ -43,5 +58,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void changeFragments(Fragment f){
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(android.R.id.content,f);
+        ft.addToBackStack(null);
+        ft.commit();
+        //setContentView(R.layout.activity_main);
+
+
+    }
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0 ){
+            getFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }
