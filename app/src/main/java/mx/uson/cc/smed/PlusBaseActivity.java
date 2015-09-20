@@ -16,16 +16,21 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 
 /**
- * A base class to wrap communication with the Google Play Services PlusClient.
+ * clase base de LoginActivity, aqui esta la logica de g+.
+ * implementa algunos listeners para las conecciones
  */
 public abstract class PlusBaseActivity extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
 
+    /** Solo sirve para logger*/
     private static String TAG = PlusBaseActivity.class.toString();
+    /** request code: no importa mucho el valor, solo es identificador*/
     private static final int RC_SIGN_IN = 0;
+    /** coneccion con la cuenta*/
     private GoogleApiClient mGoogleApiClient;
+    /** datos de la persona*/
     private Person person;
 
     /** Is there a ConnectionResult solution in progress? */
@@ -37,6 +42,7 @@ public abstract class PlusBaseActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //inicializa, añade escuchadores, api a referenciar, tipo de info
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -45,6 +51,12 @@ public abstract class PlusBaseActivity extends AppCompatActivity
                 .build();
     }
 
+    /**
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);

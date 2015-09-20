@@ -4,29 +4,32 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
+import android.support.design.widget.FloatingActionButton;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends AppCompatActivity {
 
     FragmentManager fm = getFragmentManager();
-    FragmentTransaction ft = fm.beginTransaction();
+    FloatingActionButton fab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Insertando el fragment
         //FragmentManager fm = getFragmentManager();
         //FragmentTransaction ft = fm.beginTransaction();
-        if (fm.findFragmentById(android.R.id.content) == null) {
+        setContentView(R.layout.activity_main);
+        if (fm.findFragmentById(R.id.content) == null) {
             MainActivityFragment Tlist = new MainActivityFragment();
-            ft.add(android.R.id.content, Tlist);
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.add(R.id.content, Tlist);
             //ft.addToBackStack(null);
             ft.commit();
         }
-        setContentView(R.layout.activity_main);
-
+        fab = (FloatingActionButton)findViewById(R.id.fab_nueva_tarea);
         //((TextView)findViewById(R.id.hello)).setText("Hello "
        //         + getIntent().getExtras().getString("name", ""));
         System.out.println("derp");
@@ -62,9 +65,11 @@ public class MainActivity extends FragmentActivity {
     public void changeFragments(Fragment f){
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(android.R.id.content,f);
+        ft.replace(R.id.content, f);
         ft.addToBackStack(null);
         ft.commit();
+
+        fab.hide();
         //setContentView(R.layout.activity_main);
 
 
@@ -73,6 +78,7 @@ public class MainActivity extends FragmentActivity {
     public void onBackPressed() {
         if (getFragmentManager().getBackStackEntryCount() > 0 ){
             getFragmentManager().popBackStack();
+            fab.show();
         } else {
             super.onBackPressed();
         }

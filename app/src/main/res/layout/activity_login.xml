@@ -38,6 +38,7 @@
                 <AutoCompleteTextView android:id="@+id/email" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress" android:maxLines="1"
+                    android:imeOptions="actionNext"
                     android:singleLine="true" />
 
                 <EditText android:id="@+id/password" android:layout_width="match_parent"
@@ -50,7 +51,7 @@
                 <EditText android:id="@+id/name" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:hint="@string/prompt_name"
                     android:imeActionId="@+id/sign_up"
-                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeActionLabel="@string/action_sign_up_short"
                     android:imeOptions="actionUnspecified" android:inputType="textPersonName"
                     android:maxLines="1" android:singleLine="true"
                     android:visibility="gone"/>

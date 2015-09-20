@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,6 +35,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,6 +98,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
+        System.out.println("Email ime: "+mEmailView.getImeActionLabel());
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -137,6 +140,9 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mNameView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
                 mEmailSignInButton.setText(isChecked ? R.string.action_sign_up : R.string.action_sign_in);
+
+                mPasswordView.setImeOptions(isChecked ? EditorInfo.IME_ACTION_NEXT : EditorInfo.IME_ACTION_UNSPECIFIED);
+                //mPasswordView.setImeActionLabel();
                 signIn = !isChecked;
             }
         });
@@ -145,10 +151,6 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         mProgressView = findViewById(R.id.login_progress);
         mEmailLoginFormView = findViewById(R.id.email_login_form);
         mSignOutButtons = findViewById(R.id.plus_sign_out_buttons);
-
-        if(getIntent().getBooleanExtra("logout", false)){
-            disconnect();
-        }
     }
 
     @Override
