@@ -3,4 +3,10 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="action_log_out">Log Out</string>
     <string name="action_settings">Settings</string>
+    <string-array name="tiposUsuario">
+        <item>Alumno</item>
+        <item>Maestro</item>
+        <item>Padre o Tutor</item>
+    </string-array>
+
 </resources>

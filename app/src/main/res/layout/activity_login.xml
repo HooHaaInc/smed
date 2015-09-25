@@ -4,7 +4,8 @@
     android:orientation="vertical" android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin" tools:context=".LoginActivity">
+    android:paddingTop="@dimen/activity_vertical_margin" tools:context=".LoginActivity"
+    android:clickable="true">
 
     <!-- Login progress -->
     <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
@@ -39,7 +40,8 @@
                     android:layout_height="wrap_content" android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress" android:maxLines="1"
                     android:imeOptions="actionNext"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:imeActionId="@+id/login"/>
 
                 <EditText android:id="@+id/password" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:hint="@string/prompt_password"
@@ -48,9 +50,42 @@
                     android:imeOptions="actionUnspecified" android:inputType="textPassword"
                     android:maxLines="1" android:singleLine="true" />
 
+                <EditText android:id="@+id/nombre" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:hint="Nombre"
+                    android:imeActionId="@+id/sign_up"
+                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeOptions="actionUnspecified" android:inputType="text"
+                    android:maxLines="1" android:singleLine="true"
+                    android:visibility="gone"/>
+
+                <EditText android:id="@+id/apellido_paterno" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:hint="Apellido Paterno"
+                    android:visibility="gone"
+                    android:imeActionId="@+id/sign_up"
+                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeOptions="actionUnspecified" android:inputType="text"
+                    android:maxLines="1" android:singleLine="true" />
+
+                <EditText android:id="@+id/apellido_materno" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:hint="Apellido Materno"
+                    android:visibility="gone"
+                    android:imeActionId="@+id/sign_up"
+                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeOptions="actionUnspecified" android:inputType="text"
+                    android:maxLines="1" android:singleLine="true" />
+
+                <Spinner
+                    android:id="@+id/tipoUsuario"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:imeActionId="@+id/sign_up"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="20dp"
+                    android:visibility="gone"/>
+
                 <EditText android:id="@+id/name" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:hint="@string/prompt_name"
-                    android:imeActionId="@+id/sign_up"
+
                     android:imeActionLabel="@string/action_sign_up_short"
                     android:imeOptions="actionUnspecified" android:inputType="textPersonName"
                     android:maxLines="1" android:singleLine="true"

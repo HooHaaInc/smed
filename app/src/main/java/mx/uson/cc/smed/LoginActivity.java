@@ -3,7 +3,6 @@ package mx.uson.cc.smed;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.CursorLoader;
@@ -12,8 +11,8 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build.VERSION;
 import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
@@ -27,6 +26,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,9 +35,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
 
-import java.io.Console;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import mx.uson.cc.smed.Util.RegisterClass;
 
 /**
  * A login screen that offers login via email/password and via Google+ sign in.
@@ -71,6 +73,10 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
     private View mSignOutButtons;
     private View mLoginFormView;
     private EditText mNameView;
+    private EditText mNombreView;
+    private EditText mApellidoPaternoView;
+    private EditText mApellidoMaternoView;
+    private Spinner mtipoUsuario;
 
     private String mName;
     private boolean signIn = true;
@@ -112,6 +118,20 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             }
         });
 
+        mNombreView = (EditText) findViewById(R.id.nombre);
+        mApellidoPaternoView = (EditText) findViewById(R.id.apellido_paterno);
+        mApellidoMaternoView = (EditText) findViewById(R.id.apellido_materno);
+        mtipoUsuario = (Spinner) findViewById(R.id.tipoUsuario);
+
+        ArrayAdapter<CharSequence> staticAdapter = ArrayAdapter
+                .createFromResource(this, R.array.tiposUsuario,
+                        android.R.layout.simple_spinner_item);
+
+        staticAdapter
+                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        mtipoUsuario.setAdapter(staticAdapter);
+
         mNameView = (EditText) findViewById(R.id.name);
         mNameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -138,7 +158,12 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         mEmailSignUpButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mNameView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                //mNameView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                mNombreView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                mApellidoPaternoView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                mApellidoMaternoView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                mtipoUsuario.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+
                 mEmailSignInButton.setText(isChecked ? R.string.action_sign_up : R.string.action_sign_in);
 
                 mPasswordView.setImeOptions(isChecked ? EditorInfo.IME_ACTION_NEXT : EditorInfo.IME_ACTION_UNSPECIFIED);
@@ -207,7 +232,14 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
-        String name = mNameView.getText().toString();
+        String nombre = mNombreView.getText().toString();
+        String apellidoPaterno = mApellidoPaternoView.getText().toString();
+        String apellidoMaterno = mApellidoMaternoView.getText().toString();
+        String tipoUsuario = mtipoUsuario.getSelectedItem().toString();
+        int tipo_usuario=0;
+        if(tipoUsuario.equals("Alumno")) tipo_usuario = 1;
+        if(tipoUsuario.equals("Maestro")) tipo_usuario = 2;
+        if(tipoUsuario.equals("Padre o Tutor")) tipo_usuario = 3;
 
         boolean cancel = false;
         View focusView = null;
@@ -229,9 +261,18 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             focusView = mEmailView;
             cancel = true;
         }
-
-        if(TextUtils.isEmpty(name)){
+        if(TextUtils.isEmpty(nombre)){
             mNameView.setError(getString(R.string.error_field_required));
+            focusView = mNameView;
+            cancel = true;
+        }
+        if(TextUtils.isEmpty(apellidoPaterno)){
+            mApellidoPaternoView.setError(getString(R.string.error_field_required));
+            focusView = mNameView;
+            cancel = true;
+        }
+        if(TextUtils.isEmpty(apellidoMaterno)){
+            mApellidoMaternoView.setError(getString(R.string.error_field_required));
             focusView = mNameView;
             cancel = true;
         }
@@ -244,7 +285,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password, name);
+            mAuthTask = new UserLoginTask(email, password, nombre,apellidoPaterno,apellidoMaterno,tipo_usuario);
             mAuthTask.execute((Void) null);
         }
     }
@@ -454,23 +495,33 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
 
         private final String mEmail;
         private final String mPassword;
-        private final String mName;
+        private final String mNombre;
+        private final String mApellidoPaterno;
+        private final String mApellidoMaterno;
+        private final int mTipoUsuario;
+
 
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
-            mName = null;
+            mNombre = null;
+            mApellidoPaterno = null;
+            mApellidoMaterno = null;
+            mTipoUsuario = 0;
         }
 
-        UserLoginTask(String email, String password, String name) {
+        UserLoginTask(String email, String password, String name,String apellidoPaterno, String apellidoMaterno,int tipoUsuario) {
             mEmail = email;
             mPassword = password;
-            mName = name;
+            mNombre = name;
+            mApellidoPaterno = apellidoPaterno;
+            mApellidoMaterno = apellidoMaterno;
+            mTipoUsuario = tipoUsuario;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            if(mName == null) {
+            if(mNombre == null) {
                 // TODO: attempt authentication against a network service.
                 //return Neto.checkLogin(mEmail, mPassword);
 
@@ -484,6 +535,25 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             } else {
                 // TODO: register the new account here.
                 //Neto.signUp(mEmail, mPassword, mName);
+
+                String url_register = "http://148.225.83.3/~e5ingsoft2/smed/RegistrarPersona.php";
+                final String TAG_SUCESS = "exito";
+
+                HashMap<String,String> datosPersona = new HashMap<>();
+
+                datosPersona.put("nombre",mNombre);
+                datosPersona.put("apellido_paterno",mApellidoPaterno);
+                datosPersona.put("apellido_materno",mApellidoMaterno);
+                datosPersona.put("tipo_persona",Integer.toString(mTipoUsuario));
+
+                RegisterClass ruc = new RegisterClass();
+
+                String result = ruc.sendPostRequest(url_register,datosPersona);
+
+                Log.v("lel",result);
+
+
+
             }
             return true;
         }
