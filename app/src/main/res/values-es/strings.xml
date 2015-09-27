@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_log_out">Cerrar sesión</string>
+    <string name="action_settings">Configuración</string>
+    <string name="action_sign_in">Iniciar Sesión</string>
+    <string name="action_sign_in_short">Iniciar</string>
+    <string name="action_sign_up">Registrarse</string>
+    <string name="action_sign_up_short">Registrar</string>
+    <string name="create_account">No tienes cuenta? Crea una</string>
+    <string name="error_field_required">Este campo es necesario</string>
+    <string name="error_incorrect_password">La contraseña es incorrecta</string>
+    <string name="error_invalid_email">Correo inválido</string>
+    <string name="error_invalid_password">La contraseña es muy corta</string>
+    <string name="has_account">Ya tienes cuenta? Inicia sesión</string>
+    <string name="prompt_email">Correo electrónico</string>
+    <string name="prompt_name">Nombre</string>
+    <string name="prompt_password">Contraseña</string>
+</resources>

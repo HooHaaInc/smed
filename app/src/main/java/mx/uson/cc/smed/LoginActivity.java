@@ -4,10 +4,12 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 
+import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -16,6 +18,8 @@ import android.os.Build.VERSION;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -34,10 +38,16 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.model.people.Person;
 
 import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * A login screen that offers login via email/password and via Google+ sign in.
@@ -47,7 +57,12 @@ import java.util.List;
  * https://developers.google.com/+/mobile/android/getting-started#step_1_enable_the_google_api
  * and follow the steps in "Step 1" to create an OAuth 2.0 client for your package.
  */
-public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends Activity
+        implements LoaderCallbacks<Cursor>, //AutoComplete
+        GoogleApiClient.ConnectionCallbacks, //Google+
+        GoogleApiClient.OnConnectionFailedListener, // ^
+        View.OnClickListener,
+        TextView.OnEditorActionListener{
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -61,20 +76,31 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
      */
     private UserLoginTask mAuthTask = null;
 
+    private static String TAG = PlusBaseActivity.class.toString();
+    private static final int RC_SIGN_IN = 0;
+    private GoogleApiClient mGoogleApiClient;
+    private Person person;
+
+    /** Is there a ConnectionResult solution in progress? */
+    private boolean mIsResolving = false;
+    /** Should we automatically resolve ConnectionResults when possible?*/
+    private boolean mShouldResolve = false;
+
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
-    private View mEmailLoginFormView;
     private SignInButton mPlusSignInButton;
-    private Button mSignOutButton;
-    private View mSignOutButtons;
     private View mLoginFormView;
     private EditText mNameView;
+    private Button mEmailSignInButton;
 
-    private String mName;
     private boolean signIn = true;
 
+    /**
+     * Initialize mGoogleApiClient and sets listeners
+     * and callbacks (this)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,12 +108,18 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
 
         // Find the Google+ sign in button.
         mPlusSignInButton = (SignInButton) findViewById(R.id.plus_sign_in_button);
-        mSignOutButton = (Button) findViewById(R.id.plus_disconnect_button);
         if (supportsGooglePlayServices()) {
             // Set a listener to connect the user when the G+ button is clicked.
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(Plus.API)
+                    .addScope(new Scope(Scopes.PROFILE))
+                    .addScope(new Scope(Scopes.EMAIL))
+                    .build();
 
             mPlusSignInButton.setOnClickListener(this);
-            mSignOutButton.setOnClickListener(this);
+            mPlusSignInButton.setColorScheme(SignInButton.COLOR_LIGHT);
         } else {
             // Don't offer G+ sign in if the app's version is too low to support Google Play
             // Services.
@@ -98,102 +130,55 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
-        System.out.println("Email ime: "+mEmailView.getImeActionLabel());
 
+        //Set listeners
         mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+        mPasswordView.setOnEditorActionListener(this);
 
         mNameView = (EditText) findViewById(R.id.name);
-        mNameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.sign_up || id == EditorInfo.IME_NULL) {
-                    attemptSignUp();
-                    return true;
-                }
-                return false;
-            }
-        });
+        mNameView.setOnEditorActionListener(this);
 
-        final Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(signIn)
-                    attemptLogin();
-                else attemptSignUp();
-            }
-        });
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setOnClickListener(this);
 
-        Switch mEmailSignUpButton = (Switch) findViewById(R.id.email_sign_up_switch);
-        mEmailSignUpButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mNameView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-                mEmailSignInButton.setText(isChecked ? R.string.action_sign_up : R.string.action_sign_in);
-
-                mPasswordView.setImeOptions(isChecked ? EditorInfo.IME_ACTION_NEXT : EditorInfo.IME_ACTION_UNSPECIFIED);
-                //mPasswordView.setImeActionLabel();
-                signIn = !isChecked;
-            }
-        });
+        TextView formSwitcher = (TextView) findViewById(R.id.switch_form);
+        formSwitcher.setOnClickListener(this);
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        mEmailLoginFormView = findViewById(R.id.email_login_form);
-        mSignOutButtons = findViewById(R.id.plus_sign_out_buttons);
     }
 
+    /**
+     * Connects to Google+ after selection of the account
+     */
     @Override
-    protected void showErrorDialog(ConnectionResult result) {
-        Toast.makeText(this, "ERROR: " + result, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    protected void showSignedOutUI() {
-        Toast.makeText(this, "Signed out", Toast.LENGTH_SHORT).show();
-        mPlusSignInButton.setVisibility(View.VISIBLE);
-        mSignOutButtons.setVisibility(View.GONE);
-    }
-
-    @Override
-    protected void showSignedInUi(String name) {
-        mName = name;
-        Toast.makeText(this, "Welcome " + name, Toast.LENGTH_SHORT).show();
-        mPlusSignInButton.setVisibility(View.GONE);
-        mSignOutButtons.setVisibility(View.VISIBLE);
-        finishedLogin();
-    }
-
-    @Override
-    protected void showLoadingUI() {
-        showProgress(true);
-    }
-
-    @Override
-    protected void hideLoadingUI() {
-        showProgress(false);
-    }
-
-    private void populateAutoComplete() {
-        if (VERSION.SDK_INT >= 14) {
-            // Use ContactsContract.Profile (API 14+)
-            getLoaderManager().initLoader(0, null, this);
-        } else if (VERSION.SDK_INT >= 8) {
-            // Use AccountManager (API 8+)
-            new SetupEmailAutoCompleteTask().execute(null, null);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: " + requestCode + ":" + resultCode
+                + ":" + data);
+        if(requestCode == RC_SIGN_IN){
+            if(resultCode != RESULT_OK){
+                mShouldResolve = false;
+            }
+            mIsResolving = false;
+            mGoogleApiClient.connect();
         }
     }
 
+    /**
+     * Disconnects on Stop
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        disconnect();
+    }
+
+    /**
+     * Attempts to sign up the account specified by the login form.
+     * If there are form errors (invalid email, missing fields, etc.), the
+     * errors are presented and no actual login attempt is made.
+     */
     public void attemptSignUp(){
         if (mAuthTask != null) {
             return;
@@ -250,7 +235,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
     }
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
+     * Attempts to sign in the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
@@ -302,8 +287,9 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
+        int at = email.indexOf("@");
+        int dot = email.indexOf(".");
+        return at > 0 && dot > at+1;
     }
 
     private boolean isPasswordValid(String password) {
@@ -311,8 +297,17 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         return password.length() > 4;
     }
 
+    private boolean isNameValid(String name){
+        return name != null && name.length() > 0;
+    }
+
+    private boolean checkTeacherPassword(String pass){
+        //TODO: conectar con el servidor
+        return true;
+    }
+
     /**
-     * Shows the progress UI and hides the login form.
+     * Shows the progress UI and hides the login form or viceversa.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void showProgress(final boolean show) {
@@ -347,17 +342,20 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         }
     }
 
-    /**
-     * Check if the device supports Google Play Services.  It's best
-     * practice to check first rather than handling this as an error case.
-     *
-     * @return whether the device supports Google Play Services
-     */
-    private boolean supportsGooglePlayServices() {
-        return GooglePlayServicesUtil.isGooglePlayServicesAvailable(this) ==
-                ConnectionResult.SUCCESS;
+    private void populateAutoComplete() {
+        if (VERSION.SDK_INT >= 14) {
+            // Use ContactsContract.Profile (API 14+)
+            getLoaderManager().initLoader(0, null, this);
+        } else if (VERSION.SDK_INT >= 8) {
+            // Use AccountManager (API 8+)
+            new SetupEmailAutoCompleteTask().execute(null, null);
+        }
+        //Use noting
     }
 
+    /**
+     * Initialize the auto complete loader
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(this,
@@ -375,6 +373,10 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
                 ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
     }
 
+    /**
+     * Pass emails in cursos to array list, then pass it to
+     * addEmailsToAutoComplete(emails)
+     */
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         List<String> emails = new ArrayList<>();
@@ -392,11 +394,22 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
 
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
+    /**
+     * Creates and sets new adapter to AutoCompleteEditText mEmailView
+     * @param emailAddressCollection all emails
+     */
+    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
+        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(LoginActivity.this,
+                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
+        mEmailView.setAdapter(adapter);
     }
 
+    /**
+     * Emails table data projections for auto complete
+     */
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -435,15 +448,126 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         protected void onPostExecute(List<String> emailAddressCollection) {
             addEmailsToAutoComplete(emailAddressCollection);
         }
+
+
     }
 
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d(TAG, "onConnected: " + bundle);
+        mShouldResolve = false;
+        String email = null;
+        if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null){
+            person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+            email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+        }
 
-        mEmailView.setAdapter(adapter);
+        showProgress(false);
+        mAuthTask = new UserLoginTask(
+                email,
+                person.getName().getGivenName(),
+                person.getName().getFamilyName()
+                );
+        mAuthTask.execute((Void) null);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    /**
+     * If the connection failed, checks if has resolution and solves it
+     * (select a Google+ account from a list) via startForResult, then
+     * starts the callback onActivityResult. If doesn't has resolution,
+     * show login form again and an error
+     */
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailes:" + connectionResult);
+        if(!mIsResolving && mShouldResolve){
+            if(connectionResult.hasResolution()){
+                try{
+                    connectionResult.startResolutionForResult(this, RC_SIGN_IN);
+                    mIsResolving = true;
+                }catch(IntentSender.SendIntentException e){
+                    Log.e(TAG, "Could not resolve ConnectionResult.", e);
+                    mIsResolving = false;
+                    mGoogleApiClient.connect();
+                }
+            }else{
+                showErrorDialog(connectionResult);
+                showProgress(false);
+            }
+        }else{
+            showProgress(false);
+        }
+    }
+
+    /**
+     * Disconnects the Google+ account
+     */
+    protected void disconnect(){
+
+        if(mGoogleApiClient.isConnected()){
+            Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+            mGoogleApiClient.disconnect();
+        }if(mGoogleApiClient.isConnecting()){
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    /**
+     * Handles the Sign In/Register Button, Form switcher and Google+ Sign in
+     */
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch(id){
+            case R.id.email_sign_in_button:
+                if(signIn)
+                    attemptLogin();
+                else attemptSignUp();
+                break;
+            case R.id.switch_form:
+                signIn = !signIn;
+                mNameView.setVisibility(!signIn ? View.VISIBLE : View.GONE);
+                mEmailSignInButton.setText(!signIn ? R.string.action_sign_up : R.string.action_sign_in);
+                ((TextView)v).setText(signIn ? R.string.create_account : R.string.has_account);
+                mPasswordView.setImeOptions(!signIn ? EditorInfo.IME_ACTION_NEXT : EditorInfo.IME_ACTION_UNSPECIFIED);
+                mPasswordView.setImeActionLabel(signIn ? getString(R.string.action_sign_in_short) : null, R.id.login);
+                break;
+            case R.id.plus_sign_in_button:
+                if(!mGoogleApiClient.isConnected()) {
+                    mShouldResolve = true;
+                    mGoogleApiClient.connect();
+                    showProgress(true);
+                }
+        }
+    }
+
+    /**
+     * Handles the keyboard action button
+     */
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        int id = v.getId();
+        switch(id){
+            case R.id.password:
+                if(actionId == R.id.login || actionId == EditorInfo.IME_NULL)
+                    if(signIn) {
+                        attemptLogin();
+                        return true;
+                    }
+                break;
+            case R.id.name:
+                if(actionId == R.id.sign_up || actionId == EditorInfo.IME_NULL) {
+                    attemptSignUp();
+                    return true;
+                }
+                break;
+        }
+        return false;
     }
 
     /**
@@ -452,24 +576,54 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
+
+
         private final String mEmail;
         private final String mPassword;
         private final String mName;
+        private final String mLastName;
+        private final int mAccountType;
 
+        /**
+         * Constructor for Login
+         */
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
             mName = null;
+            mLastName = null;
+            mAccountType = -1;
         }
 
-        UserLoginTask(String email, String password, String name) {
+        /**
+         * Constructor for Sign Up
+         */
+        UserLoginTask(String email, String password, String name,
+                      String lastName, int accountType) {
             mEmail = email;
             mPassword = password;
             mName = name;
+            mLastName = lastName;
+            mAccountType = accountType;
+        }
+
+        /**
+         * Constructor for Google+
+         */
+        UserLoginTask(String email, String name, String lastName){
+            mEmail = email;
+            mPassword = "g+";
+            mName = name;
+            mLastName = lastName;
+            mAccountType = -1;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
+            if(mPassword.equals("g+")){
+                //TODO: si no existe, crear una cuenta nueva
+                return true;
+            }
             if(mName == null) {
                 // TODO: attempt authentication against a network service.
                 //return Neto.checkLogin(mEmail, mPassword);
@@ -494,7 +648,7 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
             showProgress(false);
 
             if (success) {
-                finishedLogin();
+                finishedLogin(mName);
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
@@ -508,10 +662,28 @@ public class LoginActivity extends PlusBaseActivity implements LoaderCallbacks<C
         }
     }
 
-    private void finishedLogin(){
+    /**
+     * Check if the device supports Google Play Services.  It's best
+     * practice to check first rather than handling this as an error case.
+     *
+     * @return whether the device supports Google Play Services
+     */
+    private boolean supportsGooglePlayServices() {
+        return GooglePlayServicesUtil.isGooglePlayServicesAvailable(this) ==
+                ConnectionResult.SUCCESS;
+    }
+
+    /**
+     * Starts the Main Activity
+     */
+    private void finishedLogin(String personName){
         Intent main = new Intent(this, MainActivity.class);
-        main.putExtra("name", mName);
+        main.putExtra("name", personName);
         startActivity(main);
+    }
+
+    private void showErrorDialog(ConnectionResult result) {
+        Toast.makeText(this, "ERROR: " + result, Toast.LENGTH_SHORT).show();
     }
 }
 

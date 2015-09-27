@@ -1,12 +1,11 @@
 package mx.uson.cc.smed;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -19,7 +18,7 @@ import com.google.android.gms.plus.model.people.Person;
  * clase base de LoginActivity, aqui esta la logica de g+.
  * implementa algunos listeners para las conecciones
  */
-public abstract class PlusBaseActivity extends AppCompatActivity
+public abstract class PlusBaseActivity extends Activity
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
@@ -48,6 +47,7 @@ public abstract class PlusBaseActivity extends AppCompatActivity
                 .addOnConnectionFailedListener(this)
                 .addApi(Plus.API)
                 .addScope(new Scope(Scopes.PROFILE))
+                .addScope(new Scope(Scopes.EMAIL))
                 .build();
     }
 
@@ -103,7 +103,6 @@ public abstract class PlusBaseActivity extends AppCompatActivity
             }
         }else{
             hideLoadingUI();
-            showSignedOutUI();
         }
     }
 
@@ -111,11 +110,14 @@ public abstract class PlusBaseActivity extends AppCompatActivity
     public void onConnected(Bundle bundle){
         Log.d(TAG, "onConnected: " + bundle);
         mShouldResolve = false;
+        String email = null;
         if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null){
             person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+            email = Plus.AccountApi.getAccountName(mGoogleApiClient);
         }
+
         hideLoadingUI();
-        showSignedInUi(person != null ? person.getDisplayName() : "");
+        createLoginTask(email, person.getName().getFormatted());
     }
 
     @Override
@@ -123,11 +125,6 @@ public abstract class PlusBaseActivity extends AppCompatActivity
         if(v.getId() == R.id.plus_sign_in_button){
             onSignInClicked();
         }
-        //Disconnect
-        if(v.getId() == R.id.plus_disconnect_button){
-            disconnect();
-        }
-        //Switch account
     }
 
     private void onSignInClicked() {
@@ -149,13 +146,8 @@ public abstract class PlusBaseActivity extends AppCompatActivity
         }
     }
 
-    protected GoogleApiClient getApiClient(){
-        return mGoogleApiClient;
-    }
-
     protected abstract void showErrorDialog(ConnectionResult result);
-    protected abstract void showSignedOutUI();
-    protected abstract void showSignedInUi(String name);
+    protected abstract void createLoginTask(String email, String name);
     protected abstract void showLoadingUI();
     protected abstract void hideLoadingUI();
 }
