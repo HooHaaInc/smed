@@ -4,8 +4,12 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_name">Name</string>
+    <string name="prompt_last_name1">Last Name</string>
+    <string name="prompt_last_name2">Second Last Name (optional)</string>
+    <string name="teacher_password_desc">Confirm you are a teacher with the password given to you</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_up">Register</string>
+    <string name="action_cancel">Cancel</string>
     <string name="create_account">No account yet? Create one</string>
     <string name="has_account">Already a member? Log in</string>
     <string name="action_sign_in_short">Sign in</string>
@@ -15,5 +19,6 @@
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_incorrect_email">This email is not registered</string>
     <string name="error_field_required">This field is required</string>
 </resources>

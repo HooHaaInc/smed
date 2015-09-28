@@ -15,4 +15,15 @@
     <string name="prompt_email">Correo electrónico</string>
     <string name="prompt_name">Nombre</string>
     <string name="prompt_password">Contraseña</string>
+    <string name="prompt_last_name1">Apellido Paterno</string>
+    <string name="prompt_last_name2">Apellido Materno</string>
+
+    <string-array name="user_types">
+        <item>Alumno</item>
+        <item>Maestro</item>
+        <item>Padre ó Tutor</item>
+    </string-array>
+    <string name="smed_server_error">No se pudo conectar con el servidor</string>
+    <string name="teacher_password_desc">Confirma que eres maestro con la contraseña que se te dió</string>
+    <string name="action_cancel">Cancelar</string>
 </resources>

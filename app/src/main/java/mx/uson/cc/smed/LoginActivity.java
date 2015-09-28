@@ -5,9 +5,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.Loader;
@@ -18,36 +21,35 @@ import android.os.Build.VERSION;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.text.method.CharacterPickerDialog;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Switch;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 
-import java.io.Console;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import mx.uson.cc.smed.util.RegisterClass;
 
 /**
  * A login screen that offers login via email/password and via Google+ sign in.
@@ -62,6 +64,7 @@ public class LoginActivity extends Activity
         GoogleApiClient.ConnectionCallbacks, //Google+
         GoogleApiClient.OnConnectionFailedListener, // ^
         View.OnClickListener,
+        Dialog.OnClickListener,
         TextView.OnEditorActionListener{
 
     /**
@@ -71,12 +74,17 @@ public class LoginActivity extends Activity
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
+
+    private static final int STUDENT = 1;
+    private static final int TEACHER = 2;
+    private static final int PARENT = 3;
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
 
-    private static String TAG = PlusBaseActivity.class.toString();
+    private static String TAG = LoginActivity.class.toString();
     private static final int RC_SIGN_IN = 0;
     private GoogleApiClient mGoogleApiClient;
     private Person person;
@@ -90,12 +98,17 @@ public class LoginActivity extends Activity
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
-    private SignInButton mPlusSignInButton;
     private View mLoginFormView;
+    private View mRegisterFormView;
     private EditText mNameView;
+    private EditText mLastName1View;
+    private EditText mLastName2View;
+    private Spinner mAccountType;
     private Button mEmailSignInButton;
 
     private boolean signIn = true;
+
+    //region Activity Methods Override
 
     /**
      * Initialize mGoogleApiClient and sets listeners
@@ -107,7 +120,7 @@ public class LoginActivity extends Activity
         setContentView(R.layout.activity_login);
 
         // Find the Google+ sign in button.
-        mPlusSignInButton = (SignInButton) findViewById(R.id.plus_sign_in_button);
+        SignInButton mPlusSignInButton = (SignInButton) findViewById(R.id.plus_sign_in_button);
         if (supportsGooglePlayServices()) {
             // Set a listener to connect the user when the G+ button is clicked.
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -135,16 +148,20 @@ public class LoginActivity extends Activity
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(this);
 
+        mLastName1View = (EditText) findViewById(R.id.last_name1);
+        mLastName2View = (EditText) findViewById(R.id.last_name2);
+        mAccountType = (Spinner) findViewById(R.id.account_type);
+
         mNameView = (EditText) findViewById(R.id.name);
-        mNameView.setOnEditorActionListener(this);
+        //TODO: mNameView.setOnEditorActionListener(this);
 
         mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(this);
 
         TextView formSwitcher = (TextView) findViewById(R.id.switch_form);
         formSwitcher.setOnClickListener(this);
-
         mLoginFormView = findViewById(R.id.login_form);
+        mRegisterFormView = findViewById(R.id.register_form);
         mProgressView = findViewById(R.id.login_progress);
     }
 
@@ -174,6 +191,10 @@ public class LoginActivity extends Activity
         disconnect();
     }
 
+    //endregion
+
+    //region SignUp & Login
+
     /**
      * Attempts to sign up the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
@@ -193,6 +214,9 @@ public class LoginActivity extends Activity
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
         String name = mNameView.getText().toString();
+        String lastName1 = mLastName1View.getText().toString();
+        String lastName2 = mLastName2View.getText().toString();
+        int accountType = mAccountType.getSelectedItemPosition() +1 ;
 
         boolean cancel = false;
         View focusView = null;
@@ -220,6 +244,11 @@ public class LoginActivity extends Activity
             focusView = mNameView;
             cancel = true;
         }
+        if(TextUtils.isEmpty(lastName1)){
+            mLastName1View.setError(getString(R.string.error_field_required));
+            focusView = mNameView;
+            cancel = true;
+        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -228,9 +257,23 @@ public class LoginActivity extends Activity
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password, name);
-            mAuthTask.execute((Void) null);
+            if(accountType == TEACHER){
+                new AlertDialog.Builder(this)
+                        .setView(getLayoutInflater().inflate(R.layout.teacher_password_layout, null))
+                        .setPositiveButton(R.string.action_sign_up, this)
+                        .setNegativeButton(R.string.action_cancel, this)
+                        .create().show();
+            }else{
+                showProgress(true);
+                mAuthTask = new UserLoginTask(
+                        email,
+                        password,
+                        name,
+                        lastName1,
+                        lastName2,
+                        accountType);
+                mAuthTask.execute((Void) null);
+            }
         }
     }
 
@@ -286,19 +329,40 @@ public class LoginActivity extends Activity
         }
     }
 
+    public void attemptGooglePlusSignUp(){
+        final View atd = getLayoutInflater().inflate(R.layout.account_type_dialog,null);
+        new AlertDialog.Builder(this)
+                .setView(atd)
+                .setPositiveButton(R.string.action_sign_up, this)
+                .setNegativeButton(R.string.action_cancel, this)
+                .create().show();
+        Spinner spinner = (Spinner)atd.findViewById(R.id.d_account_type_spinner);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                atd.findViewById(R.id.d_teacher_account_password).setVisibility(
+                        position == TEACHER-1 ? View.VISIBLE : View.GONE
+                );
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
     private boolean isEmailValid(String email) {
         int at = email.indexOf("@");
-        int dot = email.indexOf(".");
-        return at > 0 && dot > at+1;
+        if(at == -1) return false;
+        int dot = email.substring(at).indexOf(".");
+        return dot > at+1 && dot < email.substring(at).length()-1;
     }
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
-    }
-
-    private boolean isNameValid(String name){
-        return name != null && name.length() > 0;
     }
 
     private boolean checkTeacherPassword(String pass){
@@ -341,6 +405,10 @@ public class LoginActivity extends Activity
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
+
+    //endregion
+
+    //region AutoComplete
 
     private void populateAutoComplete() {
         if (VERSION.SDK_INT >= 14) {
@@ -407,6 +475,8 @@ public class LoginActivity extends Activity
         mEmailView.setAdapter(adapter);
     }
 
+
+
     /**
      * Emails table data projections for auto complete
      */
@@ -448,26 +518,22 @@ public class LoginActivity extends Activity
         protected void onPostExecute(List<String> emailAddressCollection) {
             addEmailsToAutoComplete(emailAddressCollection);
         }
-
-
     }
+
+    //endregion
+
+    //region Google+
 
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "onConnected: " + bundle);
         mShouldResolve = false;
         String email = null;
-        if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null){
-            person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+        if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null)
             email = Plus.AccountApi.getAccountName(mGoogleApiClient);
-        }
 
-        showProgress(false);
-        mAuthTask = new UserLoginTask(
-                email,
-                person.getName().getGivenName(),
-                person.getName().getFamilyName()
-                );
+        //showProgress(false);
+        mAuthTask = new UserLoginTask(email);
         mAuthTask.execute((Void) null);
     }
 
@@ -484,7 +550,7 @@ public class LoginActivity extends Activity
      */
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailes:" + connectionResult);
+        Log.d(TAG, "onConnectionFailed:" + connectionResult);
         if(!mIsResolving && mShouldResolve){
             if(connectionResult.hasResolution()){
                 try{
@@ -517,6 +583,10 @@ public class LoginActivity extends Activity
         }
     }
 
+    //endregion
+
+    //region Listeners
+
     /**
      * Handles the Sign In/Register Button, Form switcher and Google+ Sign in
      */
@@ -531,7 +601,7 @@ public class LoginActivity extends Activity
                 break;
             case R.id.switch_form:
                 signIn = !signIn;
-                mNameView.setVisibility(!signIn ? View.VISIBLE : View.GONE);
+                mRegisterFormView.setVisibility(!signIn ? View.VISIBLE : View.GONE);
                 mEmailSignInButton.setText(!signIn ? R.string.action_sign_up : R.string.action_sign_in);
                 ((TextView)v).setText(signIn ? R.string.create_account : R.string.has_account);
                 mPasswordView.setImeOptions(!signIn ? EditorInfo.IME_ACTION_NEXT : EditorInfo.IME_ACTION_UNSPECIFIED);
@@ -543,6 +613,61 @@ public class LoginActivity extends Activity
                     mGoogleApiClient.connect();
                     showProgress(true);
                 }
+        }
+    }
+
+    /**
+     * Handles the dialog's buttons
+     */
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        switch(which){
+            case DialogInterface.BUTTON_POSITIVE:
+                if(findViewById(R.id.d_account_type_spinner) == null) {
+                    EditText passView = (EditText) findViewById(R.id.teacher_password_field);
+                    String pass = passView.getText().toString();
+                    if (!checkTeacherPassword(pass)) {
+                        Toast.makeText(this, R.string.error_incorrect_password, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    String email = mEmailView.getText().toString();
+                    String password = mPasswordView.getText().toString();
+                    String name = mNameView.getText().toString();
+                    String lastName1 = mLastName1View.getText().toString();
+                    String lastName2 = mLastName2View.getText().toString();
+                    int accountType = mAccountType.getSelectedItemPosition() + 1;
+                    showProgress(true);
+                    mAuthTask = new UserLoginTask(
+                            email,
+                            password,
+                            name,
+                            lastName1,
+                            lastName2,
+                            accountType);
+                    mAuthTask.execute((Void) null);
+                }else{
+                    Spinner accountTypeView = (Spinner)findViewById(R.id.d_account_type_spinner);
+                    int accountType = accountTypeView.getSelectedItemPosition() + 1;
+                    EditText passView = (EditText) findViewById(R.id.teacher_password_field);
+                    String pass = passView.getText().toString();
+                    if (!checkTeacherPassword(pass)) {
+                        Toast.makeText(this, R.string.error_incorrect_password, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    showProgress(true);
+                    person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+                    String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+                    mAuthTask = new UserLoginTask(
+                            email,
+                            person.getName().getGivenName(),
+                            person.getName().getFamilyName(),
+                            accountType);
+                    mAuthTask.execute((Void) null);
+                }
+                dialog.dismiss();
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                dialog.cancel();
         }
     }
 
@@ -570,19 +695,26 @@ public class LoginActivity extends Activity
         return false;
     }
 
+    //endregion
+
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, String> {
 
-
+        //FLAGS
+        private final int LOGIN = 0;
+        private final int REGISTER = 1;
+        private final int GOOGLE_PLUS = 2;
 
         private final String mEmail;
         private final String mPassword;
         private final String mName;
-        private final String mLastName;
+        private final String mLastName1;
+        private final String mLastName2;
         private final int mAccountType;
+        private final int task;
 
         /**
          * Constructor for Login
@@ -591,69 +723,105 @@ public class LoginActivity extends Activity
             mEmail = email;
             mPassword = password;
             mName = null;
-            mLastName = null;
+            mLastName1 = null;
+            mLastName2 = null;
             mAccountType = -1;
+            task = LOGIN;
         }
 
         /**
          * Constructor for Sign Up
          */
+        
         UserLoginTask(String email, String password, String name,
-                      String lastName, int accountType) {
+                      String apellidoPaterno, String apellidoMaterno,
+                      int tipoUsuario) {
             mEmail = email;
             mPassword = password;
             mName = name;
-            mLastName = lastName;
-            mAccountType = accountType;
+            mLastName1 = apellidoPaterno;
+            mLastName2 = apellidoMaterno;
+            mAccountType = tipoUsuario;
+            task = REGISTER;
         }
 
         /**
-         * Constructor for Google+
+         * Constructor for Google+ Login
          */
-        UserLoginTask(String email, String name, String lastName){
+        UserLoginTask(String email){
+            mEmail = email;
+            mPassword = "g+";
+            mName = null;
+            mLastName1 = null;
+            mLastName2 = null;
+            mAccountType = -1;
+            task = GOOGLE_PLUS;
+        }
+
+        /**
+         * Constructor for Google+ Sign Up
+         */
+        UserLoginTask(String email, String name, String lastName, int accountType){
             mEmail = email;
             mPassword = "g+";
             mName = name;
-            mLastName = lastName;
-            mAccountType = -1;
+            int space = lastName.indexOf(" ");
+            mLastName1 = space == -1 ? lastName : lastName.substring(0, space);
+            mLastName2 = space == -1 ? "" : lastName.substring(space);
+            mAccountType = accountType;
+            task = GOOGLE_PLUS|REGISTER;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            if(mPassword.equals("g+")){
-                //TODO: si no existe, crear una cuenta nueva
-                return true;
+        protected String doInBackground(Void... params) {
+            switch(task&1){
+                case LOGIN:
+                    return RegisterClass.login(mEmail,mPassword);
+                case REGISTER:
+                    //TODO: email, password?
+                    return RegisterClass.register(
+                            mEmail,
+                            mPassword,
+                            mName,
+                            mLastName1,
+                            mLastName2,
+                            mAccountType);
             }
-            if(mName == null) {
-                // TODO: attempt authentication against a network service.
-                //return Neto.checkLogin(mEmail, mPassword);
 
-                for (String credential : DUMMY_CREDENTIALS) {
-                    String[] pieces = credential.split(":");
-                    if (pieces[0].equals(mEmail)) {
-                        // Account exists, return true if the password matches.
-                        return pieces[1].equals(mPassword);
-                    }
-                }
-            } else {
-                // TODO: register the new account here.
-                //Neto.signUp(mEmail, mPassword, mName);
-            }
-            return true;
+            return "";
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final String result) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
-                finishedLogin(mName);
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+            switch(result){
+                case RegisterClass.RESULT_OK:
+                    finishedLogin(mName);
+                    break;
+                case RegisterClass.RESULT_WRONG_PASSWORD:
+                    if(task == GOOGLE_PLUS) //Login with g+ but registered without it
+                        finishedLogin(mName);
+                    else {
+                        mPasswordView.setError(getString(R.string.error_incorrect_password));
+                        mPasswordView.requestFocus();
+                    }
+                    break;
+                case RegisterClass.RESULT_USER404:
+                    if(task == GOOGLE_PLUS) //Tried login with g+, now try sign up
+                        attemptGooglePlusSignUp();
+                    else {
+                        mEmailView.setError(getString(R.string.error_incorrect_email));
+                        mEmailView.requestFocus();
+                    }
+                    break;
+                default:
+                    Toast.makeText(LoginActivity.this,
+                            R.string.smed_server_error, Toast.LENGTH_SHORT).show();
             }
         }
+
 
         @Override
         protected void onCancelled() {
@@ -661,6 +829,8 @@ public class LoginActivity extends Activity
             showProgress(false);
         }
     }
+
+    //region Misc
 
     /**
      * Check if the device supports Google Play Services.  It's best
@@ -685,5 +855,7 @@ public class LoginActivity extends Activity
     private void showErrorDialog(ConnectionResult result) {
         Toast.makeText(this, "ERROR: " + result, Toast.LENGTH_SHORT).show();
     }
+
+    //endregion
 }
 

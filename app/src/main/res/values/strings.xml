@@ -3,4 +3,11 @@
     <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="action_log_out">Log Out</string>
     <string name="action_settings">Settings</string>
+    <string-array name="user_types">
+        <item>Student</item>
+        <item>Teacher</item>
+        <item>Parent or Tutor</item>
+    </string-array>
+    <string name="smed_server_error">Could not connect to server</string>
+
 </resources>
