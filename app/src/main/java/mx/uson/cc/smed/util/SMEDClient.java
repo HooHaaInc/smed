@@ -2,6 +2,9 @@ package mx.uson.cc.smed.util;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -19,18 +22,25 @@ import javax.net.ssl.HttpsURLConnection;
 /**
  * Created by Ernesto on 25/09/2015.
  */
-public class RegisterClass {
+public class SMEDClient {
 
-    private static final String URL_REGISTER = "http://148.225.83.3/~e5ingsoft2/smed/RegistrarPersona.php";
+    private static final String URL_REGISTER = "http://148.225.83.3/~e5ingsoft2/smed/Registro.php";
+    private static final String URL_LOGIN = "http://148.225.83.3/~e5ingsoft2/smed/Login.php";
 
     public static final String KEY_NAME = "nombre";
     public static final String KEY_LASTNAME1 = "apellido_paterno";
     public static final String KEY_LASTNAME2 = "apellido_materno";
     public static final String KEY_ACCOUNT_TYPE = "tipo_persona";
 
-    public static final String RESULT_OK = "success";
-    public static final String RESULT_WRONG_PASSWORD = "wrong_password"; //puedes cambiarlos si quieres
-    public static final String RESULT_USER404 = "user_not_found";
+    public static final String KEY_EMAIL = "correo";
+    public static final String KEY_PASSWORD = "clave";
+
+    public static final String RESULT_NEW_USER = "Registro exitoso.";
+
+    public static final String RESULT_OK = "Operación exitosa.";
+    public static final String RESULT_WRONG_PASSWORD = "Clave de acceso incorrecta."; //puedes cambiarlos si quieres ... Ok nan :>
+    public static final String RESULT_LOGGED_IN = "Informacion correcta.";
+    public static final String RESULT_USER404 = "Correo no registrado.";
 
     public static String register(String email, String password,
                                   String name, String lastName1,
@@ -39,27 +49,51 @@ public class RegisterClass {
         final String TAG_SUCESS = "exito";
 
         HashMap<String,String> datosPersona = new HashMap<>();
+        datosPersona.put(SMEDClient.KEY_EMAIL,email);
+        datosPersona.put(SMEDClient.KEY_PASSWORD,password);
+        datosPersona.put(SMEDClient.KEY_NAME,name);
+        datosPersona.put(SMEDClient.KEY_LASTNAME1,lastName1);
+        datosPersona.put(SMEDClient.KEY_LASTNAME2,lastName2);
+        datosPersona.put(SMEDClient.KEY_ACCOUNT_TYPE,Integer.toString(accountType));
 
-        datosPersona.put(RegisterClass.KEY_NAME,name);
-        datosPersona.put(RegisterClass.KEY_LASTNAME1,lastName1);
-        datosPersona.put(RegisterClass.KEY_LASTNAME2,lastName2);
-        datosPersona.put(RegisterClass.KEY_ACCOUNT_TYPE,Integer.toString(accountType));
+        JSONObject result = SMEDClient.sendPostRequest(URL_REGISTER,datosPersona);
 
-        String result = RegisterClass.sendPostRequest(URL_REGISTER,datosPersona);
+        try {
+            Log.v("lel", result.getString("message"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        Log.v("lel", result);
-
+        String res ="";
         //TODO: No mame neto
-        return result;
+        try {
+            res = result.getString("message");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return res;
 
     }
 
     public static String login(String email, String password){
-        //TODO: neeeeto holi (8
-        return RESULT_OK;
+
+        HashMap<String,String> datosPersona = new HashMap<>();
+        datosPersona.put(SMEDClient.KEY_EMAIL,email);
+        datosPersona.put(SMEDClient.KEY_PASSWORD,password);
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_LOGIN,datosPersona);
+
+        String res="";
+        try{
+            res = result.getString("message");
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
+
+        return res;
     }
 
-    private static String sendPostRequest(String requestURL,
+    private static JSONObject sendPostRequest(String requestURL,
                                   HashMap<String, String> postDataParams) {
 
         URL url;
@@ -96,8 +130,16 @@ public class RegisterClass {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        JSONObject jObj=null;
 
-        return response;
+        try {
+            jObj = new JSONObject(response);
+            Log.v("lel",response);
+        } catch (JSONException e) {
+            Log.e("JSON Parser", "Error parsing data " + e.toString());
+        }
+
+        return jObj;
     }
 
     private static String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {

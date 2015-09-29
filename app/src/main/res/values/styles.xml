@@ -3,7 +3,7 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat">
         <item name="colorPrimary">#ff6e14</item>
-        <item name="colorSecondary">#ff2a0a</item>
+        <item name="colorPrimaryDark">#d06314</item>
         <item name="colorAccent">#1f98ff</item>
     </style>
 
