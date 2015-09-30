@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.FloatingActionButton;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,11 +15,22 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final int REQUEST_LOGIN = 1;
+
     FragmentManager fm = getFragmentManager();
     FloatingActionButton fab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //LoginActivity
+        SharedPreferences preferences = getSharedPreferences("user", 0);
+        if(preferences.getBoolean("login", false)){
+            Intent login = new Intent(this, LoginActivity.class);
+            startActivityForResult(login, REQUEST_LOGIN);
+        }
+
+
         //Insertando el fragment
         //FragmentManager fm = getFragmentManager();
         //FragmentTransaction ft = fm.beginTransaction();
@@ -36,6 +48,18 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("derp");
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_LOGIN){
+            if(resultCode == RESULT_OK){
+                Bundle userData = data.getExtras(); //TODO: get all data
+                SharedPreferences.Editor preferences = getSharedPreferences("user", 0).edit();
+                preferences.putBoolean("login", true);
+                preferences.apply();
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -55,9 +79,13 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         } if (id == R.id.action_log_out) {
+            SharedPreferences.Editor preferences = getSharedPreferences("user", 0).edit();
+            preferences.putBoolean("login", false);
+            preferences.apply();
+
             Intent logout = new Intent(this, LoginActivity.class);
             logout.putExtra("logout", true);
-            startActivity(logout);
+            startActivityForResult(logout, REQUEST_LOGIN);
             return true;
         }
 
@@ -80,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         if (getFragmentManager().getBackStackEntryCount() > 0 ){
             goBack();
         } else {
-            finish();
+            super.onBackPressed();
         }
     }
 

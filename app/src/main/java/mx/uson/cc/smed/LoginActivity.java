@@ -623,7 +623,7 @@ public class LoginActivity extends Activity
         AlertDialog alertDialog = (AlertDialog) dialog;
         switch(which){
             case DialogInterface.BUTTON_POSITIVE:
-                if(findViewById(R.id.d_account_type_spinner) == null) {
+                if(alertDialog.findViewById(R.id.d_account_type_spinner) == null) {
                     EditText mPassView = (EditText) alertDialog.findViewById(R.id.teacher_password_field);
                     String pass = mPassView.getText().toString();
                     if (!checkTeacherPassword(pass)) {
@@ -646,7 +646,7 @@ public class LoginActivity extends Activity
                             accountType);
                     mAuthTask.execute((Void) null);
                 }else{
-                    Spinner accountTypeView = (Spinner)findViewById(R.id.d_account_type_spinner);
+                    Spinner accountTypeView = (Spinner)alertDialog.findViewById(R.id.d_account_type_spinner);
                     int accountType = accountTypeView.getSelectedItemPosition() + 1;
                     EditText mPassView = (EditText) alertDialog.findViewById(R.id.teacher_password_field);
                     String pass = mPassView.getText().toString();
@@ -855,7 +855,9 @@ public class LoginActivity extends Activity
     private void finishedLogin(String personName){
         Intent main = new Intent(this, MainActivity.class);
         main.putExtra("name", personName);
-        startActivity(main);
+        //startActivity(main);
+        setResult(RESULT_OK, main);
+        finish();
     }
 
     private void showErrorDialog(ConnectionResult result) {

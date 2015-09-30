@@ -48,4 +48,5 @@
         <item quantity="one">Mes</item>
         <item quantity="other">Meses</item>
     </plurals>
+    <string name="error_incorrect_email">Este correo no está registrado</string>
 </resources>
