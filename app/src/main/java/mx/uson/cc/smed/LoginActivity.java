@@ -46,10 +46,9 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import mx.uson.cc.smed.util.RegisterClass;
+import mx.uson.cc.smed.util.SMEDClient;
 
 /**
  * A login screen that offers login via email/password and via Google+ sign in.
@@ -366,8 +365,8 @@ public class LoginActivity extends Activity
     }
 
     private boolean checkTeacherPassword(String pass){
-        //TODO: conectar con el servidor
-        return true;
+        if(pass.equals("SMED2015")) return true;
+        else return false;
     }
 
     /**
@@ -621,11 +620,12 @@ public class LoginActivity extends Activity
      */
     @Override
     public void onClick(DialogInterface dialog, int which) {
+        AlertDialog alertDialog = (AlertDialog) dialog;
         switch(which){
             case DialogInterface.BUTTON_POSITIVE:
                 if(findViewById(R.id.d_account_type_spinner) == null) {
-                    EditText passView = (EditText) findViewById(R.id.teacher_password_field);
-                    String pass = passView.getText().toString();
+                    EditText mPassView = (EditText) alertDialog.findViewById(R.id.teacher_password_field);
+                    String pass = mPassView.getText().toString();
                     if (!checkTeacherPassword(pass)) {
                         Toast.makeText(this, R.string.error_incorrect_password, Toast.LENGTH_SHORT).show();
                         return;
@@ -648,8 +648,8 @@ public class LoginActivity extends Activity
                 }else{
                     Spinner accountTypeView = (Spinner)findViewById(R.id.d_account_type_spinner);
                     int accountType = accountTypeView.getSelectedItemPosition() + 1;
-                    EditText passView = (EditText) findViewById(R.id.teacher_password_field);
-                    String pass = passView.getText().toString();
+                    EditText mPassView = (EditText) alertDialog.findViewById(R.id.teacher_password_field);
+                    String pass = mPassView.getText().toString();
                     if (!checkTeacherPassword(pass)) {
                         Toast.makeText(this, R.string.error_incorrect_password, Toast.LENGTH_SHORT).show();
                         return;
@@ -776,16 +776,17 @@ public class LoginActivity extends Activity
         protected String doInBackground(Void... params) {
             switch(task&1){
                 case LOGIN:
-                    return RegisterClass.login(mEmail,mPassword);
+                    return SMEDClient.login(mEmail,mPassword);
                 case REGISTER:
                     //TODO: email, password?
-                    return RegisterClass.register(
+                    return SMEDClient.register(
                             mEmail,
                             mPassword,
                             mName,
                             mLastName1,
                             mLastName2,
                             mAccountType);
+
             }
 
             return "";
@@ -797,10 +798,11 @@ public class LoginActivity extends Activity
             showProgress(false);
 
             switch(result){
-                case RegisterClass.RESULT_OK:
+                case SMEDClient.RESULT_LOGGED_IN:
                     finishedLogin(mName);
+                    Toast.makeText(LoginActivity.this,result,Toast.LENGTH_SHORT).show();
                     break;
-                case RegisterClass.RESULT_WRONG_PASSWORD:
+                case SMEDClient.RESULT_WRONG_PASSWORD:
                     if(task == GOOGLE_PLUS) //Login with g+ but registered without it
                         finishedLogin(mName);
                     else {
@@ -808,13 +810,17 @@ public class LoginActivity extends Activity
                         mPasswordView.requestFocus();
                     }
                     break;
-                case RegisterClass.RESULT_USER404:
+                case SMEDClient.RESULT_USER404:
                     if(task == GOOGLE_PLUS) //Tried login with g+, now try sign up
                         attemptGooglePlusSignUp();
                     else {
                         mEmailView.setError(getString(R.string.error_incorrect_email));
                         mEmailView.requestFocus();
                     }
+                    break;
+                case SMEDClient.RESULT_NEW_USER:
+                    finishedLogin(mName);
+                    Toast.makeText(LoginActivity.this,result,Toast.LENGTH_SHORT);
                     break;
                 default:
                     Toast.makeText(LoginActivity.this,
