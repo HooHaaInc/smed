@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary"
     tools:context=".LoginActivity">
 
     <!-- Login progress -->
@@ -123,14 +122,16 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="20dp"
-                        android:layout_marginTop="20dp"/>
+                        android:layout_marginTop="20dp"
+                        android:popupBackground="@color/primaryDarker" />
 
                 </LinearLayout>
 
                 <Button android:id="@+id/email_sign_in_button" style="?android:textAppearanceSmall"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" android:text="@string/action_sign_in"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:theme="@style/Theme.AppCompat.Light" />
 
                 <TextView android:id="@+id/switch_form"
                     android:layout_height="20dp"

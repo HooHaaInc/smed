@@ -9,5 +9,12 @@
         <item>Parent or Tutor</item>
     </string-array>
     <string name="smed_server_error">Could not connect to server</string>
+    <string name="homeworks">Homeworks</string>
+
+    <string name="spanish">Spanish</string>
+    <string name="math">Math</string>
+    <string name="nsciences">Natural Sciences</string>
+    <string name="geography">Geography</string>
+    <string name="history">History</string>
 
 </resources>

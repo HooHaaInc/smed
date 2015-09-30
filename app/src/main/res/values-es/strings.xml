@@ -26,4 +26,11 @@
     <string name="smed_server_error">No se pudo conectar con el servidor</string>
     <string name="teacher_password_desc">Confirma que eres maestro con la contraseña que se te dió</string>
     <string name="action_cancel">Cancelar</string>
+    <string name="homeworks">Tareas</string>
+
+    <string name="spanish">Español</string>
+    <string name="math">Matemáticas</string>
+    <string name="nsciences">Ciencias Naturales</string>
+    <string name="geography">Geografía</string>
+    <string name="history">Historia</string>
 </resources>

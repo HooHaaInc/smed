@@ -132,7 +132,7 @@ public class LoginActivity extends Activity
                     .build();
 
             mPlusSignInButton.setOnClickListener(this);
-            mPlusSignInButton.setColorScheme(SignInButton.COLOR_LIGHT);
+            //mPlusSignInButton.setColorScheme(SignInButton.COLOR_LIGHT);
         } else {
             // Don't offer G+ sign in if the app's version is too low to support Google Play
             // Services.
@@ -355,9 +355,9 @@ public class LoginActivity extends Activity
 
     private boolean isEmailValid(String email) {
         int at = email.indexOf("@");
-        if(at == -1) return false;
+        if(at <= 0) return false;
         int dot = email.substring(at).indexOf(".");
-        return dot > at+1 && dot < email.substring(at).length()-1;
+        return dot > 0 && dot < email.substring(at).length()-1;
     }
 
     private boolean isPasswordValid(String password) {

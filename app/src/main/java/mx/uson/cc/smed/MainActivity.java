@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -77,10 +78,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (getFragmentManager().getBackStackEntryCount() > 0 ){
-            getFragmentManager().popBackStack();
-            fab.show();
+            goBack();
         } else {
-            super.onBackPressed();
+            finish();
         }
+    }
+
+    public void goBack(){
+        getFragmentManager().popBackStack();
+        fab.show();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            getWindow().setStatusBarColor(
+                    getResources().getColor(R.color.primaryDark, null));
+        else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            getWindow().setStatusBarColor(
+                    getResources().getColor(R.color.primaryDark));
+    }
+
+    public void hideFab(){
+        fab.hide();
     }
 }
