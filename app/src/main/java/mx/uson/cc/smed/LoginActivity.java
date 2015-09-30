@@ -650,7 +650,7 @@ public class LoginActivity extends Activity
                     int accountType = accountTypeView.getSelectedItemPosition() + 1;
                     EditText mPassView = (EditText) alertDialog.findViewById(R.id.teacher_password_field);
                     String pass = mPassView.getText().toString();
-                    if (mPassView.getVisibility() == View.VISIBLE && !checkTeacherPassword(pass)) {
+                    if (accountType == TEACHER && !checkTeacherPassword(pass)) {
                         Toast.makeText(this, R.string.error_incorrect_password, Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -818,6 +818,10 @@ public class LoginActivity extends Activity
                         mEmailView.requestFocus();
                     }
                     break;
+                case SMEDClient.RESULT_USER_ALREADY_EXISTS:
+                    mEmailView.setError(getString(R.string.error_email_already_exists));
+                    mEmailView.requestFocus();
+                    break;
                 case SMEDClient.RESULT_NEW_USER:
                     finishedLogin(mName);
                     Toast.makeText(LoginActivity.this,result,Toast.LENGTH_SHORT);
@@ -852,9 +856,9 @@ public class LoginActivity extends Activity
     /**
      * Starts the Main Activity
      */
-    private void finishedLogin(String personName){
+    private void finishedLogin(String email){
         Intent main = new Intent(this, MainActivity.class);
-        main.putExtra("name", personName);
+        main.putExtra("email", email);
         //startActivity(main);
         setResult(RESULT_OK, main);
         finish();

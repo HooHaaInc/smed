@@ -41,6 +41,7 @@ public class SMEDClient {
     public static final String RESULT_WRONG_PASSWORD = "Clave de acceso incorrecta."; //puedes cambiarlos si quieres ... Ok nan :>
     public static final String RESULT_LOGGED_IN = "Informacion correcta.";
     public static final String RESULT_USER404 = "Correo no registrado.";
+    public static final String RESULT_USER_ALREADY_EXISTS = "Correo ya registrado.";
 
     public static String register(String email, String password,
                                   String name, String lastName1,

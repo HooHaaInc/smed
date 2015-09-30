@@ -49,4 +49,5 @@
         <item quantity="other">Meses</item>
     </plurals>
     <string name="error_incorrect_email">Este correo no está registrado</string>
+    <string name="error_email_already_exists">Este correo ya está registrado</string>
 </resources>

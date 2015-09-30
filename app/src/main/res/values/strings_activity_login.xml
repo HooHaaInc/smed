@@ -21,4 +21,5 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_incorrect_email">This email is not registered</string>
     <string name="error_field_required">This field is required</string>
+    <string name="error_email_already_exists">This email i already registered</string>
 </resources>
