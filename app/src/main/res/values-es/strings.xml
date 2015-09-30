@@ -33,4 +33,19 @@
     <string name="nsciences">Ciencias Naturales</string>
     <string name="geography">Geografía</string>
     <string name="history">Historia</string>
+
+    <plurals name="days">
+        <item quantity="one">Día</item>
+        <item quantity="other">Días</item>
+    </plurals>
+
+    <plurals name="weeks">
+        <item quantity="one">Semana</item>
+        <item quantity="other">Semanas</item>
+    </plurals>
+
+    <plurals name="months">
+        <item quantity="one">Mes</item>
+        <item quantity="other">Meses</item>
+    </plurals>
 </resources>

@@ -10,7 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import mx.uson.cc.smed.textdrawable.TextDrawable;
@@ -37,8 +39,11 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
                 TextDrawable.builder().buildRound("C", Tarea.COLOR_NSCIENCES));
     }
 
+    private long now;
+
     public HomeworkListAdapter(Context context, int textViewResourceId, ArrayList<Tarea> items) {
         super(context, textViewResourceId, items);
+        now = new Date().getTime();
     }
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
@@ -54,7 +59,22 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
         textViewItem = (TextView) convertView.findViewById(R.id.descViewItem);
         textViewItem.setText(tarea.desc);
         textViewItem = (TextView) convertView.findViewById(R.id.dateViewItem);
-        textViewItem.setText(tarea.fecha.toString());
+
+        long time = (tarea.fecha.getTime() - now);
+        int showTime = time > 0 ? (int)(time/(1000*60*60*24)) + 1 : 0; //dias restantes
+
+        String timeLeft;
+        if(showTime >= 30){
+            showTime/=30;
+            timeLeft = showTime+ " " + parent.getResources().getQuantityString(R.plurals.months, showTime);
+        }else if(showTime >= 7){
+            showTime/=7;
+            timeLeft = showTime+" "+parent.getResources().getQuantityString(R.plurals.weeks, showTime);
+        }else{
+            timeLeft = showTime+" "+parent.getResources().getQuantityString(R.plurals.days, showTime);
+        }
+
+        textViewItem.setText(timeLeft);
         return convertView;
     }
 

@@ -17,4 +17,19 @@
     <string name="geography">Geography</string>
     <string name="history">History</string>
 
+    <plurals name="days">
+        <item quantity="one">Day</item>
+        <item quantity="other">Days</item>
+    </plurals>
+
+    <plurals name="weeks">
+        <item quantity="one">Week</item>
+        <item quantity="other">Weeks</item>
+    </plurals>
+
+    <plurals name="months">
+        <item quantity="one">Month</item>
+        <item quantity="other">Months</item>
+    </plurals>
+
 </resources>
