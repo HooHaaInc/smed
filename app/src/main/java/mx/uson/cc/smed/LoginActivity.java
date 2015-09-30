@@ -650,7 +650,7 @@ public class LoginActivity extends Activity
                     int accountType = accountTypeView.getSelectedItemPosition() + 1;
                     EditText mPassView = (EditText) alertDialog.findViewById(R.id.teacher_password_field);
                     String pass = mPassView.getText().toString();
-                    if (!checkTeacherPassword(pass)) {
+                    if (mPassView.getVisibility() == View.VISIBLE && !checkTeacherPassword(pass)) {
                         Toast.makeText(this, R.string.error_incorrect_password, Toast.LENGTH_SHORT).show();
                         return;
                     }

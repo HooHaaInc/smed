@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
         //LoginActivity
         SharedPreferences preferences = getSharedPreferences("user", 0);
-        if(preferences.getBoolean("login", false)){
+        if(!preferences.getBoolean("login", false)){
             Intent login = new Intent(this, LoginActivity.class);
             startActivityForResult(login, REQUEST_LOGIN);
         }
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences.Editor preferences = getSharedPreferences("user", 0).edit();
                 preferences.putBoolean("login", true);
                 preferences.apply();
-            }
+            }else finish();
         }
     }
 
