@@ -3,6 +3,7 @@ package mx.uson.cc.smed;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 import mx.uson.cc.smed.textdrawable.TextDrawable;
 
@@ -37,11 +39,32 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
                 TextDrawable.builder().buildRound("H", Tarea.COLOR_HISTORY));
         materias.put(Tarea.COURSE_NSCIENCES,
                 TextDrawable.builder().buildRound("C", Tarea.COLOR_NSCIENCES));
+        //OLDER
+        materias.put(Tarea.COURSE_SPANISH + "_old",
+                TextDrawable.builder()
+                        .beginConfig().textColor(Color.BLACK).endConfig()
+                        .buildRound("E", Color.LTGRAY));
+        materias.put(Tarea.COURSE_MATH+"_old",
+                TextDrawable.builder()
+                        .beginConfig().textColor(Color.BLACK).endConfig()
+                        .buildRound("M", Color.LTGRAY));
+        materias.put(Tarea.COURSE_GEOGRAFY+"_old",
+                TextDrawable.builder()
+                        .beginConfig().textColor(Color.BLACK).endConfig()
+                        .buildRound("G", Color.LTGRAY));
+        materias.put(Tarea.COURSE_HISTORY+"_old",
+                TextDrawable.builder()
+                        .beginConfig().textColor(Color.BLACK).endConfig()
+                        .buildRound("H", Color.LTGRAY));
+        materias.put(Tarea.COURSE_NSCIENCES+"_old",
+                TextDrawable.builder()
+                        .beginConfig().textColor(Color.BLACK).endConfig()
+                        .buildRound("C", Color.LTGRAY));
     }
 
     private long now;
 
-    public HomeworkListAdapter(Context context, int textViewResourceId, ArrayList<Tarea> items) {
+    public HomeworkListAdapter(Context context, int textViewResourceId, List<Tarea> items) {
         super(context, textViewResourceId, items);
         now = new Date().getTime();
     }
@@ -54,14 +77,24 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
         // get the TextView and then set the text (item name)
         ImageView imageView = (ImageView)convertView.findViewById(R.id.imageViewItem);
         imageView.setImageDrawable(materias.get(tarea.materia));
-        TextView textViewItem = (TextView) convertView.findViewById(R.id.textViewItem);
-        textViewItem.setText(tarea.getTitulo());
-        textViewItem = (TextView) convertView.findViewById(R.id.descViewItem);
+
+        TextView textViewItem = (TextView) convertView.findViewById(R.id.descViewItem);
         textViewItem.setText(tarea.desc);
-        textViewItem = (TextView) convertView.findViewById(R.id.dateViewItem);
+
+        textViewItem = (TextView) convertView.findViewById(R.id.textViewItem);
+        textViewItem.setText(tarea.getTitulo());
 
         long time = (tarea.fecha.getTime() - now);
-        int showTime = time > 0 ? (int)(time/(1000*60*60*24)) + 1 : 0; //dias restantes
+        if(time < 0){
+            textViewItem.setTypeface(null, Typeface.NORMAL);
+            textViewItem = (TextView) convertView.findViewById(R.id.dateViewItem);
+            textViewItem.setText("");
+            imageView.setImageDrawable(getOldDrawable(tarea.materia));
+            return convertView;
+        }
+        textViewItem = (TextView) convertView.findViewById(R.id.dateViewItem);
+
+        int showTime = (int)(time/(1000*60*60*24)) + 1; //dias restantes
 
         String timeLeft;
         if(showTime >= 30){
@@ -78,5 +111,8 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
         return convertView;
     }
 
+    TextDrawable getOldDrawable(String course){
+        return materias.get(course + "_old");
+    }
 
 }
