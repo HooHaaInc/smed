@@ -1,8 +1,9 @@
 package mx.uson.cc.smed;
 
 import android.app.ListFragment;
-import android.support.annotation.NonNull;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +13,6 @@ import android.widget.ListView;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Locale;
@@ -93,22 +92,26 @@ public class MainActivityFragment extends ListFragment{
         Bundle b  = new Bundle();
         b.putString("Titulo",tarea.getTitulo());
         b.putString("Descripcion", tarea.getDesc());
-        b.putString("Materia", tarea.materia);
+        b.putString("Materia", tarea.getMateria());
 
-        //Calendar cal = Calendar.getInstance();
-        Locale locale = getResources().getConfiguration().locale;
-        //cal.setTime(tarea.fecha);
-        String fecha;// = cal.getDisplayName(Calendar.MONTH, Calendar.SHORT, locale);
-        //fecha += " " + cal.getDisplayName(Calendar.DATE, Calendar.LONG, locale);
-        //fecha += " " + cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, locale);
+        Locale locale = getResources().getConfiguration().locale;  //cal.setTime(tarea.fecha);
+        String fecha;
 
         SimpleDateFormat formatter = new SimpleDateFormat("MMM dd, EEEEEEEEE", locale);
-        fecha = formatter.format(tarea.fecha);
+        fecha = formatter.format(tarea.getFecha());
 
         b.putString("Fecha", fecha);
         hwf.setArguments(b);
         MainActivity a = (MainActivity)getActivity();
         a.changeFragments(hwf);
+
         // TODO: ADD THE FRAGMENT WITH THE HOMEWORK DETAILS
+    }
+    public void addTarea(Context C, Tarea T){
+        tareas.add(T);
+        HomeworkListAdapter a = new HomeworkListAdapter(C,android.R.layout.simple_list_item_1,tareas);
+        setListAdapter(a);
+
+
     }
 }

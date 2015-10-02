@@ -1,0 +1,92 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="mx.uson.cc.smed.AddHomeworkActivity">
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textSize="25sp"
+        android:text="Titulo"
+        android:id="@+id/tituloNuevo"/>
+
+    <EditText
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/editTitulo"
+        android:layout_below="@id/tituloNuevo"
+        android:hint="Este es el titulo de la tarea"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textSize="25sp"
+        android:text="Descripcion"
+        android:id="@+id/descNueva"
+        android:layout_below="@id/editTitulo"/>
+
+    <EditText
+
+        android:id="@+id/editDesc"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/descNueva"
+        android:hint="Esta es la descripcion de la tarea"/>
+    <TextView
+        android:textSize="25sp"
+        android:id="@+id/materiaNueva"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editDesc"
+        android:text="Materia"
+     />
+    <Spinner
+        android:backgroundTint="@color/iron"
+        android:id="@+id/spinner_materia"
+        android:background="#DDDDDD"
+        android:scrollbarSize="25dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/materiaNueva"
+        android:layout_marginBottom="20dp" />
+    />
+    <TextView
+        android:textSize="25sp"
+        android:id="@+id/fechaText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinner_materia"
+        android:text="Fecha de entrega"
+        />
+    <LinearLayout
+        android:id="@+id/date_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:layout_below="@id/fechaText">
+        <DatePicker
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:startYear="1900"
+            android:endYear="2100"
+            android:datePickerMode="calendar"
+            android:calendarViewShown="false"
+            android:id="@+id/fecha_calendario"
+            />
+    </LinearLayout>
+    <Button
+
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_below="@id/date_layout"
+        android:layout_alignParentBottom="true"
+        android:textSize="15dp"
+        android:text="submit"
+        android:id="@+id/submitHomework"
+        android:onClick="butClicked"
+       />
+
+
+</RelativeLayout>
