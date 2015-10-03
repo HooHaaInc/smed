@@ -14,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ public class SMEDClient {
 
     private static final String URL_REGISTER = "http://148.225.83.3/~e5ingsoft2/smed/Registro.php";
     private static final String URL_LOGIN = "http://148.225.83.3/~e5ingsoft2/smed/Login.php";
+    private static final String URL_NEW_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/CrearTarea.php";
 
     public static final String KEY_NAME = "nombre";
     public static final String KEY_LASTNAME1 = "apellido_paterno";
@@ -35,13 +37,20 @@ public class SMEDClient {
     public static final String KEY_EMAIL = "correo";
     public static final String KEY_PASSWORD = "clave";
 
-    public static final String RESULT_NEW_USER = "Registro exitoso.";
+    public static final String KEY_ID_GROUP = "id_grupo";
+    public static final String KEY_TITLE = "titulo";
+    public static final String KEY_DESCRIPTION = "descripcion";
+    public static final String KEY_CLASS = "materia";
+    public static final String KEY_DATE = "fecha";
 
+    public static final String RESULT_NEW_USER = "Registro exitoso.";
     public static final String RESULT_OK = "Operación exitosa.";
     public static final String RESULT_WRONG_PASSWORD = "Clave de acceso incorrecta."; //puedes cambiarlos si quieres ... Ok nan :>
     public static final String RESULT_LOGGED_IN = "Informacion correcta.";
     public static final String RESULT_USER404 = "Correo no registrado.";
     public static final String RESULT_USER_ALREADY_EXISTS = "Correo ya registrado.";
+    public static final String RESULT_ERROR = "Error en la conexión";
+    public static final String RESULT_NEW_HOMEWORK_CREATED = "Tarea creada.";
 
     public static String register(String email, String password,
                                   String name, String lastName1,
@@ -89,6 +98,33 @@ public class SMEDClient {
             res = result.getString("message");
         }catch(JSONException e){
             e.printStackTrace();
+        }catch (NullPointerException e){
+            res = RESULT_ERROR;
+        }
+
+        return res;
+    }
+
+    public static String newTarea(int id_grupo,String titulo,String descripcion,String materia, Date fecha){
+
+        HashMap<String,String> datosTarea = new HashMap<>();
+
+        datosTarea.put(SMEDClient.KEY_ID_GROUP,Integer.toString(id_grupo));
+        datosTarea.put(SMEDClient.KEY_DATE,fecha.toString());
+        datosTarea.put(SMEDClient.KEY_CLASS,materia);
+        datosTarea.put(SMEDClient.KEY_TITLE,titulo);
+        datosTarea.put(SMEDClient.KEY_DESCRIPTION,descripcion);
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_NEW_HOMEWORK,datosTarea);
+
+        String res="";
+        try{
+            res = result.getString("message");
+            Log.v("test",res);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            res = RESULT_ERROR;
         }
 
         return res;
@@ -159,4 +195,5 @@ public class SMEDClient {
 
         return result.toString();
     }
+
 }

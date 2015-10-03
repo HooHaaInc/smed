@@ -1,6 +1,7 @@
 package mx.uson.cc.smed;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -10,12 +11,17 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.sql.Date;
 import java.util.GregorianCalendar;
 
+import mx.uson.cc.smed.util.SMEDClient;
+
 
 public class AddHomeworkActivity extends AppCompatActivity {
+
+    private NewHomework mNewHomework = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +72,41 @@ public class AddHomeworkActivity extends AppCompatActivity {
         i.putExtra("DescTarea",desc.getText().toString());
         i.putExtra("MateriaTarea", Tarea.getCourseString(list.getSelectedItem().toString()));
         i.putExtra("FechaTarea", D);
+
+        /// TODO, el 1 está de prueba porque no hay algo que me diga de qué grupo es el maestro, todavía :>
+
+        mNewHomework = new NewHomework(1,titulo.getText().toString(),
+                desc.getText().toString(), Tarea.getCourseString(list.getSelectedItem().toString()),D);
+
+        mNewHomework.execute((Void) null);
+
         this.setResult(RESULT_OK, i);
         finish();
+    }
+
+    class NewHomework extends AsyncTask<Void,Void,String>{
+
+        private final int mId_grupo;
+        private final String mTitulo;
+        private final String mDesc;
+        private final String mMateria;
+        private final Date mFecha;
+
+        NewHomework(int id_grupo,String titulo,String desc,String materia,Date fecha){
+            mId_grupo = id_grupo;
+            mTitulo = titulo;
+            mDesc = desc;
+            mMateria = materia;
+            mFecha = fecha;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            return SMEDClient.newTarea(1, mTitulo, mDesc,mMateria,mFecha);
+        }
+
+        protected void onPostExecute(String res){
+            Toast.makeText(AddHomeworkActivity.this,res, Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.sql.Date;
 
@@ -65,6 +66,7 @@ public static final int ADD_HOMEWORK = 2;
             if (resultCode == RESULT_OK) {
                 // A contact was picked.  Here we will just display it
                 // to the user.
+                Toast.makeText(this, "yay, checa el servidor", Toast.LENGTH_SHORT).show();
                 String titulo = data.getStringExtra("TituloTarea");
                 String desc = data.getStringExtra("DescTarea");
                 String materia = data.getStringExtra("MateriaTarea");
