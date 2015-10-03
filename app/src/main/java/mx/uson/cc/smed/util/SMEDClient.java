@@ -28,6 +28,7 @@ public class SMEDClient {
     private static final String URL_REGISTER = "http://148.225.83.3/~e5ingsoft2/smed/Registro.php";
     private static final String URL_LOGIN = "http://148.225.83.3/~e5ingsoft2/smed/Login.php";
     private static final String URL_NEW_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/CrearTarea.php";
+    private static final String URL_GET_ALL_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerTareas.php";
 
     public static final String KEY_NAME = "nombre";
     public static final String KEY_LASTNAME1 = "apellido_paterno";
@@ -37,6 +38,7 @@ public class SMEDClient {
     public static final String KEY_EMAIL = "correo";
     public static final String KEY_PASSWORD = "clave";
 
+    public static final String KEY_ID_HOMEWORK = "id_tarea";
     public static final String KEY_ID_GROUP = "id_grupo";
     public static final String KEY_TITLE = "titulo";
     public static final String KEY_DESCRIPTION = "descripcion";
@@ -105,7 +107,7 @@ public class SMEDClient {
         return res;
     }
 
-    public static String newTarea(int id_grupo,String titulo,String descripcion,String materia, Date fecha){
+    public static String newHomework(int id_grupo,String titulo,String descripcion,String materia, Date fecha){
 
         HashMap<String,String> datosTarea = new HashMap<>();
 
@@ -128,6 +130,24 @@ public class SMEDClient {
         }
 
         return res;
+    }
+
+    public static JSONObject getAllHomework(){
+        HashMap<String,String> params = new HashMap<>();
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_GET_ALL_HOMEWORK,params);
+
+        String res="";
+        try{
+            res = result.getString("message");
+            Log.v("test",res);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     private static JSONObject sendPostRequest(String requestURL,

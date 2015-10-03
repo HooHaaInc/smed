@@ -102,7 +102,7 @@ public class AddHomeworkActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... voids) {
-            return SMEDClient.newTarea(1, mTitulo, mDesc,mMateria,mFecha);
+            return SMEDClient.newHomework(1, mTitulo, mDesc,mMateria,mFecha);
         }
 
         protected void onPostExecute(String res){
