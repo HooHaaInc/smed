@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">SMED</string>
     <string name="title_activity_main" translatable="false">MainActivity</string>
+    <string name="find_group">Find group</string>
     <string name="action_log_out">Log Out</string>
     <string name="action_settings">Settings</string>
     <string-array name="user_types">
@@ -31,5 +32,6 @@
         <item quantity="one">Month</item>
         <item quantity="other">Months</item>
     </plurals>
+
 
 </resources>

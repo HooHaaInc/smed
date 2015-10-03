@@ -50,4 +50,5 @@
     </plurals>
     <string name="error_incorrect_email">Este correo no está registrado</string>
     <string name="error_email_already_exists">Este correo ya está registrado</string>
+    <string name="find_group">Buscar grupo</string>
 </resources>

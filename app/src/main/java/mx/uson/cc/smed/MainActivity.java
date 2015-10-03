@@ -16,6 +16,7 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_LOGIN = 1;
+    public static final int REQUEST_CONNECTION = 2;
 
     FragmentManager fm = getFragmentManager();
     FloatingActionButton fab;
@@ -87,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
             logout.putExtra("logout", true);
             startActivityForResult(logout, REQUEST_LOGIN);
             return true;
+        } if (id == R.id.action_connect) {
+            Intent connect = new Intent(this, GroupConnectionActivity.class);
+            startActivityForResult(connect, REQUEST_CONNECTION);
         }
 
         return super.onOptionsItemSelected(item);
