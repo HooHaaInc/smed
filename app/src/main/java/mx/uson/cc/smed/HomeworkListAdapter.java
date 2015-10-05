@@ -58,6 +58,10 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
                 TextDrawable.builder()
                         .beginConfig().textColor(Color.BLACK).endConfig()
                         .buildRound("C", Color.LTGRAY));
+        materias.put(Tarea.COURSE_UNKNOWN,
+                TextDrawable.builder()
+                        .beginConfig().textColor(Color.BLACK).endConfig()
+                        .buildRound("?", Color.LTGRAY));
     }
 
     private long now;
@@ -69,12 +73,19 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_view_row_item, parent, false);
+        }else{
+            ((TextView) convertView.findViewById(R.id.textViewItem))
+                    .setTypeface(null, Typeface.BOLD);
+            convertView.findViewById(R.id.dateViewItem)
+                    .setVisibility(View.VISIBLE);
         }
         // object item based on the position
         Tarea tarea = getItem(position);
         // get the TextView and then set the text (item name)
         ImageView imageView = (ImageView)convertView.findViewById(R.id.imageViewItem);
-        imageView.setImageDrawable(materias.get(tarea.materia));
+        if(Tarea.isUnknown(tarea.materia))
+            imageView.setImageDrawable(materias.get(Tarea.COURSE_UNKNOWN));
+        else imageView.setImageDrawable(materias.get(tarea.materia));
 
         TextView textViewItem = (TextView) convertView.findViewById(R.id.descViewItem);
         textViewItem.setText(tarea.desc);
@@ -86,7 +97,7 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
         if(time < 0){
             textViewItem.setTypeface(null, Typeface.NORMAL);
             textViewItem = (TextView) convertView.findViewById(R.id.dateViewItem);
-            textViewItem.setText("");
+            textViewItem.setVisibility(View.INVISIBLE);
             imageView.setImageDrawable(getOldDrawable(tarea.materia));
             return convertView;
         }

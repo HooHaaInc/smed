@@ -12,14 +12,15 @@
         <item>Teacher</item>
         <item>Parent or Tutor</item>
     </string-array>
-    <string-array name="class_types">
-        <item>Español</item>
-        <item>Matematicas</item>
-        <item>Ciencias Naturales</item>
-        <item>Geografia</item>
-        <item>Historia</item>
 
+    <string-array name="class_types">
+        <item>Spanish</item>
+        <item>Math</item>
+        <item>Natural Sciences</item>
+        <item>Geography</item>
+        <item>History</item>
     </string-array>
+
     <string name="smed_server_error">Could not connect to server</string>
     <string name="homeworks">Homeworks</string>
 
@@ -28,9 +29,11 @@
     <string name="nsciences">Natural Sciences</string>
     <string name="geography">Geography</string>
     <string name="history">History</string>
-    <string name="Titulo">Titulo</string>
-    <string name="Descripcion">Desc</string>
-    <string name="Materia">Materia</string>
+    <string name="unknown">Unknown</string>
+
+    <string name="title">Title</string>
+    <string name="desc">Description</string>
+    <string name="course">Course</string>
 
     <plurals name="days">
         <item quantity="one">Day</item>
@@ -47,8 +50,15 @@
         <item quantity="other">Months</item>
     </plurals>
 
-    <string name="title_activity_add_homework">AddHomeworkActivity</string>
+    <string name="enter_homework_title">Enter homework title</string>
+    <string name="save">SAVE</string>
+    <string name="select_course">Select course</string>
+
+    <string name="title_activity_add_homework">New Homework</string>
     <string name="hello_world">Hello world!</string>
-    <string name="title_activity_add_report">AddReportActivity</string>
+    <string name="title_activity_add_report">New Report</string>
+    <string name="error_title_empty">Title can\'t be empty</string>
+    <string name="error_desc_empty">Description can\'t be empty</string>
+    <string name="error_incorrect_date">Date is in the past or beyond end of school year</string>
 
 </resources>

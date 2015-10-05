@@ -3,6 +3,7 @@ package mx.uson.cc.smed;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -15,19 +16,21 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_LOGIN = 1;
-public static final int ADD_HOMEWORK = 2;
-    public static final int REQUEST_CONNECTION = 2;
+    public static final int ADD_HOMEWORK = 2;
+    public static final int EDIT_HOMEWORK = 3;
+    public static final int REQUEST_CONNECTION = 20;
 
     FragmentManager fm = getFragmentManager();
     FloatingActionButton fab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         //LoginActivity
         SharedPreferences preferences = getSharedPreferences("user", 0);
         if(!preferences.getBoolean("login", false)){
@@ -40,10 +43,10 @@ public static final int ADD_HOMEWORK = 2;
         //FragmentManager fm = getFragmentManager();
         //FragmentTransaction ft = fm.beginTransaction();
         setContentView(R.layout.activity_main);
-        if (fm.findFragmentById(R.id.content) == null) {
+        if (fm.findFragmentById(R.id.fragmentLayout) == null) {
             MainActivityFragment Tlist = new MainActivityFragment();
             FragmentTransaction ft = fm.beginTransaction();
-            ft.add(R.id.content, Tlist);
+            ft.add(R.id.fragmentLayout, Tlist);
             //ft.addToBackStack(null);
             ft.commit();
         }
@@ -69,12 +72,25 @@ public static final int ADD_HOMEWORK = 2;
                 // A contact was picked.  Here we will just display it
                 // to the user.
                 Toast.makeText(this, "yay, checa el servidor", Toast.LENGTH_SHORT).show();
+                //TODO: Google Cloud
                 String titulo = data.getStringExtra("TituloTarea");
                 String desc = data.getStringExtra("DescTarea");
                 String materia = data.getStringExtra("MateriaTarea");
                 Date fecha = (Date) data.getSerializableExtra("FechaTarea");
                 MainActivityFragment maf = (MainActivityFragment)getFragmentManager().findFragmentById(R.id.fragmentLayout);
                 maf.addTarea(this,new Tarea(titulo,desc,materia,fecha ));
+            }
+        }
+        if(requestCode == EDIT_HOMEWORK){
+            if(resultCode == RESULT_OK){
+                //TODO: Google Cloud
+                String titulo = data.getStringExtra("TituloTarea");
+                String desc = data.getStringExtra("DescTarea");
+                String materia = data.getStringExtra("MateriaTarea");
+                Date fecha = (Date) data.getSerializableExtra("FechaTarea");
+                int id = data.getIntExtra("Id", -1);
+                HomeworkFragment maf = (HomeworkFragment)getFragmentManager().findFragmentById(R.id.fragmentLayout);
+                maf.editTarea(this, new Tarea(id, titulo, desc, materia, fecha));
             }
         }
     }
@@ -119,7 +135,7 @@ public static final int ADD_HOMEWORK = 2;
     public void changeFragments(Fragment f){
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.content, f);
+        ft.replace(R.id.fragmentLayout, f);
         ft.addToBackStack(null);
         ft.commit();
 

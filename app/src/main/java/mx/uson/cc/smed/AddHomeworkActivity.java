@@ -1,87 +1,193 @@
 package mx.uson.cc.smed;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import mx.uson.cc.smed.util.SMEDClient;
 
 
-public class AddHomeworkActivity extends AppCompatActivity {
+public class AddHomeworkActivity extends AppCompatActivity
+        implements DatePickerDialog.OnDateSetListener,
+        View.OnClickListener{
 
-    private NewHomework mNewHomework = null;
+    private NewHomework mNewHomework;
+    Button fechaBtn = null;
+    EditText titulo;
+    EditText desc;
+    Spinner list;
+    SimpleDateFormat formatter;
+    private Date date = null;
+    private boolean edit = false;
+    private int id;
+
+    @Override
+    public void onSaveInstanceState(Bundle saveInstance){
+        super.onSaveInstanceState(saveInstance);
+        saveInstance.putString("date",date.toString());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_homework);
-        Spinner listMaterias = (Spinner)findViewById(R.id.spinner_materia);
-        String[] als = getResources().getStringArray(R.array.class_types);
-        ArrayAdapter<String> AS = new ArrayAdapter<String>(this,R.layout.spinner_item,als);
-        AS.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        listMaterias.setAdapter(AS);
+
+        fechaBtn = (Button)findViewById(R.id.fecha_calendario);
+        titulo = (EditText) findViewById(R.id.editTitulo);
+        desc = (EditText) findViewById(R.id.editDesc);
+        list = (Spinner) findViewById(R.id.spinner_materia);
+
+        if(getIntent().getBooleanExtra("edit", false)){
+            edit = true;
+            id = getIntent().getIntExtra("id", -1);
+            date = (Date)getIntent().getSerializableExtra("date");
+            titulo.setText(getIntent().getStringExtra("title"));
+            desc.setText(getIntent().getStringExtra("desc"));
+            list.setSelection(getIntent().getIntExtra("course", 0));
+        }else {
+            int pos = (int)(Math.random()*5);
+            list.setSelection(pos);
+            setBackground(pos);
+        }
+        if(savedInstanceState != null){
+            date = Date.valueOf(savedInstanceState.getString("date"));
+        }
+        if(date == null) {
+            java.util.Date tomorrow = new java.util.Date();
+            tomorrow.setTime(tomorrow.getTime() + 1000 * 60 * 60 * 24);
+            date = new Date(tomorrow.getTime());
+        }
+
+        list.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                setBackground(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        Locale locale = getResources().getConfiguration().locale;  //cal.setTime(tarea.fecha);
+        String fecha;
+
+        formatter = new SimpleDateFormat("MMM dd, E", locale);
+        fecha = formatter.format(date);
+
+        fechaBtn.setText(fecha);
+
+        fechaBtn.setOnClickListener(this);
+        findViewById(R.id.submit).setOnClickListener(this);
+        findViewById(R.id.back_to_list).setOnClickListener(this);
+
+
     }
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_add_homework, menu);
+    public void onClick(View v){
+        switch(v.getId()) {
+            case R.id.submit:
+                if(!datosValidos())
+                    return;
+
+
+                /// TODO, el 1 está de prueba porque no hay algo que me diga de qué grupo es el maestro, todavía :>
+
+                if(edit)
+                    mNewHomework = new NewHomework(id,
+                            1, titulo.getText().toString(),
+                            desc.getText().toString(),
+                            Tarea.getCourseFromArray(list.getSelectedItemPosition()),
+                            date);
+                else mNewHomework = new NewHomework(1,
+                        titulo.getText().toString(),
+                        desc.getText().toString(),
+                        Tarea.getCourseFromArray(list.getSelectedItemPosition()),
+                        date);
+
+                mNewHomework.execute((Void) null);
+
+
+                break;
+            case R.id.back_to_list:
+                finish();
+                break;
+            case R.id.fecha_calendario:
+                Calendar calendar = Calendar.getInstance(v.getResources().getConfiguration().locale);
+                calendar.setTime(date);
+                new DatePickerDialog(this, this,
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)).show();
+        }
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        this.date = Date.valueOf(year + "-" + (monthOfYear+1) + "-" + dayOfMonth);
+        Log.d("AddHomeworkDate", date.toString());
+        fechaBtn.setText(formatter.format(date));
+    }
+
+    public boolean datosValidos(){
+        if(TextUtils.isEmpty(titulo.getText())) {
+            titulo.setError(getString(R.string.error_title_empty));
+            titulo.requestFocus();
+            return false;
+        }if(TextUtils.isEmpty(desc.getText())){
+            desc.setError(getString(R.string.error_desc_empty));
+            desc.requestFocus();
+            return false;
+        }
+        java.util.Date now = new java.util.Date();
+        Calendar cal = Calendar.getInstance(getResources().getConfiguration().locale);
+        cal.setTime(now);
+        int year = //cal.get(Calendar.MONTH) < Calendar.JULY ?
+                cal.get(Calendar.YEAR);// : (cal.get(Calendar.YEAR) + 1);
+        //TODO: remove this v
+        String deadEnd = cal.get(Calendar.MONTH) < Calendar.JULY
+                ? (year+"-06-01") : (year+"-12-18");
+        Date endYear = Date.valueOf(deadEnd); //year+"-07-01" +|-
+        if(date.compareTo(new java.util.Date()) < 1 || date.compareTo(endYear) > -1){
+            fechaBtn.setError(getString(R.string.error_incorrect_date));
+            fechaBtn.requestFocus();
+            return false;
+        }
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void setBackground(int index){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            getWindow().setStatusBarColor(
+                    Tarea.getCourseColorFromIndex(index));
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-    public void butClicked(View v){
-        Intent i = this.getIntent();
-        TextView titulo = (TextView)findViewById(R.id.editTitulo);
-
-        TextView desc = (TextView)findViewById(R.id.editDesc);
-        Spinner list = (Spinner)findViewById(R.id.spinner_materia);
-        DatePicker DP = (DatePicker)findViewById(R.id.fecha_calendario);
-        System.out.println("DateFecha:");
-        System.out.println(DP.getYear() + "--" + DP.getMonth() + "--" + DP.getDayOfMonth());
-        GregorianCalendar GC = new GregorianCalendar(DP.getYear(),DP.getMonth(),DP.getDayOfMonth());
-        Date D = new java.sql.Date(GC.getTime().getTime());
-        System.out.println(D.getTime());
-        i.putExtra("TituloTarea", titulo.getText().toString());
-        i.putExtra("DescTarea",desc.getText().toString());
-        i.putExtra("MateriaTarea", Tarea.getCourseString(list.getSelectedItem().toString()));
-        i.putExtra("FechaTarea", D);
-
-        /// TODO, el 1 está de prueba porque no hay algo que me diga de qué grupo es el maestro, todavía :>
-
-        mNewHomework = new NewHomework(1,titulo.getText().toString(),
-                desc.getText().toString(), Tarea.getCourseString(list.getSelectedItem().toString()),D);
-
-        mNewHomework.execute((Void) null);
-
-        this.setResult(RESULT_OK, i);
-        finish();
+        findViewById(R.id.homework_title_bar).setBackgroundColor(
+                Tarea.getCourseColorFromIndex(index));
     }
 
     class NewHomework extends AsyncTask<Void,Void,String>{
@@ -91,22 +197,56 @@ public class AddHomeworkActivity extends AppCompatActivity {
         private final String mDesc;
         private final String mMateria;
         private final Date mFecha;
+        private final boolean mEdit;
+        private final int mId;
 
+        /**
+         * Create homework constructor
+         */
         NewHomework(int id_grupo,String titulo,String desc,String materia,Date fecha){
             mId_grupo = id_grupo;
             mTitulo = titulo;
             mDesc = desc;
             mMateria = materia;
             mFecha = fecha;
+            mEdit =false;
+            mId = -1;
+        }
+
+        /**
+         * Edit homework constructor
+         */
+        NewHomework(int id, int id_grupo,String titulo,String desc,String materia,Date fecha){
+            mId_grupo = id_grupo;
+            mTitulo = titulo;
+            mDesc = desc;
+            mMateria = materia;
+            mFecha = fecha;
+            mEdit = true;
+            mId = id;
         }
 
         @Override
         protected String doInBackground(Void... voids) {
-            return SMEDClient.newHomework(1, mTitulo, mDesc,mMateria,mFecha);
+            if(!edit)
+                return SMEDClient.newHomework(1, mTitulo, mDesc,mMateria,mFecha);
+            //TODO:
+            //return SMEDClient.editHomework(1, id, mTitulo, mDesc, mMateria, mFecha);
+            return null;
         }
 
         protected void onPostExecute(String res){
+            mNewHomework = null;
             Toast.makeText(AddHomeworkActivity.this,res, Toast.LENGTH_SHORT).show();
+            Intent i = AddHomeworkActivity.this.getIntent();
+
+            i.putExtra("TituloTarea", mTitulo);
+            i.putExtra("DescTarea", mDesc);
+            i.putExtra("MateriaTarea", mMateria);
+            i.putExtra("FechaTarea", mFecha);
+            i.putExtra("Id", mId);
+            AddHomeworkActivity.this.setResult(RESULT_OK, i);
+            AddHomeworkActivity.this.finish();
         }
     }
 }

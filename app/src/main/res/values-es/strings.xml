@@ -34,6 +34,14 @@
     <string name="geography">Geografía</string>
     <string name="history">Historia</string>
 
+    <string-array name="class_types">
+        <item>Español</item>
+        <item>Matemáticas</item>
+        <item>Ciencias Naturales</item>
+        <item>Geografía</item>
+        <item>Historia</item>
+    </string-array>
+
     <plurals name="days">
         <item quantity="one">Día</item>
         <item quantity="other">Días</item>
@@ -51,4 +59,17 @@
     <string name="error_incorrect_email">Este correo no está registrado</string>
     <string name="error_email_already_exists">Este correo ya está registrado</string>
     <string name="find_group">Buscar grupo</string>
+    <string name="course">Materia</string>
+    <string name="desc">Descripción</string>
+    <string name="hello_world">Hola Mundo!</string>
+    <string name="title">Titulo</string>
+    <string name="title_activity_add_homework">Nueva Tarea</string>
+    <string name="title_activity_add_report">Nuevo Reporte</string>
+    <string name="error_title_empty">Titulo no puede estar vacío</string>
+    <string name="error_desc_empty">Descripción no puede estar vacío</string>
+    <string name="error_incorrect_date">Fecha está en el pasado o después de fin de año escolar</string>
+    <string name="enter_homework_title">Ingresar titulo de tarea</string>
+    <string name="save">GUARDAR</string>
+    <string name="unknown">Desconocido</string>
+    <string name="select_course">Seleccionar materia</string>
 </resources>

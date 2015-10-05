@@ -40,49 +40,6 @@ public class MainActivityFragment extends ListFragment{
     public MainActivityFragment() {
         tareas = new ArrayList<>();
 
-        /*tareas.add(new Tarea(
-            "Ingeniería",
-            "Costos",
-            Tarea.COURSE_SPANISH, 
-            Date.valueOf("2015-09-30")));
-        tareas.add(new Tarea(
-            "Lógico",
-            "Examen",
-            Tarea.COURSE_MATH, 
-            Date.valueOf("2015-10-05")));
-        tareas.add(new Tarea(
-            "Diseño de Sistemas Digitales",
-            "Examen",
-            Tarea.COURSE_NSCIENCES,
-            Date.valueOf("2015-10-07")));
-        tareas.add(new Tarea(
-            "Estadistica",
-            "Nah",
-            Tarea.COURSE_GEOGRAFY,
-            Date.valueOf("2015-09-29")));
-        tareas.add(new Tarea(
-            "Japones",
-            "Examen",
-            Tarea.COURSE_HISTORY,
-            Date.valueOf("2015-10-02")));*/
-
-       Collections.sort(tareas, new Comparator<Tarea>() {
-           @Override
-           public int compare(Tarea lhs, Tarea rhs) {
-               long now = new java.util.Date().getTime();
-               long left = lhs.fecha.getTime() - now;
-               long right = rhs.fecha.getTime() - now;
-
-               if(left*right > 0 ) {
-                   left = -Math.abs(left);
-                   right = -Math.abs(right);
-               }
-
-               return left > right ? -1 : right > left ? 1 : 0;
-
-           }
-       });
-
     }
 
     @Override
@@ -92,7 +49,7 @@ public class MainActivityFragment extends ListFragment{
         adapter = new HomeworkListAdapter(inflater.getContext(),
                 android.R.layout.simple_list_item_1,tareas);
         setListAdapter(adapter);
-        listaTareas = new ArrayList<HashMap<String,String>>();
+        listaTareas = new ArrayList<>();
         new GetHomework().execute();
 
         getActivity().setTitle(R.string.homeworks);
@@ -110,17 +67,13 @@ public class MainActivityFragment extends ListFragment{
         Tarea tarea = tareas.get(position);
 
         Bundle b  = new Bundle();
+        b.putInt("Id", tarea.id);
         b.putString("Titulo",tarea.getTitulo());
         b.putString("Descripcion", tarea.getDesc());
         b.putString("Materia", tarea.getMateria());
 
-        Locale locale = getResources().getConfiguration().locale;  //cal.setTime(tarea.fecha);
-        String fecha;
 
-        SimpleDateFormat formatter = new SimpleDateFormat("MMM dd, EEEEEEEEE", locale);
-        fecha = formatter.format(tarea.getFecha());
-
-        b.putString("Fecha", fecha);
+        b.putString("Fecha", tarea.getFecha().toString());
         hwf.setArguments(b);
         MainActivity a = (MainActivity)getActivity();
         a.changeFragments(hwf);
@@ -130,8 +83,23 @@ public class MainActivityFragment extends ListFragment{
     }
     public void addTarea(Context C, Tarea T){
         tareas.add(T);
-        HomeworkListAdapter a = new HomeworkListAdapter(C,android.R.layout.simple_list_item_1,tareas);
-        setListAdapter(a);
+        Collections.sort(tareas, new Comparator<Tarea>() {
+            @Override
+            public int compare(Tarea lhs, Tarea rhs) {
+                long now = new java.util.Date().getTime();
+                long left = lhs.fecha.getTime() - now;
+                long right = rhs.fecha.getTime() - now;
+
+                if (left * right > 0) {
+                    left = -Math.abs(left);
+                    right = -Math.abs(right);
+                }
+
+                return left > right ? -1 : right > left ? 1 : 0;
+
+            }
+        });
+        adapter.notifyDataSetChanged();
 
 
     }
@@ -156,7 +124,12 @@ public class MainActivityFragment extends ListFragment{
                         String materia = c.getString("materia");
                         String fecha = c.getString("fecha");
 
-                        tareas.add(new Tarea(titulo, desc, materia, Date.valueOf(fecha)));
+                        tareas.add(new Tarea(
+                                Integer.parseInt(id_tarea),
+                                titulo,
+                                desc,
+                                materia,
+                                Date.valueOf(fecha)));
                     }
 
                 } catch (JSONException e) {
@@ -171,6 +144,22 @@ public class MainActivityFragment extends ListFragment{
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    Collections.sort(tareas, new Comparator<Tarea>() {
+                        @Override
+                        public int compare(Tarea lhs, Tarea rhs) {
+                            long now = new java.util.Date().getTime();
+                            long left = lhs.fecha.getTime() - now;
+                            long right = rhs.fecha.getTime() - now;
+
+                            if (left * right > 0) {
+                                left = -Math.abs(left);
+                                right = -Math.abs(right);
+                            }
+
+                            return left > right ? -1 : right > left ? 1 : 0;
+
+                        }
+                    });
                     adapter.notifyDataSetChanged();
                 }
             });
