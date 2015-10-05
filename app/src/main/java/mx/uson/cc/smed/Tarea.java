@@ -44,6 +44,16 @@ public class Tarea {
         return 0;
     }
 
+    public static String getCourseString(String course){
+        switch(course){
+            case "Español":  return COURSE_SPANISH;
+            case "Matematicas": return COURSE_MATH;
+            case "Ciencias Naturales": return COURSE_NSCIENCES;
+            case "Geografia": return COURSE_GEOGRAFY;
+            case "Historia": return COURSE_HISTORY;
+        }
+        return "N/A";
+    }
     String titulo;
     String desc;
     String materia;
@@ -62,6 +72,14 @@ public class Tarea {
     }
     public String getDesc(){
         return desc;
+
+    }
+    public String getMateria(){
+        return materia;
+
+    }
+    public Date getFecha(){
+        return fecha;
 
     }
 }

@@ -1,13 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name" translatable="false">SMED</string>
     <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="find_group">Find group</string>
     <string name="action_log_out">Log Out</string>
     <string name="action_settings">Settings</string>
+
     <string-array name="user_types">
         <item>Student</item>
         <item>Teacher</item>
         <item>Parent or Tutor</item>
+    </string-array>
+    <string-array name="class_types">
+        <item>Español</item>
+        <item>Matematicas</item>
+        <item>Ciencias Naturales</item>
+        <item>Geografia</item>
+        <item>Historia</item>
+
     </string-array>
     <string name="smed_server_error">Could not connect to server</string>
     <string name="homeworks">Homeworks</string>
@@ -17,6 +28,9 @@
     <string name="nsciences">Natural Sciences</string>
     <string name="geography">Geography</string>
     <string name="history">History</string>
+    <string name="Titulo">Titulo</string>
+    <string name="Descripcion">Desc</string>
+    <string name="Materia">Materia</string>
 
     <plurals name="days">
         <item quantity="one">Day</item>
@@ -33,5 +47,8 @@
         <item quantity="other">Months</item>
     </plurals>
 
+    <string name="title_activity_add_homework">AddHomeworkActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_add_report">AddReportActivity</string>
 
 </resources>

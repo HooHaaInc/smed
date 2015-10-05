@@ -5,17 +5,21 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.design.widget.FloatingActionButton;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
+
+import java.sql.Date;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_LOGIN = 1;
+public static final int ADD_HOMEWORK = 2;
     public static final int REQUEST_CONNECTION = 2;
 
     FragmentManager fm = getFragmentManager();
@@ -60,6 +64,19 @@ public class MainActivity extends AppCompatActivity {
                 preferences.apply();
             }else finish();
         }
+        if (requestCode == ADD_HOMEWORK) {
+            if (resultCode == RESULT_OK) {
+                // A contact was picked.  Here we will just display it
+                // to the user.
+                Toast.makeText(this, "yay, checa el servidor", Toast.LENGTH_SHORT).show();
+                String titulo = data.getStringExtra("TituloTarea");
+                String desc = data.getStringExtra("DescTarea");
+                String materia = data.getStringExtra("MateriaTarea");
+                Date fecha = (Date) data.getSerializableExtra("FechaTarea");
+                MainActivityFragment maf = (MainActivityFragment)getFragmentManager().findFragmentById(R.id.fragmentLayout);
+                maf.addTarea(this,new Tarea(titulo,desc,materia,fecha ));
+            }
+        }
     }
 
     @Override
@@ -94,6 +111,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void addHomeworkButton(View v){
+        Intent i = new Intent(this,AddHomeworkActivity.class);
+        startActivityForResult(i,ADD_HOMEWORK);
     }
     public void changeFragments(Fragment f){
         FragmentManager fm = getFragmentManager();
