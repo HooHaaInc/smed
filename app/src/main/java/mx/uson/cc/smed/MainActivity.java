@@ -3,9 +3,10 @@ package mx.uson.cc.smed;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Context;
+import android.app.ListFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,10 +14,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.sql.Date;
-import java.util.ArrayList;
+
+import mx.uson.cc.smed.util.ResourcesMan;
+import mx.uson.cc.smed.util.SMEDClient;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,35 +33,42 @@ public class MainActivity extends AppCompatActivity {
     public static final int EDIT_HOMEWORK = 3;
     public static final int REQUEST_CONNECTION = 20;
 
+    //Class<? extends Fragment> currentFragment = MainActivityFragment.class;
+
+    ArrayAdapter adapter;
+
     FragmentManager fm = getFragmentManager();
     FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //LoginActivity
-        SharedPreferences preferences = getSharedPreferences("user", 0);
-        if(!preferences.getBoolean("login", false)){
-            Intent login = new Intent(this, LoginActivity.class);
-            startActivityForResult(login, REQUEST_LOGIN);
-        }
-
-
-        //Insertando el fragment
-        //FragmentManager fm = getFragmentManager();
-        //FragmentTransaction ft = fm.beginTransaction();
         setContentView(R.layout.activity_main);
-        if (fm.findFragmentById(R.id.fragmentLayout) == null) {
-            MainActivityFragment Tlist = new MainActivityFragment();
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.add(R.id.fragmentLayout, Tlist);
-            //ft.addToBackStack(null);
-            ft.commit();
-        }
         fab = (FloatingActionButton)findViewById(R.id.fab_nueva_tarea);
-        //((TextView)findViewById(R.id.hello)).setText("Hello "
-       //         + getIntent().getExtras().getString("name", ""));
-        System.out.println("derp");
+        Fragment frag;
+        if(savedInstanceState == null) {
+            //LoginActivity
+            SharedPreferences preferences = getSharedPreferences("user", 0);
+            if (!preferences.getBoolean("login", false)) {
+                Intent login = new Intent(this, LoginActivity.class);
+                startActivityForResult(login, REQUEST_LOGIN);
+            }
+            frag = new MainActivityFragment();
+            fm.beginTransaction()
+                    .add(R.id.fragmentLayout, frag)
+                    .commit();
+
+            new GetHomework().execute();
+        }else{
+            frag = fm.findFragmentById(R.id.fragmentLayout);
+            if(frag instanceof ListFragment){
+                adapter = new HomeworkListAdapter(this,
+                        android.R.layout.simple_list_item_1,
+                        ResourcesMan.getTareas());
+                ((ListFragment) frag).setListAdapter(adapter);
+            }
+        }
+
     }
 
     @Override
@@ -77,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
                 String desc = data.getStringExtra("DescTarea");
                 String materia = data.getStringExtra("MateriaTarea");
                 Date fecha = (Date) data.getSerializableExtra("FechaTarea");
-                MainActivityFragment maf = (MainActivityFragment)getFragmentManager().findFragmentById(R.id.fragmentLayout);
-                maf.addTarea(this,new Tarea(titulo,desc,materia,fecha ));
+                ResourcesMan.addTarea(new Tarea(titulo, desc, materia, fecha));
+                adapter.notifyDataSetChanged();
             }
         }
         if(requestCode == EDIT_HOMEWORK){
@@ -89,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 String materia = data.getStringExtra("MateriaTarea");
                 Date fecha = (Date) data.getSerializableExtra("FechaTarea");
                 int id = data.getIntExtra("Id", -1);
-                HomeworkFragment maf = (HomeworkFragment)getFragmentManager().findFragmentById(R.id.fragmentLayout);
-                maf.editTarea(this, new Tarea(id, titulo, desc, materia, fecha));
+                ResourcesMan.editTarea(new Tarea(id, titulo, desc, materia, fecha));
+                adapter.notifyDataSetChanged();
             }
         }
     }
@@ -128,22 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public void addHomeworkButton(View v){
-        Intent i = new Intent(this,AddHomeworkActivity.class);
-        startActivityForResult(i,ADD_HOMEWORK);
-    }
-    public void changeFragments(Fragment f){
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.fragmentLayout, f);
-        ft.addToBackStack(null);
-        ft.commit();
 
-        fab.hide();
-        //setContentView(R.layout.activity_main);
-
-
-    }
     @Override
     public void onBackPressed() {
         if (getFragmentManager().getBackStackEntryCount() > 0 ){
@@ -153,8 +153,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void addHomeworkButton(View v){
+        Intent i = new Intent(this,AddHomeworkActivity.class);
+        startActivityForResult(i, ADD_HOMEWORK);
+    }
+
+    public void changeFragments(Fragment f){
+        //currentFragment = f.getClass();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.fragmentLayout, f);
+        ft.addToBackStack(null);
+        ft.commit();
+
+        fab.hide();
+    }
+
     public void goBack(){
-        getFragmentManager().popBackStack();
+        fm.popBackStackImmediate();
+        adapter = new HomeworkListAdapter(this,
+                android.R.layout.simple_list_item_1,
+                ResourcesMan.getTareas());
+        ((ListFragment)fm.findFragmentById(R.id.fragmentLayout)).setListAdapter(adapter);
+        //System.out.println("onBack: "+currentFragment.toString());
+
         fab.show();
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             getWindow().setStatusBarColor(
@@ -166,5 +187,55 @@ public class MainActivity extends AppCompatActivity {
 
     public void hideFab(){
         fab.hide();
+    }
+
+    class GetHomework extends AsyncTask<Void,Void,Boolean> {
+
+        JSONArray hw = null;
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            if(!ResourcesMan.initialized) {
+                JSONObject result = SMEDClient.getAllHomework();
+                try {
+                    hw = result.getJSONArray("tareas");
+
+                    for (int i = 0; i < hw.length(); ++i) {
+                        JSONObject c = null;
+                        c = hw.getJSONObject(i);
+
+                        String id_tarea = c.getString("id_tarea");
+                        String id_grupo = c.getString("id_grupo");
+                        String titulo = c.getString("titulo");
+                        String desc = c.getString("descripcion");
+                        String materia = c.getString("materia");
+                        String fecha = c.getString("fecha");
+
+                        ResourcesMan.addTarea(new Tarea(
+                                Integer.parseInt(id_tarea),
+                                titulo,
+                                desc,
+                                materia,
+                                Date.valueOf(fecha)));
+                    }
+                    return true;
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean res) {
+            ResourcesMan.initialized = res;
+            ListFragment frag = (ListFragment)fm.findFragmentById(R.id.fragmentLayout);
+            adapter = new HomeworkListAdapter(MainActivity.this,
+                    android.R.layout.simple_list_item_1,
+                    ResourcesMan.getTareas());
+            frag.setListAdapter(adapter);
+        }
     }
 }

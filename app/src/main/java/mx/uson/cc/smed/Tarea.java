@@ -127,6 +127,9 @@ public class Tarea {
     }
     public Date getFecha(){
         return fecha;
+    }
 
+    public int getId(){
+        return id;
     }
 }

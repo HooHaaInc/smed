@@ -30,10 +30,7 @@ public class HomeworkFragment extends Fragment {
     String materia;
     Date fecha;
     int id;
-    public HomeworkFragment(){
 
-
-    }
     @Override
     public void setArguments(Bundle b){
         titulo = b.getString("Titulo");
@@ -116,7 +113,4 @@ public class HomeworkFragment extends Fragment {
         return view;
     }
 
-    public void editTarea(Context C, Tarea T){
-
-    }
 }
