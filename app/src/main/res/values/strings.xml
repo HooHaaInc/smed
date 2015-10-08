@@ -3,6 +3,7 @@
 
     <string name="app_name" translatable="false">SMED</string>
     <string name="title_activity_main" translatable="false">MainActivity</string>
+    <string name="action_new">New</string>
     <string name="find_group">Find group</string>
     <string name="action_log_out">Log Out</string>
     <string name="action_settings">Settings</string>

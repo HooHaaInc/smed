@@ -67,7 +67,7 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
     private long now;
 
     public HomeworkListAdapter(Context context, int textViewResourceId, List<Tarea> items) {
-        super(context, textViewResourceId, items);
+        super(context, android.R.layout.simple_list_item_2, items);
         now = new Date().getTime();
     }
     public View getView(int position, View convertView, ViewGroup parent) {

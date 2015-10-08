@@ -1,6 +1,6 @@
 package mx.uson.cc.smed;
 
-import android.app.ListFragment;
+import android.support.v4.app.ListFragment;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -40,22 +40,25 @@ public class MainActivityFragment extends ListFragment{
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
+    /**
+     * le dice a la activity que debe cambiar/actualizar el fragment compañero
+     * (HomeworkFragment), le manda un bundle con la posicion de la tarea
+     * en ResourcesMan y el fragment compañero
+     */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        HomeworkFragment  hwf = new HomeworkFragment();
-
-        Tarea tarea = ResourcesMan.getTareas().get(position);
 
         Bundle b  = new Bundle();
-        b.putInt("Id", tarea.id);
-        b.putString("Titulo",tarea.getTitulo());
-        b.putString("Descripcion", tarea.getDesc());
-        b.putString("Materia", tarea.getMateria());
+        b.putSerializable("frag", HomeworkFragment.class);
+        b.putInt("position", position);
 
-
-        b.putString("Fecha", tarea.getFecha().toString());
-        hwf.setArguments(b);
-        ((MainActivity)getActivity()).changeFragments(hwf);
+        try {
+            ((MainActivity)getActivity()).changeFragments(b);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (java.lang.InstantiationException e) {
+            e.printStackTrace();
+        }
         // TODO: ADD THE FRAGMENT WITH THE HOMEWORK DETAILS
     }
 }

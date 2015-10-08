@@ -35,13 +35,14 @@ public class ResourcesMan {
         return tareas;
     }
 
-    public static void editTarea(Tarea tarea) {
+    public static int editTarea(Tarea tarea) {
         int i = 0;
         for (; i < tareas.size(); ++i)
             if (tareas.get(i).getId() == tarea.getId())
                 break;
         tareas.set(i, tarea);
         Collections.sort(tareas, sorter);
+        return tareas.indexOf(tarea);
     }
 
     public static void addTarea(Tarea tarea) {

@@ -130,11 +130,10 @@
 
                 </LinearLayout>
 
-                <Button android:id="@+id/email_sign_in_button" style="?android:textAppearanceSmall"
+                <android.support.v7.widget.AppCompatButton android:id="@+id/email_sign_in_button" style="?android:textAppearanceSmall"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" android:text="@string/action_sign_in"
-                    android:textStyle="bold"
-                    android:theme="@style/Theme.AppCompat.Light" />
+                    android:textStyle="bold" />
 
                 <TextView android:id="@+id/switch_form"
                     android:layout_height="20dp"

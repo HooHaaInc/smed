@@ -228,11 +228,11 @@ public class AddHomeworkActivity extends AppCompatActivity
 
         @Override
         protected String doInBackground(Void... voids) {
-            if(!edit)
+            if(!mEdit)
                 return SMEDClient.newHomework(1, mTitulo, mDesc,mMateria,mFecha);
             //TODO:
             //return SMEDClient.editHomework(1, id, mTitulo, mDesc, mMateria, mFecha);
-            return null;
+            return "nope";
         }
 
         protected void onPostExecute(String res){

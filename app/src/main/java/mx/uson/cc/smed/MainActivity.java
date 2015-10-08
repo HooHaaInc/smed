@@ -1,9 +1,10 @@
 package mx.uson.cc.smed;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.app.ListFragment;
+import android.annotation.SuppressLint;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -33,11 +34,10 @@ public class MainActivity extends AppCompatActivity {
     public static final int EDIT_HOMEWORK = 3;
     public static final int REQUEST_CONNECTION = 20;
 
-    //Class<? extends Fragment> currentFragment = MainActivityFragment.class;
-
     ArrayAdapter adapter;
+    boolean dobleFragment = false;
 
-    FragmentManager fm = getFragmentManager();
+    FragmentManager fm = getSupportFragmentManager();
     FloatingActionButton fab;
 
     @Override
@@ -46,7 +46,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         fab = (FloatingActionButton)findViewById(R.id.fab_nueva_tarea);
         Fragment frag;
-        if(savedInstanceState == null) {
+        if(findViewById(R.id.fragmentLayout2) != null)
+            dobleFragment = true;
+        if(savedInstanceState == null) { //Se crea por primera vez
             //LoginActivity
             SharedPreferences preferences = getSharedPreferences("user", 0);
             if (!preferences.getBoolean("login", false)) {
@@ -57,18 +59,29 @@ public class MainActivity extends AppCompatActivity {
             fm.beginTransaction()
                     .add(R.id.fragmentLayout, frag)
                     .commit();
-
             new GetHomework().execute();
         }else{
+            if(findViewById(R.id.fragmentLayout2) != null) {
+                dobleFragment = true;
+            }
             frag = fm.findFragmentById(R.id.fragmentLayout);
             if(frag instanceof ListFragment){
                 adapter = new HomeworkListAdapter(this,
                         android.R.layout.simple_list_item_1,
                         ResourcesMan.getTareas());
                 ((ListFragment) frag).setListAdapter(adapter);
+            }else{
+                getSupportActionBar().hide();
             }
+            if(!ResourcesMan.initialized)
+                new GetHomework().execute();
         }
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -104,8 +117,10 @@ public class MainActivity extends AppCompatActivity {
                 String materia = data.getStringExtra("MateriaTarea");
                 Date fecha = (Date) data.getSerializableExtra("FechaTarea");
                 int id = data.getIntExtra("Id", -1);
-                ResourcesMan.editTarea(new Tarea(id, titulo, desc, materia, fecha));
-                adapter.notifyDataSetChanged();
+                int pos = ResourcesMan.editTarea(new Tarea(id, titulo, desc, materia, fecha));
+                //adapter.notifyDataSetChanged();
+                ((HomeworkFragment)fm.findFragmentById(!dobleFragment
+                        ?R.id.fragmentLayout : R.id.fragmentLayout2)).setTarea(pos);
             }
         }
     }
@@ -114,6 +129,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        if(!dobleFragment)
+            menu.removeItem(R.id.create);
         return true;
     }
 
@@ -139,6 +156,8 @@ public class MainActivity extends AppCompatActivity {
         } if (id == R.id.action_connect) {
             Intent connect = new Intent(this, GroupConnectionActivity.class);
             startActivityForResult(connect, REQUEST_CONNECTION);
+        } if(id == R.id.create){
+            addHomeworkButton(null);
         }
 
         return super.onOptionsItemSelected(item);
@@ -146,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (getFragmentManager().getBackStackEntryCount() > 0 ){
+        if (fm.getBackStackEntryCount() > 0 ){
             goBack();
         } else {
             super.onBackPressed();
@@ -158,35 +177,59 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(i, ADD_HOMEWORK);
     }
 
-    public void changeFragments(Fragment f){
-        //currentFragment = f.getClass();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.fragmentLayout, f);
-        ft.addToBackStack(null);
-        ft.commit();
+    /**
+     * Cambia o actualiza el fragment de detalles
+     * @param b Bundle que contiene la posicion del detalle en
+     *          ResourcesMan y el fragment de detalles .class
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws NullPointerException
+     */
+    public void changeFragments(Bundle b) throws IllegalAccessException,
+            InstantiationException, NullPointerException {
+        if(dobleFragment) {
+            fm.findFragmentById(R.id.fragmentLayout2).setArguments(b);
+        }else{
+            Fragment f;
 
-        fab.hide();
+            Class<? extends Fragment> fragclass =
+                    (Class)b.getSerializable("frag");
+            f = fragclass.newInstance();
+            f.setArguments(b);
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.fragmentLayout, f);
+            ft.addToBackStack(null);
+            ft.commit();
+            fab.hide();
+            getSupportActionBar().hide();
+        }
     }
 
+    @SuppressLint("NewApi")
     public void goBack(){
-        fm.popBackStackImmediate();
-        adapter = new HomeworkListAdapter(this,
-                android.R.layout.simple_list_item_1,
-                ResourcesMan.getTareas());
-        ((ListFragment)fm.findFragmentById(R.id.fragmentLayout)).setListAdapter(adapter);
-        //System.out.println("onBack: "+currentFragment.toString());
+        if(!dobleFragment){
+            fm.popBackStackImmediate();
+            adapter = new HomeworkListAdapter(this,
+                    android.R.layout.simple_list_item_1,
+                    ResourcesMan.getTareas());
+            ((ListFragment) fm.findFragmentById(R.id.fragmentLayout)).setListAdapter(adapter);
+            //System.out.println("onBack: "+currentFragment.toString());
 
-        fab.show();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            getWindow().setStatusBarColor(
-                    getResources().getColor(R.color.primaryDark, null));
-        else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            getWindow().setStatusBarColor(
-                    getResources().getColor(R.color.primaryDark));
+            fab.show();
+            setStatusBarColor(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                    ? getResources().getColor(R.color.primaryDark, null)
+                    : getResources().getColor(R.color.primaryDark));
+        }
     }
 
     public void hideFab(){
+        if(fab != null)
         fab.hide();
+    }
+
+    public void setStatusBarColor(int color){
+        if (!dobleFragment && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            getWindow().setStatusBarColor(color);
     }
 
     class GetHomework extends AsyncTask<Void,Void,Boolean> {
@@ -236,6 +279,15 @@ public class MainActivity extends AppCompatActivity {
                     android.R.layout.simple_list_item_1,
                     ResourcesMan.getTareas());
             frag.setListAdapter(adapter);
+            if(dobleFragment){
+                Fragment fragm = new HomeworkFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt("position", 0);
+                fragm.setArguments(bundle);
+                fm.beginTransaction()
+                        .add(R.id.fragmentLayout2, fragm)
+                        .commit();
+            }
         }
     }
 }
