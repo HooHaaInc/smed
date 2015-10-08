@@ -54,7 +54,7 @@ public class SMEDClient {
     public static final String RESULT_ERROR = "Error en la conexión";
     public static final String RESULT_NEW_HOMEWORK_CREATED = "Tarea creada.";
 
-    public static String register(String email, String password,
+    public static HashMap<String,String> register(String email, String password,
                                   String name, String lastName1,
                                   String lastName2, int accountType){
 
@@ -70,8 +70,10 @@ public class SMEDClient {
 
         JSONObject result = SMEDClient.sendPostRequest(URL_REGISTER,datosPersona);
 
+
         try {
-            Log.v("lel", result.getString("message"));
+            datosPersona.put("message",result.getString("message"));
+            datosPersona.put("id_persona",result.getString("id_persona"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -83,28 +85,36 @@ public class SMEDClient {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return res;
+        return datosPersona;
 
     }
 
-    public static String login(String email, String password){
+    public static HashMap<String,String> login(String email, String password){
 
         HashMap<String,String> datosPersona = new HashMap<>();
         datosPersona.put(SMEDClient.KEY_EMAIL,email);
-        datosPersona.put(SMEDClient.KEY_PASSWORD,password);
+        datosPersona.put(SMEDClient.KEY_PASSWORD, password);
 
         JSONObject result = SMEDClient.sendPostRequest(URL_LOGIN,datosPersona);
 
+
+
         String res="";
         try{
-            res = result.getString("message");
+            Log.v("login:",result.getString("nombre"));
+            datosPersona.put("message",result.getString("message"));
+            datosPersona.put("id_persona",result.getString("id_persona"));
+            datosPersona.put("nombre",result.getString("nombre"));
+            datosPersona.put("apellido_paterno",result.getString("apellido_paterno"));
+            datosPersona.put("apellido_materno",result.getString("apellido_materno"));
+            datosPersona.put("tipo_persona",result.getString("tipo_persona"));
         }catch(JSONException e){
             e.printStackTrace();
         }catch (NullPointerException e){
-            res = RESULT_ERROR;
+            e.printStackTrace();
         }
 
-        return res;
+        return datosPersona;
     }
 
     public static String newHomework(int id_grupo,String titulo,String descripcion,String materia, Date fecha){
@@ -191,7 +201,7 @@ public class SMEDClient {
 
         try {
             jObj = new JSONObject(response);
-            Log.v("lel",response);
+            Log.v("sendpostrequest",response);
         } catch (JSONException e) {
             Log.e("JSON Parser", "Error parsing data " + e.toString());
         }
