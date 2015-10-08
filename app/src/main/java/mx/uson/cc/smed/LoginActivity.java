@@ -44,6 +44,7 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import mx.uson.cc.smed.util.SMEDClient;
@@ -699,7 +700,7 @@ public class LoginActivity extends Activity
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, String> {
+    public class UserLoginTask extends AsyncTask<Void, Void, HashMap<String,String>> {
 
         //FLAGS
         private final int LOGIN = 0;
@@ -771,7 +772,7 @@ public class LoginActivity extends Activity
         }
 
         @Override
-        protected String doInBackground(Void... params) {
+        protected HashMap<String,String> doInBackground(Void... params) {
             switch(task&1){
                 case LOGIN:
                     return SMEDClient.login(mEmail,mPassword);
@@ -787,18 +788,18 @@ public class LoginActivity extends Activity
 
             }
 
-            return "";
+            return null;
         }
 
         @Override
-        protected void onPostExecute(final String result) {
+        protected void onPostExecute(final HashMap<String,String> result) {
             mAuthTask = null;
             showProgress(false);
 
-            switch(result){
+            switch(result.get("message")){
                 case SMEDClient.RESULT_LOGGED_IN:
                     finishedLogin(mName);
-                    Toast.makeText(LoginActivity.this,result,Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this,"Bienvenido "+result.get("nombre"),Toast.LENGTH_SHORT).show();
                     break;
                 case SMEDClient.RESULT_WRONG_PASSWORD:
                     if(task == GOOGLE_PLUS) //Login with g+ but registered without it
@@ -822,7 +823,8 @@ public class LoginActivity extends Activity
                     break;
                 case SMEDClient.RESULT_NEW_USER:
                     finishedLogin(mName);
-                    Toast.makeText(LoginActivity.this,result,Toast.LENGTH_SHORT);
+                    Toast.makeText(LoginActivity.this,"Bienvenido "+result.get("nombre"),Toast.LENGTH_SHORT);
+                    //aquí ya tengo el id_persona, con lo cual accedo a sus datos.
                     break;
                 default:
                     Toast.makeText(LoginActivity.this,
