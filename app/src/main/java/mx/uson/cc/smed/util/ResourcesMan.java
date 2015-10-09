@@ -49,4 +49,8 @@ public class ResourcesMan {
         tareas.add(tarea);
         Collections.sort(tareas, sorter);
     }
+
+    public static void quitarTareas(){
+        tareas.clear();
+    }
 }

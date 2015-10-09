@@ -1,43 +1,42 @@
 package mx.uson.cc.smed;
 
-import android.support.v4.app.ListFragment;
-import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Locale;
-
-import mx.uson.cc.smed.util.ResourcesMan;
-import mx.uson.cc.smed.util.SMEDClient;
-
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends ListFragment{
+public class MainActivityFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener{
 
-
+SwipeRefreshLayout swipeLayout;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ((AppCompatActivity)getActivity()).getSupportActionBar().show();
         getActivity().setTitle(R.string.homeworks);
-        return super.onCreateView(inflater, container, savedInstanceState);
+
+
+
+        View v = inflater.inflate(R.layout.fragment_main, container,false);
+
+
+
+        swipeLayout = (SwipeRefreshLayout)v.findViewById(R.id.swipe_container);
+        swipeLayout.setOnRefreshListener(this);
+        swipeLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+        return v;
     }
 
     /**
@@ -60,5 +59,14 @@ public class MainActivityFragment extends ListFragment{
             e.printStackTrace();
         }
         // TODO: ADD THE FRAGMENT WITH THE HOMEWORK DETAILS
+    }
+
+
+    @Override
+    public void onRefresh() {
+        Log.v("",":3");
+        new MainActivity.GetHomework(((MainActivity) getActivity())).execute();
+        swipeLayout.setRefreshing(false);
+
     }
 }

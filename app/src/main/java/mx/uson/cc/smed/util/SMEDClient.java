@@ -29,6 +29,7 @@ public class SMEDClient {
     private static final String URL_LOGIN = "http://148.225.83.3/~e5ingsoft2/smed/Login.php";
     private static final String URL_NEW_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/CrearTarea.php";
     private static final String URL_GET_ALL_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerTareas.php";
+    private static final String URL_EDIT_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ActualizarTarea.php";
 
     public static final int STUDENT = 1;
     public static final int TEACHER = 2;
@@ -136,7 +137,7 @@ public class SMEDClient {
         String res="";
         try{
             res = result.getString("message");
-            Log.v("test",res);
+            Log.v("test", res);
         }catch(JSONException e){
             e.printStackTrace();
         }catch (NullPointerException e){
@@ -146,6 +147,33 @@ public class SMEDClient {
         return res;
     }
 
+    public static String editHomework(int id_tarea,int id_grupo,String titulo,String descripcion,String materia,Date fecha){
+
+        HashMap<String,String> datosTarea = new HashMap<>();
+
+        datosTarea.put(SMEDClient.KEY_ID_HOMEWORK,Integer.toString(id_tarea));
+        datosTarea.put(SMEDClient.KEY_ID_GROUP,Integer.toString(id_grupo));
+        datosTarea.put(SMEDClient.KEY_DATE,fecha.toString());
+        datosTarea.put(SMEDClient.KEY_CLASS,materia);
+        datosTarea.put(SMEDClient.KEY_TITLE,titulo);
+        datosTarea.put(SMEDClient.KEY_DESCRIPTION,descripcion);
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_EDIT_HOMEWORK,datosTarea);
+
+        String res="";
+        try{
+            res = result.getString("message");
+            Log.v("test", res);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            res = RESULT_ERROR;
+        }
+
+        return res;
+
+    }
+
     public static JSONObject getAllHomework(){
         HashMap<String,String> params = new HashMap<>();
 
@@ -153,6 +181,7 @@ public class SMEDClient {
 
         String res="";
         try{
+            Log.v("sendpostrequest",result.getString("tareas"));
             res = result.getString("message");
             Log.v("test",res);
         }catch(JSONException e){
@@ -205,7 +234,6 @@ public class SMEDClient {
 
         try {
             jObj = new JSONObject(response);
-            Log.v("sendpostrequest",response);
         } catch (JSONException e) {
             Log.e("JSON Parser", "Error parsing data " + e.toString());
         }
