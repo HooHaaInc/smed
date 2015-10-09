@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import mx.uson.cc.smed.util.ResourcesMan;
+import mx.uson.cc.smed.util.SMEDClient;
 
 /**
  * Created by Jorge on 9/16/2015.
@@ -116,9 +117,12 @@ public class HomeworkFragment extends Fragment {
      */
     private void setViews(){
         View v = root.findViewById(R.id.homework_title_bar);
-
         FloatingActionButton fabMini = (FloatingActionButton)root.findViewById(R.id.edit_homework);
-        fabMini.setBackgroundTintList(ColorStateList.valueOf(Tarea.getCourseColor(materia)));
+        if(getActivity().getSharedPreferences("user", 0)
+                .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1) != SMEDClient.TEACHER)
+            fabMini.hide();
+        else
+            fabMini.setBackgroundTintList(ColorStateList.valueOf(Tarea.getCourseColor(materia)));
 
         ((MainActivity)getActivity()).setStatusBarColor(Tarea.getCourseColor(materia));
 

@@ -35,8 +35,7 @@ import java.util.Map;
 
 public class WifiDirect extends BroadcastReceiver
 		implements WifiP2pManager.PeerListListener,
-		WifiP2pManager.ConnectionInfoListener,
-		WifiP2pManager.ActionListener{
+		WifiP2pManager.ConnectionInfoListener{
 
 	public static String TAG = WifiDirect.class.toString();
 	public static final int SERVER_PORT = 8888;
@@ -97,8 +96,19 @@ public class WifiDirect extends BroadcastReceiver
 
     public void discoverPeers(){
 
-        action = DISCOVER_PEERS;
-        mManager.discoverPeers(mChannel, this);
+        mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                if(listener != null)
+                        listener.onActionSuccess(DISCOVER_PEERS);
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                if(listener != null)
+                    listener.onActionFailure(DISCOVER_PEERS, reason);
+            }
+        });
     }
 
     public void setWifiDirectListener(WifiDirectEventListener listener){
@@ -133,15 +143,26 @@ public class WifiDirect extends BroadcastReceiver
         config.deviceAddress = device.deviceAddress;
         config.wps.setup = WpsInfo.PBC;
 
-        action = CONNECT;
-        mManager.connect(mChannel, config, this);
+        mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                if(listener != null)
+                    listener.onActionSuccess(CONNECT);
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                if(listener != null)
+                    listener.onActionFailure(CONNECT, reason);
+            }
+        });
 
         return true;
     }
 
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo info) {
-
+        System.out.println("Almost connect");
         // InetAddress from WifiP2pInfo struct.
         //InetAddress groupOwnerAddress = InetAddress.(info.groupOwnerAddress.getHostAddress());
 
@@ -153,7 +174,7 @@ public class WifiDirect extends BroadcastReceiver
             // The other device acts as the client. In this case,
             // you'll want to create a client thread that connects to the group
             // owner.
-            sendUserData(info.groupOwnerAddress.getHostAddress(), 8888);
+            new UserDataAsyncTask(this,info.groupOwnerAddress.getHostAddress());
         }
     }
 
@@ -174,8 +195,19 @@ public class WifiDirect extends BroadcastReceiver
         // Add the local service, sending the service info, network channel,
         // and listener that will be used to indicate success or failure of
         // the request.
-        action = ADD_LOCAL_SERVICE;
-        mManager.addLocalService(mChannel, serviceInfo, this);
+        mManager.addLocalService(mChannel, serviceInfo, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                if(listener != null)
+                    listener.onActionSuccess(ADD_LOCAL_SERVICE);
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                if(listener != null)
+                    listener.onActionFailure(ADD_LOCAL_SERVICE, reason);
+            }
+        });
     }
 
     @TargetApi(16)
@@ -220,15 +252,25 @@ public class WifiDirect extends BroadcastReceiver
 	    mManager.setDnsSdResponseListeners(mChannel, servListener, txtListener);
 
 	    WifiP2pServiceRequest serviceRequest = WifiP2pDnsSdServiceRequest.newInstance();
-        action = ADD_SERVICE_REQUEST;
         mManager.addServiceRequest(mChannel,
-                serviceRequest, this);
+                serviceRequest, new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                        if(listener != null)
+                            listener.onActionSuccess(ADD_SERVICE_REQUEST);
+                    }
+
+                    @Override
+                    public void onFailure(int reason) {
+                        if(listener != null)
+                            listener.onActionFailure(ADD_SERVICE_REQUEST, reason);
+                    }
+                });
 
         
 	}
 
 	@SuppressLint("NewApi")
-	@Override
 	public void onSuccess(){
         if(listener != null)
             listener.onActionSuccess(action);
@@ -242,7 +284,19 @@ public class WifiDirect extends BroadcastReceiver
 			break;
 		case ADD_SERVICE_REQUEST:
 			action = DISCOVER_SERVICES;
-			mManager.discoverServices(mChannel, this);
+			mManager.discoverServices(mChannel, new WifiP2pManager.ActionListener() {
+                @Override
+                public void onSuccess() {
+                    if(listener != null)
+                        listener.onActionSuccess(DISCOVER_SERVICES);
+                }
+
+                @Override
+                public void onFailure(int reason) {
+                    if(listener != null)
+                        listener.onActionFailure(DISCOVER_SERVICES, reason);
+                }
+            });
 			break;
 		case DISCOVER_SERVICES:
 			break;
@@ -251,30 +305,7 @@ public class WifiDirect extends BroadcastReceiver
 		}
 	}
 
-	@Override
-	public void onFailure(int code){
-        if(listener != null)
-            listener.onActionFailure(action, code);
 
-		switch(action){
-		case DISCOVER_PEERS:
-			break;
-		case CONNECT:
-			break;
-		case ADD_LOCAL_SERVICE:
-			break;
-		case ADD_SERVICE_REQUEST:
-			break;
-		case DISCOVER_SERVICES:
-            // Command failed.  Check for P2P_UNSUPPORTED, ERROR, or BUSY
-            if (code == WifiP2pManager.P2P_UNSUPPORTED) {
-				Log.d(TAG, "P2P isn't supported on this device.");
-			}
-			break;
-		default:
-			Log.d(TAG, "Unknown action failed");
-		}
-	}
 
 	@Override
     public void onReceive(Context context, Intent intent) {
@@ -324,45 +355,55 @@ public class WifiDirect extends BroadcastReceiver
         }
     }
 
-    public void sendUserData(String host, int port){
-        Socket socket = new Socket();
-        try{
-            socket.bind(null);
-            socket.connect(new InetSocketAddress(host, port), 500);
-
-            OutputStream output = socket.getOutputStream();
-            DataOutputStream data = new DataOutputStream(output);
-            data.writeUTF("Alumno");
-            data.close();
-            output.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }finally{
-            if(socket.isConnected())
-                try{
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
-    }
 
     public static class UserDataAsyncTask extends AsyncTask<Void, Void, String>{
         WifiDirect context;
+        String hostAddress;
+
         public UserDataAsyncTask(WifiDirect context){
+            this.hostAddress = null;
+            this.context = context;
+        }
+
+        public UserDataAsyncTask(WifiDirect context, String hostAddress){
+            this.hostAddress = null;
             this.context = context;
         }
 
         @Override
         protected String doInBackground(Void... params) {
+            if(hostAddress == null) { //retrieve data
+                try {
+                    ServerSocket serverSocket = new ServerSocket(8888);
+                    Socket client = serverSocket.accept();
+                    DataInputStream data = new DataInputStream(client.getInputStream());
+                    return data.readUTF();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }else{ //send data
+                Socket socket = new Socket();
+                try{
+                    socket.bind(null);
+                    socket.connect(new InetSocketAddress(hostAddress, 8888), 500);
 
-            try {
-                ServerSocket serverSocket = new ServerSocket(8888);
-                Socket client = serverSocket.accept();
-                DataInputStream data = new DataInputStream(client.getInputStream());
-                return data.readUTF();
-            } catch (IOException e) {
-                e.printStackTrace();
+                    OutputStream output = socket.getOutputStream();
+                    DataOutputStream data = new DataOutputStream(output);
+                    data.writeUTF("Alumno");
+                    data.close();
+                    output.close();
+                    return "sended shit";
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }finally{
+                    if(socket.isConnected())
+                        try{
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                }
             }
             return null;
         }

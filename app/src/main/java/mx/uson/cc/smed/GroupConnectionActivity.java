@@ -2,8 +2,12 @@ package mx.uson.cc.smed;
 
 import android.app.Activity;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
@@ -14,11 +18,13 @@ public class GroupConnectionActivity extends Activity
         implements WifiDirect.WifiDirectEventListener {
 
 	WifiDirect direct;
+    LinearLayout layout;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-	    //setContentView(R.layout.main);
+	    setContentView(R.layout.activity_group_connection);
+        layout = (LinearLayout)findViewById(R.id.connection_layout);
 
 	    direct = new WifiDirect(this);
         direct.setWifiDirectListener(this);
@@ -38,26 +44,35 @@ public class GroupConnectionActivity extends Activity
 
     @Override
     public void onWifiP2PStateChanged(boolean isEnabled) {
-        Toast.makeText(this, isEnabled ? "WifiP2P enabled" : "WifiP2P disabled",
-                Toast.LENGTH_SHORT).show();
+        TextView tv = new TextView(this);
+        tv.setText(isEnabled ? "WifiP2P enabled" : "WifiP2P disabled");
+        layout.addView(tv);
         if(isEnabled) direct.discoverPeers();
     }
 
     @Override
     public void onActionSuccess(String action) {
-        Toast.makeText(this,"Sucessful " + action, Toast.LENGTH_SHORT).show();
+        TextView tv = new TextView(this);
+        tv.setText("Successful "+action);
+        layout.addView(tv);
     }
 
     @Override
     public void onActionFailure(String action, int code) {
-        Toast.makeText(this,"Failed " + action, Toast.LENGTH_SHORT).show();
+        TextView tv = new TextView(this);
+        tv.setText("Failed "+action+", reason: "+ code);
+        layout.addView(tv);
     }
 
     @Override
     public void onPeersChanged(List<WifiP2pDevice> peers) {
         if(peers.size() > 0)
             direct.connect(0);
-        else Toast.makeText(this, "No peers found", Toast.LENGTH_SHORT).show();
+        else{
+            TextView tv = new TextView(this);
+            tv.setText("No peers found");
+            layout.addView(tv);
+        }
     }
 
     @Override
@@ -72,6 +87,8 @@ public class GroupConnectionActivity extends Activity
 
     @Override
     public void onUserDataRead(String read) {
-
+        TextView tv = new TextView(this);
+        tv.setText("Peer says: " + read);
+        layout.addView(tv);
     }
 }

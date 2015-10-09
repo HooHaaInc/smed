@@ -30,6 +30,11 @@ public class SMEDClient {
     private static final String URL_NEW_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/CrearTarea.php";
     private static final String URL_GET_ALL_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerTareas.php";
 
+    public static final int STUDENT = 1;
+    public static final int TEACHER = 2;
+    public static final int PARENT = 3;
+
+    public static final String KEY_ID_PERSON = "persona";
     public static final String KEY_NAME = "nombre";
     public static final String KEY_LASTNAME1 = "apellido_paterno";
     public static final String KEY_LASTNAME2 = "apellido_materno";
@@ -73,7 +78,7 @@ public class SMEDClient {
 
         try {
             datosPersona.put("message",result.getString("message"));
-            datosPersona.put("id_persona",result.getString("id_persona"));
+            datosPersona.put(KEY_ID_PERSON,result.getString("id_persona"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -98,16 +103,15 @@ public class SMEDClient {
         JSONObject result = SMEDClient.sendPostRequest(URL_LOGIN,datosPersona);
 
 
-
         String res="";
         try{
-            Log.v("login:",result.getString("nombre"));
             datosPersona.put("message",result.getString("message"));
-            datosPersona.put("id_persona",result.getString("id_persona"));
-            datosPersona.put("nombre",result.getString("nombre"));
-            datosPersona.put("apellido_paterno",result.getString("apellido_paterno"));
-            datosPersona.put("apellido_materno",result.getString("apellido_materno"));
-            datosPersona.put("tipo_persona",result.getString("tipo_persona"));
+            Log.v("login:",result.getString("nombre"));
+            datosPersona.put(KEY_ID_PERSON,result.getString("id_persona"));
+            datosPersona.put(KEY_NAME,result.getString("nombre"));
+            datosPersona.put(KEY_LASTNAME1,result.getString("apellido_paterno"));
+            datosPersona.put(KEY_LASTNAME2,result.getString("apellido_materno"));
+            datosPersona.put(KEY_ACCOUNT_TYPE,result.getString("tipo_persona"));
         }catch(JSONException e){
             e.printStackTrace();
         }catch (NullPointerException e){

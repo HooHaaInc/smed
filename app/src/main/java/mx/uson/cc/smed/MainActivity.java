@@ -34,17 +34,26 @@ public class MainActivity extends AppCompatActivity {
     public static final int EDIT_HOMEWORK = 3;
     public static final int REQUEST_CONNECTION = 20;
 
+    public int account_type;
+
     ArrayAdapter adapter;
     boolean dobleFragment = false;
 
     FragmentManager fm = getSupportFragmentManager();
-    FloatingActionButton fab;
+    FloatingActionButton fab = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        account_type = getSharedPreferences("user", 0)
+                .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1);
+        System.out.println("account_type" + account_type);
         fab = (FloatingActionButton)findViewById(R.id.fab_nueva_tarea);
+        if(fab != null && account_type != SMEDClient.TEACHER){
+            fab.setVisibility(View.GONE);
+            fab = null;
+        }
         Fragment frag;
         if(findViewById(R.id.fragmentLayout2) != null)
             dobleFragment = true;
@@ -89,10 +98,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_LOGIN){
             if(resultCode == RESULT_OK){
-                Bundle userData = data.getExtras(); //TODO: get all data
-                SharedPreferences.Editor preferences = getSharedPreferences("user", 0).edit();
-                preferences.putBoolean("login", true);
-                preferences.apply();
+                recreate();
             }else finish();
         }
         if (requestCode == ADD_HOMEWORK) {
@@ -129,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        if(!dobleFragment)
+        if(!dobleFragment || account_type != SMEDClient.TEACHER)
             menu.removeItem(R.id.create);
         return true;
     }
@@ -145,16 +151,16 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         } if (id == R.id.action_log_out) {
-            SharedPreferences.Editor preferences = getSharedPreferences("user", 0).edit();
-            preferences.putBoolean("login", false);
-            preferences.apply();
+            getSharedPreferences("user", 0).edit()
+                    .clear()
+                    .apply();
 
             Intent logout = new Intent(this, LoginActivity.class);
             logout.putExtra("logout", true);
             startActivityForResult(logout, REQUEST_LOGIN);
             return true;
         } if (id == R.id.action_connect) {
-            Intent connect = new Intent(this, GroupConnectionActivity.class);
+            Intent connect = new Intent(this, WiFiDirectActivity.class);
             startActivityForResult(connect, REQUEST_CONNECTION);
         } if(id == R.id.create){
             addHomeworkButton(null);
@@ -200,7 +206,8 @@ public class MainActivity extends AppCompatActivity {
             ft.replace(R.id.fragmentLayout, f);
             ft.addToBackStack(null);
             ft.commit();
-            fab.hide();
+            if(fab != null)
+                fab.hide();
             getSupportActionBar().hide();
         }
     }
@@ -215,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
             ((ListFragment) fm.findFragmentById(R.id.fragmentLayout)).setListAdapter(adapter);
             //System.out.println("onBack: "+currentFragment.toString());
 
-            fab.show();
+            if(fab != null)
+                fab.show();
             setStatusBarColor(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                     ? getResources().getColor(R.color.primaryDark, null)
                     : getResources().getColor(R.color.primaryDark));
@@ -267,6 +275,8 @@ public class MainActivity extends AppCompatActivity {
                     return true;
 
                 } catch (JSONException e) {
+                    e.printStackTrace();
+                }catch(NullPointerException e) {
                     e.printStackTrace();
                 }
             }

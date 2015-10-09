@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -798,12 +799,12 @@ public class LoginActivity extends Activity
 
             switch(result.get("message")){
                 case SMEDClient.RESULT_LOGGED_IN:
-                    finishedLogin(mName);
+                    finishedLogin(result);
                     Toast.makeText(LoginActivity.this,"Bienvenido "+result.get("nombre"),Toast.LENGTH_SHORT).show();
                     break;
                 case SMEDClient.RESULT_WRONG_PASSWORD:
                     if(task == GOOGLE_PLUS) //Login with g+ but registered without it
-                        finishedLogin(mName);
+                        finishedLogin(result);
                     else {
                         mPasswordView.setError(getString(R.string.error_incorrect_password));
                         mPasswordView.requestFocus();
@@ -822,7 +823,7 @@ public class LoginActivity extends Activity
                     mEmailView.requestFocus();
                     break;
                 case SMEDClient.RESULT_NEW_USER:
-                    finishedLogin(mName);
+                    finishedLogin(result);
                     Toast.makeText(LoginActivity.this,"Bienvenido "+result.get("nombre"),Toast.LENGTH_SHORT);
                     //aquí ya tengo el id_persona, con lo cual accedo a sus datos.
                     break;
@@ -856,9 +857,18 @@ public class LoginActivity extends Activity
     /**
      * Starts the Main Activity
      */
-    private void finishedLogin(String email){
+    private void finishedLogin(HashMap<String, String> result){
         Intent main = new Intent(this, MainActivity.class);
-        main.putExtra("email", email);
+        getSharedPreferences("user", 0).edit()
+                .putBoolean("login", true)
+                .putString(SMEDClient.KEY_ID_PERSON, result.get(SMEDClient.KEY_ID_PERSON))
+                .putString(SMEDClient.KEY_NAME, result.get(SMEDClient.KEY_NAME))
+                .putString(SMEDClient.KEY_LASTNAME1, result.get(SMEDClient.KEY_LASTNAME1))
+                .putString(SMEDClient.KEY_LASTNAME2, result.get(SMEDClient.KEY_LASTNAME2))
+                .putString(SMEDClient.KEY_EMAIL, result.get(SMEDClient.KEY_EMAIL))
+                .putInt(SMEDClient.KEY_ACCOUNT_TYPE,
+                    Integer.parseInt(result.get(SMEDClient.KEY_ACCOUNT_TYPE)))
+                .apply();
         //startActivity(main);
         setResult(RESULT_OK, main);
         finish();
