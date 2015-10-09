@@ -1,17 +1,18 @@
 package mx.uson.cc.smed;
 
 import android.annotation.SuppressLint;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         fab = (FloatingActionButton)findViewById(R.id.fab_nueva_tarea);
+
         Fragment frag;
         if(findViewById(R.id.fragmentLayout2) != null)
             dobleFragment = true;
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             fm.beginTransaction()
                     .add(R.id.fragmentLayout, frag)
                     .commit();
-            new GetHomework().execute();
+            new GetHomework(this).execute();
         }else{
             if(findViewById(R.id.fragmentLayout2) != null) {
                 dobleFragment = true;
@@ -73,8 +75,10 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 getSupportActionBar().hide();
             }
-            if(!ResourcesMan.initialized)
-                new GetHomework().execute();
+            if(!ResourcesMan.initialized) {
+                new GetHomework(this).execute();
+            }
+
         }
 
     }
@@ -117,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 String materia = data.getStringExtra("MateriaTarea");
                 Date fecha = (Date) data.getSerializableExtra("FechaTarea");
                 int id = data.getIntExtra("Id", -1);
-                int pos = ResourcesMan.editTarea(new Tarea(id, titulo, desc, materia, fecha));
+                int pos = ResourcesMan.editTarea(new Tarea(id,1, titulo, desc, materia, fecha));
                 //adapter.notifyDataSetChanged();
                 ((HomeworkFragment)fm.findFragmentById(!dobleFragment
                         ?R.id.fragmentLayout : R.id.fragmentLayout2)).setTarea(pos);
@@ -232,16 +236,21 @@ public class MainActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(color);
     }
 
-    class GetHomework extends AsyncTask<Void,Void,Boolean> {
+
+    static class GetHomework extends AsyncTask<Void,Void,Boolean> {
+        MainActivity mainActivity;
 
 
-        
+        GetHomework(MainActivity ma){
+            mainActivity = ma;
+        }
 
         JSONArray hw = null;
 
         @Override
         protected Boolean doInBackground(Void... voids) {
             if(!ResourcesMan.initialized) {
+                ResourcesMan.quitarTareas();
                 JSONObject result = SMEDClient.getAllHomework();
                 try {
                     hw = result.getJSONArray("tareas");
@@ -251,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
                         c = hw.getJSONObject(i);
 
                         String id_tarea = c.getString("id_tarea");
+                        Log.v("id tarea?", id_tarea);
                         String id_grupo = c.getString("id_grupo");
                         String titulo = c.getString("titulo");
                         String desc = c.getString("descripcion");
@@ -259,6 +269,7 @@ public class MainActivity extends AppCompatActivity {
 
                         ResourcesMan.addTarea(new Tarea(
                                 Integer.parseInt(id_tarea),
+                                Integer.parseInt(id_grupo),
                                 titulo,
                                 desc,
                                 materia,
@@ -277,17 +288,17 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean res) {
             ResourcesMan.initialized = res;
-            ListFragment frag = (ListFragment)fm.findFragmentById(R.id.fragmentLayout);
-            adapter = new HomeworkListAdapter(MainActivity.this,
+            ListFragment frag = (ListFragment)mainActivity.fm.findFragmentById(R.id.fragmentLayout);
+            mainActivity.adapter = new HomeworkListAdapter(mainActivity,
                     android.R.layout.simple_list_item_1,
                     ResourcesMan.getTareas());
-            frag.setListAdapter(adapter);
-            if(dobleFragment){
+            frag.setListAdapter(mainActivity.adapter);
+            if(mainActivity.dobleFragment){
                 Fragment fragm = new HomeworkFragment();
                 Bundle bundle = new Bundle();
                 bundle.putInt("position", 0);
                 fragm.setArguments(bundle);
-                fm.beginTransaction()
+                mainActivity.fm.beginTransaction()
                         .add(R.id.fragmentLayout2, fragm)
                         .commit();
             }

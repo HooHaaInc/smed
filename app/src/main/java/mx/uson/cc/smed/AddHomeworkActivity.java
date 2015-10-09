@@ -8,22 +8,17 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import mx.uson.cc.smed.util.SMEDClient;
@@ -230,9 +225,9 @@ public class AddHomeworkActivity extends AppCompatActivity
         protected String doInBackground(Void... voids) {
             if(!mEdit)
                 return SMEDClient.newHomework(1, mTitulo, mDesc,mMateria,mFecha);
-            //TODO:
-            //return SMEDClient.editHomework(1, id, mTitulo, mDesc, mMateria, mFecha);
-            return "nope";
+            else {
+                return SMEDClient.editHomework(mId, mId_grupo, mTitulo, mDesc, mMateria, mFecha);
+            }
         }
 
         protected void onPostExecute(String res){

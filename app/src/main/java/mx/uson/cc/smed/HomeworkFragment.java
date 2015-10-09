@@ -1,11 +1,12 @@
 package mx.uson.cc.smed;
 
-import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ public class HomeworkFragment extends Fragment {
     String materia;
     Date fecha;
     int id;
+    int id_grupo;
     View root;
 
     /**
@@ -77,7 +79,7 @@ public class HomeworkFragment extends Fragment {
             return root;
         }
         setViews();
-
+        Log.v("id tarea:", Integer.toString(id));
         FloatingActionButton fabMini = (FloatingActionButton)root.findViewById(R.id.edit_homework);
         fabMini.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,6 +108,8 @@ public class HomeworkFragment extends Fragment {
         desc = tarea.getDesc();
         materia = tarea.getMateria();
         fecha = tarea.getFecha();
+        id = tarea.getId();
+        id_grupo = tarea.getGrupo();
 
         if(root != null)
             setViews();

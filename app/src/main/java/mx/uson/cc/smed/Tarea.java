@@ -1,6 +1,5 @@
 package mx.uson.cc.smed;
 
-import android.content.Context;
 import android.graphics.Color;
 
 import java.sql.Date;
@@ -92,6 +91,7 @@ public class Tarea {
     }
 
     int id = -1;
+    int id_grupo;
     String titulo;
     String desc;
     String materia;
@@ -104,7 +104,8 @@ public class Tarea {
         this.fecha = fecha;
     }
 
-    public Tarea(int id, String titulo, String desc, String materia,Date fecha){
+    public Tarea(int id,int id_grupo, String titulo, String desc, String materia,Date fecha){
+        this.id_grupo = id_grupo;
         this.titulo = titulo;
         this.desc = desc;
         this.materia = materia;
@@ -132,4 +133,6 @@ public class Tarea {
     public int getId(){
         return id;
     }
+
+    public int getGrupo() {return id_grupo;}
 }
