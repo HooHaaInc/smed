@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         account_type = getSharedPreferences("user", 0)
                 .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1);
-        System.out.println("account_type" + account_type);
+        System.out.println("account_type " + account_type);
         fab = (FloatingActionButton)findViewById(R.id.fab_nueva_tarea);
         if(fab != null && account_type != SMEDClient.TEACHER){
             fab.setVisibility(View.GONE);
@@ -87,9 +87,8 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 getSupportActionBar().hide();
             }
-            if(!ResourcesMan.initialized) {
-                new GetHomework(this).execute();
-            }
+
+            new GetHomework(this).execute();
 
         }
 
@@ -261,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            if(!ResourcesMan.initialized) {
                 ResourcesMan.quitarTareas();
                 JSONObject result = SMEDClient.getAllHomework();
                 try {
@@ -294,14 +292,12 @@ public class MainActivity extends AppCompatActivity {
                 }catch(NullPointerException e) {
                     e.printStackTrace();
                 }
-            }
 
             return false;
         }
 
         @Override
         protected void onPostExecute(Boolean res) {
-            ResourcesMan.initialized = res;
             ListFragment frag = (ListFragment)mainActivity.fm.findFragmentById(R.id.fragmentLayout);
             mainActivity.adapter = new HomeworkListAdapter(mainActivity,
                     android.R.layout.simple_list_item_1,

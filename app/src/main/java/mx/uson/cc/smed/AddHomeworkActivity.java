@@ -73,6 +73,10 @@ public class AddHomeworkActivity extends AppCompatActivity
             java.util.Date tomorrow = new java.util.Date();
             tomorrow.setTime(tomorrow.getTime() + 1000 * 60 * 60 * 24);
             date = new Date(tomorrow.getTime());
+        }if(!edit){
+            findViewById(R.id.delete_homework).setVisibility(View.GONE);
+        }else{
+            findViewById(R.id.delete_homework).setOnClickListener(this);
         }
 
         list.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -139,6 +143,9 @@ public class AddHomeworkActivity extends AppCompatActivity
                         calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
                         calendar.get(Calendar.DAY_OF_MONTH)).show();
+                break;
+            case R.id.delete_homework:
+                //TODO: mNewHomework = new NewHomework(tarea_id).execute();
         }
     }
 
