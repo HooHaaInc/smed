@@ -30,6 +30,7 @@ public class AddHomeworkActivity extends AppCompatActivity
 
     private NewHomework mNewHomework;
     Button fechaBtn = null;
+    Button delete;
     EditText titulo;
     EditText desc;
     Spinner list;
@@ -53,6 +54,8 @@ public class AddHomeworkActivity extends AppCompatActivity
         titulo = (EditText) findViewById(R.id.editTitulo);
         desc = (EditText) findViewById(R.id.editDesc);
         list = (Spinner) findViewById(R.id.spinner_materia);
+        delete = (Button)findViewById(R.id.delete_homework);
+
 
         if(getIntent().getBooleanExtra("edit", false)){
             edit = true;
@@ -73,10 +76,6 @@ public class AddHomeworkActivity extends AppCompatActivity
             java.util.Date tomorrow = new java.util.Date();
             tomorrow.setTime(tomorrow.getTime() + 1000 * 60 * 60 * 24);
             date = new Date(tomorrow.getTime());
-        }if(!edit){
-            findViewById(R.id.delete_homework).setVisibility(View.GONE);
-        }else{
-            findViewById(R.id.delete_homework).setOnClickListener(this);
         }
 
         list.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -102,6 +101,7 @@ public class AddHomeworkActivity extends AppCompatActivity
         fechaBtn.setOnClickListener(this);
         findViewById(R.id.submit).setOnClickListener(this);
         findViewById(R.id.back_to_list).setOnClickListener(this);
+        findViewById(R.id.delete_homework).setOnClickListener(this);
 
 
     }
@@ -113,8 +113,6 @@ public class AddHomeworkActivity extends AppCompatActivity
             case R.id.submit:
                 if(!datosValidos())
                     return;
-
-
                 /// TODO, el 1 está de prueba porque no hay algo que me diga de qué grupo es el maestro, todavía :>
 
                 if(edit)
@@ -137,6 +135,7 @@ public class AddHomeworkActivity extends AppCompatActivity
                 finish();
                 break;
             case R.id.fecha_calendario:
+                Log.v("calendario","entro?");
                 Calendar calendar = Calendar.getInstance(v.getResources().getConfiguration().locale);
                 calendar.setTime(date);
                 new DatePickerDialog(this, this,
@@ -145,6 +144,13 @@ public class AddHomeworkActivity extends AppCompatActivity
                         calendar.get(Calendar.DAY_OF_MONTH)).show();
                 break;
             case R.id.delete_homework:
+                Log.v("delete","entro?");
+                mNewHomework = new NewHomework(id);
+                mNewHomework.execute((Void) null);
+                Intent i = new Intent(this,MainActivity.class);
+                i.putExtra("id", id);
+                i.putExtra("fecha",date);
+                this.startActivityForResult(i, MainActivity.DELETE_HOMEWORK);
                 //TODO: mNewHomework = new NewHomework(tarea_id).execute();
         }
     }
@@ -192,7 +198,7 @@ public class AddHomeworkActivity extends AppCompatActivity
                 Tarea.getCourseColorFromIndex(index));
     }
 
-    class NewHomework extends AsyncTask<Void,Void,String>{
+    public class NewHomework extends AsyncTask<Void,Void,String>{
 
         private final int mId_grupo;
         private final String mTitulo;
@@ -228,13 +234,29 @@ public class AddHomeworkActivity extends AppCompatActivity
             mId = id;
         }
 
+        NewHomework(int id_tarea){
+            mId = id_tarea;
+            mId_grupo = -1;
+            mTitulo = null;
+            mDesc = null;
+            mMateria = null;
+            mFecha = null;
+            mEdit = false;
+        }
+
         @Override
         protected String doInBackground(Void... voids) {
-            if(!mEdit)
-                return SMEDClient.newHomework(1, mTitulo, mDesc,mMateria,mFecha);
-            else {
+            if(!mEdit && mId_grupo != -1) {
+                Log.v("agregando?",":c");
+                return SMEDClient.newHomework(1, mTitulo, mDesc, mMateria, mFecha);
+            }
+            if(mEdit && mId_grupo != -1){
+                Log.v("editando?",":c");
                 return SMEDClient.editHomework(mId, mId_grupo, mTitulo, mDesc, mMateria, mFecha);
             }
+            Log.v("borrando?",":c");
+            return SMEDClient.deleteHomework(mId);
+
         }
 
         protected void onPostExecute(String res){

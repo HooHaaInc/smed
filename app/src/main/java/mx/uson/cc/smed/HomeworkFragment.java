@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.sql.Date;
@@ -122,11 +123,16 @@ public class HomeworkFragment extends Fragment {
     private void setViews(){
         View v = root.findViewById(R.id.homework_title_bar);
         FloatingActionButton fabMini = (FloatingActionButton)root.findViewById(R.id.edit_homework);
+        Button deleteButton = (Button)root.findViewById(R.id.delete_homework);
         if(getActivity().getSharedPreferences("user", 0)
-                .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1) != SMEDClient.TEACHER)
+                .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1) != SMEDClient.TEACHER) {
             fabMini.hide();
+            deleteButton.setVisibility(View.GONE);
+        }
         else
             fabMini.setBackgroundTintList(ColorStateList.valueOf(Tarea.getCourseColor(materia)));
+
+
 
         ((MainActivity)getActivity()).setStatusBarColor(Tarea.getCourseColor(materia));
 
