@@ -1,7 +1,7 @@
 package mx.uson.cc.smed.util;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,25 +13,20 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
-import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceRequest;
-import android.net.wifi.p2p.nsd.WifiP2pServiceRequest;
 import android.os.AsyncTask;
-import android.os.Parcelable;
+import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class WifiDirect extends BroadcastReceiver
 		implements WifiP2pManager.PeerListListener,
@@ -41,24 +36,34 @@ public class WifiDirect extends BroadcastReceiver
 	public static final int SERVER_PORT = 8888;
 
 	public static final String DISCOVER_PEERS = "discover_peers";
+    public static final String STOP_DISCOVER_PEERS = "stop_discover_peers";
 	public static final String CONNECT = "connect";
-	public static final String ADD_LOCAL_SERVICE = "add_local_service";
-	public static final String ADD_SERVICE_REQUEST = "add_service_request";
-	public static final String DISCOVER_SERVICES = "discover_services";
+    public static final String CREATE_GROUP = "create_group";
+    public static final String REMOVE_GROUP = "remove_group";
 
-	private String action;
+    public static final String EXTRAS_ACCOUNT = "account";
+    public static final String EXTRAS_NAME = "name";
+    public static final String EXTRAS_LASTNAME1 = "lastname1";
+    public static final String EXTRAS_LASTNAME2 = "lastname2";
+    public static final String EXTRAS_GROUP = "group";
+    public static final String EXTRAS_DEVICE = "device";
 
-	//private WiFiDirectBroadcastReceiver receiver;
+	private boolean wasConnected = false;
+
 	private Context context;
 	private final IntentFilter intentFilter = new IntentFilter();
 	WifiP2pManager mManager;
 	WifiP2pManager.Channel mChannel;
 	private List<WifiP2pDevice> peers = new ArrayList<>();
 	final HashMap<String, String> buddies = new HashMap<>();
+    private boolean isWifiP2PEnabled;
+    private Bundle serverResponse;
+    private UserDataAsyncTask serverTask;
 
     private WifiDirectEventListener listener;
+    private WifiP2pInfo info;
 
-	public WifiDirect(Context context){
+    public WifiDirect(Context context){
 
 		this.context = context;
 		//  Indicates a change in the Wi-Fi P2P status.
@@ -80,6 +85,10 @@ public class WifiDirect extends BroadcastReceiver
 	}
 
 
+    public void setWifiDirectListener(WifiDirectEventListener listener){
+        this.listener = listener;
+    }
+
     public void register(){
     	context.registerReceiver(this, intentFilter);
     }
@@ -87,15 +96,17 @@ public class WifiDirect extends BroadcastReceiver
     public void unregister(){
         context.unregisterReceiver(this);
         listener = null;
+        if(serverTask != null) serverTask.cancel(false);
     }
 
     public void setIsWifiP2pEnabled(boolean enabled){
+        isWifiP2PEnabled = enabled;
         if(listener != null)
             listener.onWifiP2PStateChanged(enabled);
     }
 
     public void discoverPeers(){
-
+        //if(!isWifiP2PEnabbled) nope
         mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
@@ -111,9 +122,23 @@ public class WifiDirect extends BroadcastReceiver
         });
     }
 
-    public void setWifiDirectListener(WifiDirectEventListener listener){
-        this.listener = listener;
+    @TargetApi(16)
+    public void stopPeerDiscovery(){
+        mManager.stopPeerDiscovery(mChannel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                if (listener != null)
+                    listener.onActionSuccess(STOP_DISCOVER_PEERS);
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                if (listener != null)
+                    listener.onActionFailure(STOP_DISCOVER_PEERS, reason);
+            }
+        });
     }
+
 
 	@Override
     public void onPeersAvailable(WifiP2pDeviceList peerList) {
@@ -165,146 +190,62 @@ public class WifiDirect extends BroadcastReceiver
         System.out.println("Almost connect");
         // InetAddress from WifiP2pInfo struct.
         //InetAddress groupOwnerAddress = InetAddress.(info.groupOwnerAddress.getHostAddress());
-
+        this.info = info;
         // After the group negotiation, we can determine the group owner.
         if (info.groupFormed && info.isGroupOwner) {
-			new UserDataAsyncTask(this).execute((Void) null);
+            serverTask = new UserDataAsyncTask(this, serverResponse);
+            serverTask.execute();
+			//new UserDataAsyncTask(this).execute((Void) null);
 
         } else if (info.groupFormed) {
             // The other device acts as the client. In this case,
             // you'll want to create a client thread that connects to the group
             // owner.
-            new UserDataAsyncTask(this,info.groupOwnerAddress.getHostAddress());
         }
+        if(listener != null)
+            listener.onGroupFormed(info);
     }
 
-    @TargetApi(16)
-    public void startRegistration() {
-        //  Create a string map containing information about your service.
-        Map<String, String> record = new HashMap<>();
-        record.put("listenport", String.valueOf(SERVER_PORT));
-        record.put("buddyname", "Neto mlp" + (int) (Math.random() * 1000));
-        record.put("available", "visible");
-
-        // Service information.  Pass it an instance name, service type
-        // _protocol._transportlayer , and the map containing
-        // information other devices will want once they connect to this one.
-        WifiP2pDnsSdServiceInfo serviceInfo =
-                WifiP2pDnsSdServiceInfo.newInstance("_test", "_presence._tcp", record);
-
-        // Add the local service, sending the service info, network channel,
-        // and listener that will be used to indicate success or failure of
-        // the request.
-        mManager.addLocalService(mChannel, serviceInfo, new WifiP2pManager.ActionListener() {
+    public void createGroup(Bundle serverResponse){
+        this.serverResponse = serverResponse;
+        mManager.createGroup(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
                 if(listener != null)
-                    listener.onActionSuccess(ADD_LOCAL_SERVICE);
+                    listener.onActionSuccess(CREATE_GROUP);
             }
 
             @Override
             public void onFailure(int reason) {
                 if(listener != null)
-                    listener.onActionFailure(ADD_LOCAL_SERVICE, reason);
+                    listener.onActionFailure(CREATE_GROUP, reason);
             }
         });
     }
 
-    @TargetApi(16)
-    public void discoverService() {
-	    WifiP2pManager.DnsSdTxtRecordListener txtListener = new WifiP2pManager.DnsSdTxtRecordListener() {
-	        @Override
-	        /* Callback includes:
-	         * fullDomain: full domain name: e.g "printer._ipp._tcp.local."
-	         * record: TXT record dta as a map of key/value pairs.
-	         * device: The device running the advertised service.
-	         */
+    public void removeGroup(){
+        mManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                if(listener != null)
+                    listener.onActionSuccess(REMOVE_GROUP);
+            }
 
-	        public void onDnsSdTxtRecordAvailable(
-	                String fullDomain, Map record, WifiP2pDevice device) {
-                Log.d(TAG, "DnsSdTxtRecord available -" + record.toString());
-                buddies.put(device.deviceAddress, (String) record.get("buddyname"));
-                Toast.makeText(context, (String)record.get("buddyname"), Toast.LENGTH_SHORT).show();
-	            }
-	        };
+            @Override
+            public void onFailure(int reason) {
+                if(listener != null)
+                    listener.onActionFailure(REMOVE_GROUP, reason);
+            }
+        });
+    }
 
-		WifiP2pManager.DnsSdServiceResponseListener servListener = new WifiP2pManager.DnsSdServiceResponseListener() {
+    public void sendInfo(Activity activity, Bundle bundle){
+        new UserDataAsyncTask(this, bundle, info.groupOwnerAddress.getHostAddress()).execute();
+    }
 
-	        public void onDnsSdServiceAvailable(String instanceName, String registrationType,
-	                WifiP2pDevice resourceType) {
-
-	                // Update the device name with the human-friendly version from
-	                // the DnsTxtRecord, assuming one arrived.
-	                resourceType.deviceName = buddies
-	                        .containsKey(resourceType.deviceAddress) ? buddies
-	                        .get(resourceType.deviceAddress) : resourceType.deviceName;
-
-	                // Add to the custom adapter defined specifically for showing
-	                // wifi devices.
-
-                    if(listener != null)
-                        listener.onPeerAdded(resourceType);
-
-	                Log.d(TAG, "onBonjourServiceAvailable " + instanceName);
-	        }
-	    };
-
-	    mManager.setDnsSdResponseListeners(mChannel, servListener, txtListener);
-
-	    WifiP2pServiceRequest serviceRequest = WifiP2pDnsSdServiceRequest.newInstance();
-        mManager.addServiceRequest(mChannel,
-                serviceRequest, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        if(listener != null)
-                            listener.onActionSuccess(ADD_SERVICE_REQUEST);
-                    }
-
-                    @Override
-                    public void onFailure(int reason) {
-                        if(listener != null)
-                            listener.onActionFailure(ADD_SERVICE_REQUEST, reason);
-                    }
-                });
-
-        
-	}
-
-	@SuppressLint("NewApi")
-	public void onSuccess(){
-        if(listener != null)
-            listener.onActionSuccess(action);
-
-		switch(action){
-		case DISCOVER_PEERS:
-			break;
-		case CONNECT:
-			break;
-		case ADD_LOCAL_SERVICE:
-			break;
-		case ADD_SERVICE_REQUEST:
-			action = DISCOVER_SERVICES;
-			mManager.discoverServices(mChannel, new WifiP2pManager.ActionListener() {
-                @Override
-                public void onSuccess() {
-                    if(listener != null)
-                        listener.onActionSuccess(DISCOVER_SERVICES);
-                }
-
-                @Override
-                public void onFailure(int reason) {
-                    if(listener != null)
-                        listener.onActionFailure(DISCOVER_SERVICES, reason);
-                }
-            });
-			break;
-		case DISCOVER_SERVICES:
-			break;
-		default:
-			Log.d(TAG, "Unknown action");
-		}
-	}
-
+    public void requestInfo(Activity activity){
+        sendInfo(activity, new Bundle());
+    }
 
 
 	@Override
@@ -343,6 +284,10 @@ public class WifiDirect extends BroadcastReceiver
                 // info to find group owner IP
 
                 mManager.requestConnectionInfo(mChannel, this);
+                wasConnected = true;
+            }else if(wasConnected){
+                if(listener != null)
+                    listener.onDisconnected();
             }
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
@@ -351,69 +296,136 @@ public class WifiDirect extends BroadcastReceiver
             //fragment.updateThisDevice((WifiP2pDevice) intent.getParcelableExtra(
              //       WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
             if(listener != null)
-                listener.onDeviceChangedAction(intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
+                listener.onDeviceChangedAction((WifiP2pDevice)intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
         }
     }
 
 
-    public static class UserDataAsyncTask extends AsyncTask<Void, Void, String>{
+    public static class UserDataAsyncTask extends AsyncTask<Void, Bundle, Bundle>{
+        static int SOCKET_TIMEOUT = 5000;
+
         WifiDirect context;
-        String hostAddress;
+        Bundle bundle;
+        String host;
 
-        public UserDataAsyncTask(WifiDirect context){
-            this.hostAddress = null;
+        public UserDataAsyncTask(WifiDirect context, Bundle bundle){
             this.context = context;
+            this.bundle = bundle;
+            this.host = null;
         }
 
-        public UserDataAsyncTask(WifiDirect context, String hostAddress){
-            this.hostAddress = null;
+        public UserDataAsyncTask(WifiDirect context, Bundle bundle, String host){
             this.context = context;
+            this.bundle = bundle;
+            this.host = host;
         }
 
-        @Override
-        protected String doInBackground(Void... params) {
-            if(hostAddress == null) { //retrieve data
-                try {
-                    ServerSocket serverSocket = new ServerSocket(8888);
+        private Bundle doServer(){
+            try{
+                ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+                while(!isCancelled()) {
+                    Log.d(TAG, "Opening server socket - ");
                     Socket client = serverSocket.accept();
-                    DataInputStream data = new DataInputStream(client.getInputStream());
-                    return data.readUTF();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }else{ //send data
-                Socket socket = new Socket();
-                try{
-                    socket.bind(null);
-                    socket.connect(new InetSocketAddress(hostAddress, 8888), 500);
+                    Log.d(TAG, "Server socket - " + client.isConnected());
 
-                    OutputStream output = socket.getOutputStream();
-                    DataOutputStream data = new DataOutputStream(output);
-                    data.writeUTF("Alumno");
-                    data.close();
-                    output.close();
-                    return "sended shit";
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }finally{
-                    if(socket.isConnected())
-                        try{
-                            socket.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
+                    Log.d(TAG, "Initialized OutputStream");
+                    Set<String> set = bundle.keySet();
+                    HashMap<String,String> map = new HashMap<>();
+                    if(!set.isEmpty()) {
+                        map.put(EXTRAS_ACCOUNT, "" + bundle.getInt(EXTRAS_ACCOUNT));
+                        set.remove(EXTRAS_ACCOUNT);
+                        for (String key : set)
+                            map.put(key, bundle.getString(key));
+                    }
+                    oos.writeObject(map);
+                    Log.d(TAG, "Wrote bundle");
+
+                    ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
+                    Log.d(TAG, "Initialized InputStream");
+                    HashMap<String, String> read = (HashMap<String,String>)ois.readObject();
+                    set = read.keySet();
+                    Bundle b = new Bundle();
+                    if(!set.isEmpty()) {
+                        b.putInt(EXTRAS_ACCOUNT, Integer.parseInt(read.get(EXTRAS_ACCOUNT)));
+                        set.remove(EXTRAS_ACCOUNT);
+                        for (String key : set)
+                            b.putString(key, read.get(key));
+                    }
+                    publishProgress(b);
+                    Log.d(TAG, "Progress published");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private Bundle doClient(){
+            Socket socket = new Socket();
+            try {
+                Log.d(TAG, "Opening client socket - ");
+                socket.bind(null);
+                socket.connect((new InetSocketAddress(host, SERVER_PORT)), SOCKET_TIMEOUT);
+                Log.d(TAG, "Client socket - " + socket.isConnected());
+
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                HashMap<String, String> read = (HashMap<String,String>)ois.readObject();
+                Set<String> set = read.keySet();
+                Bundle b = new Bundle();
+                if(!set.isEmpty()) {
+                    b.putInt(EXTRAS_ACCOUNT, Integer.parseInt(read.get(EXTRAS_ACCOUNT)));
+                    set.remove(EXTRAS_ACCOUNT);
+                    for (String key : set)
+                        b.putString(key, read.get(key));
+                }
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                set = bundle.keySet();
+                HashMap<String,String> map = new HashMap<>();
+                if(!set.isEmpty()) {
+                    map.put(EXTRAS_ACCOUNT, "" + bundle.getInt(EXTRAS_ACCOUNT));
+                    set.remove(EXTRAS_ACCOUNT);
+                    for (String key : set)
+                        map.put(key, bundle.getString(key));
+                }
+                oos.writeObject(map);
+                Log.d(TAG, "Client: Data written");
+                return b;
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            } finally {
+                if (socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // Give up
+                        e.printStackTrace();
+                    }
                 }
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            //Toast.makeText(context, "Holi" + s, Toast.LENGTH_SHORT).show();
-            if(context.listener != null)
-                context.listener.onUserDataRead(s);
+        protected Bundle doInBackground(Void... params) {
+            if(host != null)
+                return doClient();
+            else return doServer();
+        }
+
+        @Override
+        protected void onProgressUpdate(Bundle... values) {
+            super.onProgressUpdate(values);
+            if(context.listener != null && !values[0].isEmpty())
+                context.listener.onUserDataRead(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Bundle result) {
+            super.onPostExecute(result);
+            if(context.listener != null && result != null)
+                context.listener.onUserDataRead(result);
         }
     }
 
@@ -422,8 +434,11 @@ public class WifiDirect extends BroadcastReceiver
         void onActionSuccess(String action);
         void onActionFailure(String action, int code);
         void onPeersChanged(List<WifiP2pDevice> peers);
-        void onPeerAdded(WifiP2pDevice peer);
-        void onDeviceChangedAction(Parcelable device);
-        void onUserDataRead(String read);
+        void onDeviceChangedAction(WifiP2pDevice device);
+        void onGroupFormed(WifiP2pInfo info);
+        void onUserDataRead(Bundle result);
+        //void onServerResponse(HashMap<String, String> response);
+        //void onClientResponse(HashMap<String, String> response);
+        void onDisconnected();
     }
 }

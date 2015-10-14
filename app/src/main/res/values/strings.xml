@@ -75,6 +75,15 @@
     <string name="p2p_off_warning">Enable P2P above or system settings</string>
     <string name="group_owner_text">"Am I the group owner?"</string>
     <string name="label_me">ME</string>
-    <string name="label_peers">PEERS</string>
+    <string name="label_peers">DEVICES</string>
+    <string name="str_continue">Continue</string>
+
+    <string name="wifidirect_step1_1">Here you can follow some easy steps to be able to connect to another device. First, you have to identify your device, it\'s WiFiDirect Device Name is shown below</string>
+
+    <string name="wifidirect_step1_2">You should assign it your name so others would know which is yours, you can do it opening Settings App > Wi-Fi Settings > Options > Wi-Fi Direct > Change device name </string>
+
+    <string name="wifidirect_step1_2_api21">You should assign it your name so others would know which is yours, you can do it opening Settings App > Wi-Fi Settings > Options > Advanced Config > Wi-Fi Direct > Change device name </string>
+
+    <string name="wifidirect_step2">Click below to start looking for devices. You will only find devices that are also looking</string>
 
 </resources>

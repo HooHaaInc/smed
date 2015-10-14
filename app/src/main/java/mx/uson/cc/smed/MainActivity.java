@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(logout, REQUEST_LOGIN);
             return true;
         } if (id == R.id.action_connect) {
-            Intent connect = new Intent(this, WiFiDirectActivity.class);
+            Intent connect = new Intent(this, GroupConnectionActivity.class);
             startActivityForResult(connect, REQUEST_CONNECTION);
         } if(id == R.id.create){
             addHomeworkButton(null);
@@ -304,8 +304,11 @@ public class MainActivity extends AppCompatActivity {
                     ResourcesMan.getTareas());
             frag.setListAdapter(mainActivity.adapter);
             if(mainActivity.dobleFragment){
-                Fragment fragm = new HomeworkFragment();
+                Fragment fragm = mainActivity.fm.findFragmentById(R.id.fragmentLayout2);
+                if(frag == null)
+                    fragm = new HomeworkFragment();
                 Bundle bundle = new Bundle();
+                //TODO: if(tareas.size() ==0) "No hay tareas, yey";
                 bundle.putInt("position", 0);
                 fragm.setArguments(bundle);
                 mainActivity.fm.beginTransaction()

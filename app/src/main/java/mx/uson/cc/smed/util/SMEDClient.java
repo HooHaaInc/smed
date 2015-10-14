@@ -51,6 +51,8 @@ public class SMEDClient {
     public static final String KEY_CLASS = "materia";
     public static final String KEY_DATE = "fecha";
 
+    public static final String KEY_GROUP_NAME = "group_name";
+
     public static final String RESULT_NEW_USER = "Registro exitoso.";
     public static final String RESULT_OK = "Operación exitosa.";
     public static final String RESULT_WRONG_PASSWORD = "Clave de acceso incorrecta."; //puedes cambiarlos si quieres ... Ok nan :>
