@@ -3,19 +3,20 @@ package mx.uson.cc.smed;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,20 +29,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import mx.uson.cc.smed.textdrawable.TextDrawable;
 import mx.uson.cc.smed.util.SMEDClient;
 import mx.uson.cc.smed.util.WifiDirect;
 
-public class GroupConnectionActivity extends AppCompatActivity
-        implements WifiDirect.WifiDirectEventListener, ViewPager.OnPageChangeListener {
+public class FindGroupActivity extends AppCompatActivity
+        implements WifiDirect.WifiDirectEventListener {
 
 	WifiDirect direct;
-    WiFiFragmentPagerAdapter mPagerAdapter;
+    PagerAdapter mPagerAdapter;
     ViewPager mViewPager;
-    Button btnContinue;
     ArrayList<WifiP2pDevice> peers;
 
     private Bundle myInfo;
@@ -58,25 +57,18 @@ public class GroupConnectionActivity extends AppCompatActivity
 	    setContentView(R.layout.activity_group_connection);
 
         mViewPager = (ViewPager)findViewById(R.id.pager);
-        mPagerAdapter = new WiFiFragmentPagerAdapter(this);
-        btnContinue = (Button)findViewById(R.id.btn_continue);
-        btnContinue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1);
-            }
-        });
+        mPagerAdapter = new PagerAdapter(this);
+
 
         mViewPager.setAdapter(mPagerAdapter);
-        mViewPager.addOnPageChangeListener(this);
 
         myInfo = new Bundle();
         SharedPreferences preferences = getSharedPreferences("user", 0);
+        myInfo.putString(WifiDirect.EXTRAS_ID, preferences.getString(SMEDClient.KEY_ID_PERSON, "-1"));
         myInfo.putInt(WifiDirect.EXTRAS_ACCOUNT, preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1));
         myInfo.putString(WifiDirect.EXTRAS_NAME, preferences.getString(SMEDClient.KEY_NAME, "NaN"));
         myInfo.putString(WifiDirect.EXTRAS_LASTNAME1, preferences.getString(SMEDClient.KEY_LASTNAME1, "McGreggor"));
         myInfo.putString(WifiDirect.EXTRAS_LASTNAME2, preferences.getString(SMEDClient.KEY_LASTNAME2, ""));
-        myInfo.putString(WifiDirect.EXTRAS_GROUP, preferences.getString(SMEDClient.KEY_GROUP_NAME, "LCC"));
 
 	    direct = new WifiDirect(this);
         direct.setWifiDirectListener(this);
@@ -102,11 +94,7 @@ public class GroupConnectionActivity extends AppCompatActivity
     public void onWifiP2PStateChanged(boolean isEnabled) {
         if (isEnabled){
             direct_step = 1;
-            if(myInfo.getInt(WifiDirect.EXTRAS_ACCOUNT, -1) == SMEDClient.TEACHER) {
-                direct.createGroup(myInfo);
-            }
         } else direct_step = 0;
-        mPagerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -114,12 +102,11 @@ public class GroupConnectionActivity extends AppCompatActivity
         mDevice = device;
         if (findViewById(R.id.my_name) != null) {
             ((TextView) findViewById(R.id.my_name)).setText(mDevice.deviceName);
-            ((TextView) findViewById(R.id.my_status)).setText(getDeviceStatus(mDevice.status));
+            ((TextView) findViewById(R.id.my_status)).setText(
+                    getResources().getStringArray(R.array.device_states)[mDevice.status]);
         }
-        if(myInfo.getInt(WifiDirect.EXTRAS_ACCOUNT, -1) == SMEDClient.TEACHER) {
-            direct.createGroup(myInfo);
-            myInfo.putString(WifiDirect.EXTRAS_DEVICE, device.deviceName);
-        }
+        myInfo.putString(WifiDirect.EXTRAS_DEVICE, device.deviceName);
+
     }
 
     @Override
@@ -137,32 +124,19 @@ public class GroupConnectionActivity extends AppCompatActivity
      */
     @Override
     public void onPeersChanged(List<WifiP2pDevice> peers) {
-        if(peers.size() > 0 && direct_step == 1) {
-            direct_step = 2;
-            mPagerAdapter.notifyDataSetChanged();
+        if(direct_step == 1) {
+            mViewPager.setVisibility(View.GONE);
             this.peers = new ArrayList<>(peers);
-            mViewPager.setCurrentItem(mViewPager.getCurrentItem()+1);
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
-            ListView list = ((ListView) findViewById(R.id.list));
-            if(list != null) {
-                list.setAdapter(new WiFiPeerListAdapter(
-                        this, android.R.layout.simple_list_item_1, peers));
-                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        direct.connect(position);
-                        if (progressDialog != null && progressDialog.isShowing()) {
-                            progressDialog.dismiss();
-                        }
-                        progressDialog = ProgressDialog.show(GroupConnectionActivity.this,
-                                "Press back to cancel",
-                                "Connecting to :" + GroupConnectionActivity.this.peers.get(position).deviceName, //.deviceName
-                                true, true);
-                    }
-                });
-            }
+            findViewById(R.id.wifi_list).setVisibility(View.VISIBLE);
+            Fragment frag = getSupportFragmentManager().findFragmentById(R.id.wifi_list);
+            if (frag == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.wifi_list, new DeviceListFragment())
+                        .commit();
+            } else ((DeviceListFragment) frag).adapter.notifyDataSetChanged();
         }
     }
 
@@ -174,18 +148,16 @@ public class GroupConnectionActivity extends AppCompatActivity
     @Override
     public void onGroupFormed(WifiP2pInfo info) {
         System.out.println("Group formed! c:");
-        if(info.groupFormed && !info.isGroupOwner) {
+        if(!info.isGroupOwner) {
             direct.requestInfo(this);
             if(progressDialog != null && progressDialog.isShowing())
-                progressDialog.setMessage("Getting info...");
+                progressDialog.setMessage(getString(R.string.direct_getting_info));
+            else if(progressDialog == null)
+                System.out.println("getting info...");
         }else {
-            if (progressDialog != null && progressDialog.isShowing())
-                progressDialog.dismiss();
+            Toast.makeText(this, "Im the owner wtf", Toast.LENGTH_SHORT).show();
         }
-        if(direct_step == 2) {
-            direct_step = 3;
-            mPagerAdapter.notifyDataSetChanged();
-        }
+        direct_step = 2;
     }
 
 
@@ -197,6 +169,7 @@ public class GroupConnectionActivity extends AppCompatActivity
         }
         if (progressDialog != null && progressDialog.isShowing())
             progressDialog.dismiss();
+        System.out.println("user data read");
 
         String name = read.getString(WifiDirect.EXTRAS_NAME);
         String lastname1 = read.getString(WifiDirect.EXTRAS_LASTNAME1);
@@ -212,24 +185,22 @@ public class GroupConnectionActivity extends AppCompatActivity
         ((TextView) v.findViewById(R.id.user_name)).setText(name +" "+ lastname1 +" "+ lastname2);
         ((TextView)v.findViewById(R.id.group_name)).setText(group);
         ((TextView)v.findViewById(R.id.device_name)).setText(device);
-        new AlertDialog.Builder(this).setView(v).setPositiveButton("Inscribirse",
+        new AlertDialog.Builder(this).setView(v).setPositiveButton(R.string.sign_to_group,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        Toast.makeText(GroupConnectionActivity.this, "Inscrito yey", Toast.LENGTH_SHORT).show();
-                        if(myInfo.getInt(WifiDirect.EXTRAS_ACCOUNT) == SMEDClient.TEACHER)
-                            GroupConnectionActivity.this.finish();
-                        else {
-                            direct.sendInfo(GroupConnectionActivity.this, myInfo);
-                            GroupConnectionActivity.this.inscrito = true;
-                        }
+                        Toast.makeText(FindGroupActivity.this, R.string.signed_to_group, Toast.LENGTH_SHORT).show();
+                        direct.sendInfo(FindGroupActivity.this, myInfo);
+                        FindGroupActivity.this.inscrito = true;
+
                     }
-                }).setNegativeButton("Cancelar",
+                }).setNegativeButton(R.string.action_cancel,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        direct_step = 1;
                         //TODO: direct.disconnect();
                     }
                 }).create().show();
@@ -242,48 +213,23 @@ public class GroupConnectionActivity extends AppCompatActivity
 
     //endregion
 
-    //region ViewPagerListener
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-
-
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
-    }
-
-    //endregion
-
     //region PagerAdapter
 
-    public static class WiFiFragmentPagerAdapter extends FragmentPagerAdapter {
+    public static class PagerAdapter extends FragmentPagerAdapter {
 
         public static final int STEP_ONE_FRAGMENT = 0;
         public static final int STEP_TWO_FRAGMENT = 1;
-        public static final int DEVICE_LIST_FRAGMENT = 2;
-        public static final int DEVICE_DETAIL_FRAGMENT = 3;
 
-        private GroupConnectionActivity activity;
-
-        public WiFiFragmentPagerAdapter(GroupConnectionActivity activity) {
+        public PagerAdapter(FindGroupActivity activity) {
             super(activity.getSupportFragmentManager());
-            this.activity = activity;
         }
 
         @Override
         public Fragment getItem(int position) {
             Fragment frag;
-            frag = new WiFiDirectFragment();
+            frag = new StepFragment();
             Bundle args = new Bundle();
-            args.putInt(WiFiDirectFragment.ARG_POSITION, position);
+            args.putInt(StepFragment.ARG_POSITION, position);
             frag.setArguments(args);
 
             return frag;
@@ -291,17 +237,11 @@ public class GroupConnectionActivity extends AppCompatActivity
 
         @Override
         public int getCount() {
-            return activity.direct_step + 1;
-        }
-
-        @Override
-        public void notifyDataSetChanged() {
-            super.notifyDataSetChanged();
-
+            return 2;
         }
     }
 
-    public static class WiFiDirectFragment extends Fragment {
+    public static class StepFragment extends Fragment {
         public static final String ARG_POSITION = "position";
         int pos;
 
@@ -309,17 +249,19 @@ public class GroupConnectionActivity extends AppCompatActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             pos = getArguments().getInt(ARG_POSITION);
-            final GroupConnectionActivity activity = (GroupConnectionActivity)getActivity();
+            final FindGroupActivity activity = (FindGroupActivity)getActivity();
             View v = null;
             switch(pos){
-                case WiFiFragmentPagerAdapter.STEP_ONE_FRAGMENT:
+                case PagerAdapter.STEP_ONE_FRAGMENT:
                     v = inflater.inflate(R.layout.fragment_wifidirect_one, container, false);
                     if (activity.mDevice != null) {
                         ((TextView) v.findViewById(R.id.my_name)).setText(activity.mDevice.deviceName);
-                        ((TextView) v.findViewById(R.id.my_status)).setText(getDeviceStatus(activity.mDevice.status));
+                        ((TextView) v.findViewById(R.id.my_status)).setText(
+                                getResources().getStringArray(R.array.device_states)[activity.mDevice.status]
+                        );
                     }
                     break;
-                case WiFiFragmentPagerAdapter.STEP_TWO_FRAGMENT:
+                case PagerAdapter.STEP_TWO_FRAGMENT:
                     v = inflater.inflate(R.layout.fragment_wifidirect_two, container, false);
                     v.findViewById(R.id.discover_peers_button).setOnClickListener(new View.OnClickListener() {
 
@@ -329,28 +271,53 @@ public class GroupConnectionActivity extends AppCompatActivity
                             if (activity.progressDialog != null && activity.progressDialog.isShowing()) {
                                 activity.progressDialog.dismiss();
                             }
-                            activity.progressDialog = ProgressDialog.show(activity, "Press back to cancel", "finding peers", true,
+                            activity.progressDialog = ProgressDialog.show(activity, null, getString(R.string.finding_devices), true,
                                     true);
                         }
                     });
                     break;
-                case WiFiFragmentPagerAdapter.DEVICE_LIST_FRAGMENT:
-                    v = inflater.inflate(R.layout.device_list, container, false);
 
-
-                    if (activity.mDevice != null) {
-                        ((TextView) v.findViewById(R.id.my_name)).setText(activity.mDevice.deviceName);
-                        ((TextView) v.findViewById(R.id.my_status)).setText(getDeviceStatus(activity.mDevice.status));
-                    }
-                    break;
-                case WiFiFragmentPagerAdapter.DEVICE_DETAIL_FRAGMENT:
-                    v = inflater.inflate(R.layout.device_detail, container, false);
-                    break;
             }
             return v;
         }
 
 
+    }
+
+    public static class DeviceListFragment extends ListFragment {
+        FindGroupActivity activity;
+        WiFiPeerListAdapter adapter;
+
+        @Override
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            activity = (FindGroupActivity)getActivity();
+            View v = inflater.inflate(R.layout.device_list, container,false);
+            adapter = new WiFiPeerListAdapter(activity,
+                    android.R.layout.simple_list_item_1, activity.peers);
+            setListAdapter(adapter);
+            if (activity.mDevice != null) {
+                ((TextView) v.findViewById(R.id.my_name)).setText(activity.mDevice.deviceName);
+                ((TextView) v.findViewById(R.id.my_status)).setText(
+                        getResources().getStringArray(R.array.device_states)[activity.mDevice.status]);
+            }
+            return v;
+        }
+
+        /**
+         * le dice a la activity que debe cambiar/actualizar el fragment compañero
+         * (HomeworkFragment), le manda un bundle con la posicion de la tarea
+         * en ResourcesMan y el fragment compañero
+         */
+        @Override
+        public void onListItemClick(ListView l, View v, int position, long id) {
+            activity.direct.connect(position);
+
+            activity.progressDialog = ProgressDialog.show(activity,
+                    null,
+                    String.format(getString(R.string.connecting_to), activity.peers.get(position).deviceName), //.deviceName
+                    true, true);
+        }
     }
 
     /**
@@ -384,7 +351,8 @@ public class GroupConnectionActivity extends AppCompatActivity
                     top.setText(device.deviceName);
                 }
                 if (bottom != null) {
-                    bottom.setText(getDeviceStatus(device.status));
+                    bottom.setText(getContext().getResources()
+                            .getStringArray(R.array.device_states)[device.status]);
                 }
             }
 
@@ -395,22 +363,5 @@ public class GroupConnectionActivity extends AppCompatActivity
 
     //endregion
 
-    private static String getDeviceStatus(int deviceStatus) {
-        Log.d(WifiDirect.TAG, "Peer status :" + deviceStatus);
-        switch (deviceStatus) {
-            case WifiP2pDevice.AVAILABLE:
-                return "Available";
-            case WifiP2pDevice.INVITED:
-                return "Invited";
-            case WifiP2pDevice.CONNECTED:
-                return "Connected";
-            case WifiP2pDevice.FAILED:
-                return "Failed";
-            case WifiP2pDevice.UNAVAILABLE:
-                return "Unavailable";
-            default:
-                return "Unknown";
 
-        }
-    }
 }

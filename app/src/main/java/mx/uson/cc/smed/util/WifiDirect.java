@@ -41,6 +41,7 @@ public class WifiDirect extends BroadcastReceiver
     public static final String CREATE_GROUP = "create_group";
     public static final String REMOVE_GROUP = "remove_group";
 
+    public static final String EXTRAS_ID = "id";
     public static final String EXTRAS_ACCOUNT = "account";
     public static final String EXTRAS_NAME = "name";
     public static final String EXTRAS_LASTNAME1 = "lastname1";
@@ -110,13 +111,13 @@ public class WifiDirect extends BroadcastReceiver
         mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                if(listener != null)
-                        listener.onActionSuccess(DISCOVER_PEERS);
+                if (listener != null)
+                    listener.onActionSuccess(DISCOVER_PEERS);
             }
 
             @Override
             public void onFailure(int reason) {
-                if(listener != null)
+                if (listener != null)
                     listener.onActionFailure(DISCOVER_PEERS, reason);
             }
         });
@@ -167,6 +168,7 @@ public class WifiDirect extends BroadcastReceiver
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = device.deviceAddress;
         config.wps.setup = WpsInfo.PBC;
+        config.groupOwnerIntent = 0;
 
         mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
             @Override
@@ -193,8 +195,11 @@ public class WifiDirect extends BroadcastReceiver
         this.info = info;
         // After the group negotiation, we can determine the group owner.
         if (info.groupFormed && info.isGroupOwner) {
-            serverTask = new UserDataAsyncTask(this, serverResponse);
-            serverTask.execute();
+            if(serverTask == null) {
+                Log.d(TAG, "server execute");
+                serverTask = new UserDataAsyncTask(this, serverResponse);
+                serverTask.execute();
+            }
 			//new UserDataAsyncTask(this).execute((Void) null);
 
         } else if (info.groupFormed) {
@@ -202,7 +207,7 @@ public class WifiDirect extends BroadcastReceiver
             // you'll want to create a client thread that connects to the group
             // owner.
         }
-        if(listener != null)
+        if(listener != null && info.groupFormed)
             listener.onGroupFormed(info);
     }
 
@@ -227,13 +232,13 @@ public class WifiDirect extends BroadcastReceiver
         mManager.removeGroup(mChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                if(listener != null)
+                if (listener != null)
                     listener.onActionSuccess(REMOVE_GROUP);
             }
 
             @Override
             public void onFailure(int reason) {
-                if(listener != null)
+                if (listener != null)
                     listener.onActionFailure(REMOVE_GROUP, reason);
             }
         });
@@ -288,6 +293,7 @@ public class WifiDirect extends BroadcastReceiver
             }else if(wasConnected){
                 if(listener != null)
                     listener.onDisconnected();
+                wasConnected = false;
             }
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
@@ -363,6 +369,7 @@ public class WifiDirect extends BroadcastReceiver
         }
 
         private Bundle doClient(){
+            Log.d(TAG, "bundle ?"+!bundle.isEmpty());
             Socket socket = new Socket();
             try {
                 Log.d(TAG, "Opening client socket - ");
@@ -419,6 +426,7 @@ public class WifiDirect extends BroadcastReceiver
             super.onProgressUpdate(values);
             if(context.listener != null && !values[0].isEmpty())
                 context.listener.onUserDataRead(values[0]);
+            Log.d(TAG, "bundle ?"+!values[0].isEmpty());
         }
 
         @Override
@@ -441,4 +449,5 @@ public class WifiDirect extends BroadcastReceiver
         //void onClientResponse(HashMap<String, String> response);
         void onDisconnected();
     }
+
 }

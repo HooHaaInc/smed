@@ -11,10 +11,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -69,11 +65,19 @@ public class MainActivity extends AppCompatActivity {
                 Intent login = new Intent(this, LoginActivity.class);
                 startActivityForResult(login, REQUEST_LOGIN);
             }
-            frag = new MainActivityFragment();
-            fm.beginTransaction()
-                    .add(R.id.fragmentLayout, frag)
-                    .commit();
-            new GetHomework(this).execute();
+            //buscar grupo si no está en uno o pertenece al grupo default
+            if(preferences.getInt(SMEDClient.KEY_ID_GROUP, 1) == 1 &&
+                    account_type == SMEDClient.STUDENT){ //TODO:por ahora
+                View find = findViewById(R.id.view_find_group);
+                find.setVisibility(View.VISIBLE);
+            }else {
+                //start fragment
+                frag = new MainActivityFragment();
+                fm.beginTransaction()
+                        .add(R.id.fragmentLayout, frag)
+                        .commit();
+                new GetHomework(this).execute();
+            }
         }else{
             if(findViewById(R.id.fragmentLayout2) != null) {
                 dobleFragment = true;
@@ -143,6 +147,10 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         if(!dobleFragment || account_type != SMEDClient.TEACHER)
             menu.removeItem(R.id.create);
+        if(account_type != SMEDClient.TEACHER) {
+            menu.removeItem(R.id.action_find_students);
+            menu.removeItem(R.id.action_find_parents);
+        }
         return true;
     }
 
@@ -165,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
             logout.putExtra("logout", true);
             startActivityForResult(logout, REQUEST_LOGIN);
             return true;
-        } if (id == R.id.action_connect) {
-            Intent connect = new Intent(this, GroupConnectionActivity.class);
+        } if (id == R.id.action_find_students) {
+            Intent connect = new Intent(this, FindStudentsActivity.class);
             startActivityForResult(connect, REQUEST_CONNECTION);
         } if(id == R.id.create){
             addHomeworkButton(null);
@@ -182,6 +190,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    public void findGroup(View v){
+        Intent connect = new Intent(this, FindGroupActivity.class);
+        startActivityForResult(connect, REQUEST_CONNECTION);
     }
 
     public void addHomeworkButton(View v){

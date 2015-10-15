@@ -11,6 +11,26 @@
         android:id="@+id/fragmentLayout">
     </RelativeLayout>
 
+    <LinearLayout android:id="@+id/view_find_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:text="@string/no_group"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:text="@string/action_find_group"
+            android:onClick="findGroup"/>
+
+    </LinearLayout>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_nueva_tarea"

@@ -4,6 +4,26 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
+    <LinearLayout android:id="@+id/view_find_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:text="@string/no_group"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:text="@string/action_find_group"
+            android:onClick="findGroup"/>
+
+    </LinearLayout>
+
     <FrameLayout
         android:id="@+id/fragmentLayout"
         android:layout_width="0dp"
