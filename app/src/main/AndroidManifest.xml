@@ -68,7 +68,7 @@
         <activity
             android:name=".FindStudentsActivity"
             android:label="@string/title_activity_find_stundents"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme" >
         </activity>
     </application>
 

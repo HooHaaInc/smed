@@ -7,6 +7,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -139,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == DELETE_HOMEWORK){
             if(resultCode == RESULT_OK){
                 //TODO Google Cloud
-                int id = data.getIntExtra("Id",-1);
+                int id = data.getIntExtra("Id", -1);
                 Date fecha = (Date)data.getSerializableExtra("fecha");
                 ResourcesMan.eliminarTarea(new Tarea(id,1,"","","",fecha));
                 adapter.notifyDataSetChanged();
