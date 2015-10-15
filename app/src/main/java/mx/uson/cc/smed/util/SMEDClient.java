@@ -30,6 +30,7 @@ public class SMEDClient {
     private static final String URL_NEW_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/CrearTarea.php";
     private static final String URL_GET_ALL_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerTareas.php";
     private static final String URL_EDIT_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ActualizarTarea.php";
+    private static final String URL_DELETE_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/borrarTarea.php";
 
     public static final int STUDENT = 1;
     public static final int TEACHER = 2;
@@ -174,6 +175,26 @@ public class SMEDClient {
 
         return res;
 
+    }
+
+    public static String deleteHomework(int id_tarea){
+        HashMap<String,String> datosTarea = new HashMap<>();
+
+        datosTarea.put(SMEDClient.KEY_ID_HOMEWORK,Integer.toString(id_tarea));
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_DELETE_HOMEWORK,datosTarea);
+
+        String res="";
+        try{
+            res = result.getString("message");
+            Log.v("borrandooooo", res);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            res = RESULT_ERROR;
+        }
+
+        return res;
     }
 
     public static JSONObject getAllHomework(){

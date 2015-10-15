@@ -1,10 +1,6 @@
 package mx.uson.cc.smed;
 
 import android.annotation.SuppressLint;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -33,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_LOGIN = 1;
     public static final int ADD_HOMEWORK = 2;
     public static final int EDIT_HOMEWORK = 3;
+    public static final int DELETE_HOMEWORK = 4;
     public static final int REQUEST_CONNECTION = 20;
 
     public int account_type;
@@ -137,6 +134,15 @@ public class MainActivity extends AppCompatActivity {
                 //adapter.notifyDataSetChanged();
                 ((HomeworkFragment)fm.findFragmentById(!dobleFragment
                         ?R.id.fragmentLayout : R.id.fragmentLayout2)).setTarea(pos);
+            }
+        }
+        if(requestCode == DELETE_HOMEWORK){
+            if(resultCode == RESULT_OK){
+                //TODO Google Cloud
+                int id = data.getIntExtra("Id",-1);
+                Date fecha = (Date)data.getSerializableExtra("fecha");
+                ResourcesMan.eliminarTarea(new Tarea(id,1,"","","",fecha));
+                adapter.notifyDataSetChanged();
             }
         }
     }

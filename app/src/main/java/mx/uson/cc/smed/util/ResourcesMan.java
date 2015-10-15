@@ -53,4 +53,13 @@ public class ResourcesMan {
     public static void quitarTareas(){
         tareas.clear();
     }
+
+    public static void eliminarTarea(Tarea tarea){
+        int i=0;
+        for(;i<tareas.size();++i)
+            if(tareas.get(i).getId() == tarea.getId())
+                break;
+        tareas.remove(i);
+        Collections.sort(tareas,sorter);
+    }
 }
