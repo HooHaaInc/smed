@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context="mx.uson.cc.smed.AddHomeworkActivity">
 
-    <RelativeLayout android:id="@+id/report_title_bar"
+    <RelativeLayout android:id="@+id/meeting_title_bar"
         android:layout_width="match_parent"
         android:layout_height="112dp"
         android:background="?attr/colorPrimary">
@@ -16,15 +16,17 @@
             android:adjustViewBounds="false"
             style="@style/Widget.AppCompat.Toolbar.Button.Navigation" />
 
-        <TextView
+        <EditText
             android:layout_alignParentBottom="true"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:id="@+id/editTitulo"
+            android:hint="Titulo de la junta"
             android:theme="@style/AppTheme.Dark"
+            android:inputType="textCapSentences"
             android:maxLines="1"
-            android:text="Reporte"
-            android:layout_margin="20dp"
-            style="@style/Base.TextAppearance.AppCompat.Title"/>
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"/>
 
         <Button android:id="@+id/submit"
             android:layout_height="56dp"
@@ -51,21 +53,46 @@
                 android:paddingLeft="20dp"
                 android:paddingTop="10dp"
                 android:paddingRight="20dp"
+                android:paddingBottom="10dp"
+                android:layout_marginTop="20dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_access_time_black_18dp"
+                    android:layout_marginTop="14dp" />
+
+                <Button
+                    android:id="@+id/fecha_calendario"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginStart="20dp"
+                    android:text="nov. 17 martes, 2015"
+                    style="@style/Widget.AppCompat.Toolbar.Button.Navigation" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:paddingTop="10dp"
+                android:paddingRight="20dp"
                 android:paddingBottom="10dp">
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_assignment_black_18dp"
-                    android:visibility="invisible"
-                    android:layout_marginTop="2dp" />
+                    android:layout_marginTop="2dp"
+                    android:visibility="invisible"/>
 
                 <EditText
-                    android:id="@+id/bully_field"
-                    android:layout_width="match_parent"
+                    android:id="@+id/spinner_materia"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
-                    android:hint="Abusador" />
+                    android:hint="Citado(s)" />
             </LinearLayout>
 
             <LinearLayout
@@ -80,43 +107,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_subject_black_18dp"
-                    android:visibility="invisible"
                     android:layout_marginTop="12dp" />
 
                 <EditText
-                    android:id="@+id/victim_field"
+                    android:id="@+id/editDesc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
-                    android:hint="Víctima"
-                    />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="20dp"
-                android:paddingTop="10dp"
-                android:paddingRight="20dp"
-                android:paddingBottom="10dp">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_subject_black_18dp"
-                    android:visibility="invisible"
-                    android:layout_marginTop="12dp" />
-
-                <EditText
-                    android:id="@+id/desc_field"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:hint="Descripción"
+                    android:hint="@string/desc"
                     />
             </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
+    <Button
+        android:id="@+id/delete_homework"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Eliminar"
+        />
 
 </LinearLayout>
