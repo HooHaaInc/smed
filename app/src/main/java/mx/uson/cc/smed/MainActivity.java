@@ -25,8 +25,10 @@ import org.json.JSONObject;
 
 import java.sql.Date;
 
+import mx.uson.cc.smed.util.Reporte;
 import mx.uson.cc.smed.util.ResourcesMan;
 import mx.uson.cc.smed.util.SMEDClient;
+import mx.uson.cc.smed.util.Tarea;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int ADD_HOMEWORK = 2;
     public static final int EDIT_HOMEWORK = 3;
     public static final int DELETE_HOMEWORK = 4;
+    public static final int ADD_REPORT = 5;
+
     public static final int REQUEST_CONNECTION = 20;
 
     public int account_type;
@@ -149,6 +153,13 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         }
+        if (requestCode == ADD_REPORT) {
+            if (resultCode == RESULT_OK) {
+                // Un reporte fue subido. Lo insertaremos a la lista de reportes.
+                Reporte a = (Reporte)data.getSerializableExtra("Reporte");
+                ResourcesMan.addReporte(a);
+            }
+        }
     }
 
     @Override
@@ -188,6 +199,22 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(connect, REQUEST_CONNECTION);
         } if(id == R.id.create){
             addHomeworkButton(null);
+        }if(id == R.id.action_view_report){
+            Bundle b = new Bundle();
+            b.putSerializable("frag", ReportListFragment.class);
+            try {
+                changeFragments(b);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            }
+
+        }
+        if(id == R.id.action_add_report){
+            Intent i = new Intent(this,AddReportActivity.class);
+            startActivityForResult(i, ADD_REPORT);
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -202,6 +229,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    public void setAdapter(ArrayAdapter a){
+        adapter = a;
+
+    }
     public void findGroup(View v){
         Intent connect = new Intent(this, FindGroupActivity.class);
         startActivityForResult(connect, REQUEST_CONNECTION);

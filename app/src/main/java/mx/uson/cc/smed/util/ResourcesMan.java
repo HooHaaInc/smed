@@ -1,10 +1,10 @@
 package mx.uson.cc.smed.util;
 
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-
-import mx.uson.cc.smed.Tarea;
 
 /**
  * Created by nancio on 5/10/15.
@@ -28,7 +28,25 @@ public class ResourcesMan {
     };
 
     private static ArrayList<Tarea> tareas = new ArrayList<>();
+    private static ArrayList<Reporte> reportes = new ArrayList<>();
     public static boolean initialized = false;
+
+    public static ArrayList<Reporte> getReportes() {
+        return reportes;
+    }
+
+    static{
+        Calendar C =Calendar.getInstance();
+        Date D = new java.sql.Date(C.getTime().getTime());
+        ResourcesMan.addReporte(new Reporte("Chavo","Me pego",D));
+
+        ResourcesMan.addReporte(new Reporte("Batito","Me cosho",D));
+
+    }
+    public static void addReporte(Reporte reporte){
+        reportes.add(reporte);
+
+    }
 
 
     public static ArrayList<Tarea> getTareas() {

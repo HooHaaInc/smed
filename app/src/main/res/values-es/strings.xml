@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_log_out">Cerrar sesión</string>
+
+
+    <string name="reports">Reportes</string>
     <string name="action_settings">Configuración</string>
     <string name="action_sign_in">Iniciar Sesión</string>
     <string name="action_sign_in_short">Iniciar</string>

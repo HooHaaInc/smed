@@ -10,6 +10,16 @@
     <string name="action_log_out">Log Out</string>
     <string name="action_settings">Settings</string>
 
+
+    <string name="reports">Reports</string>
+
+    <string name="action_add_report">Add Report</string>
+
+
+    <string name="action_view_report">View Reports</string>
+
+    <string name="action_submit_report">Submit Report</string>
+
     <string-array name="user_types">
         <item>Student</item>
         <item>Teacher</item>

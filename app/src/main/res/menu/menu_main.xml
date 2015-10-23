@@ -12,4 +12,15 @@
         android:orderInCategory="200" app:showAsAction="never" />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="300" app:showAsAction="never" />
+    <item android:title="@string/action_view_report"
+        app:showAsAction="never"
+        android:orderInCategory="400"
+        android:id="@+id/action_view_report"/>
+
+    <item
+        android:title="@string/action_add_report"
+        app:showAsAction="never"
+        android:orderInCategory="500"
+        android:id="@+id/action_add_report"/>
+
 </menu>

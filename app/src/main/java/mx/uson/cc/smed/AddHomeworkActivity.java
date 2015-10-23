@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import mx.uson.cc.smed.util.SMEDClient;
+import mx.uson.cc.smed.util.Tarea;
 
 
 public class AddHomeworkActivity extends AppCompatActivity

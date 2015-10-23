@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import mx.uson.cc.smed.textdrawable.TextDrawable;
+import mx.uson.cc.smed.util.Tarea;
 
 /**
  * Created by Jorge on 9/16/2015.
@@ -83,22 +84,22 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
         Tarea tarea = getItem(position);
         // get the TextView and then set the text (item name)
         ImageView imageView = (ImageView)convertView.findViewById(R.id.imageViewItem);
-        if(Tarea.isUnknown(tarea.materia))
+        if(Tarea.isUnknown(tarea.getMateria()))
             imageView.setImageDrawable(materias.get(Tarea.COURSE_UNKNOWN));
-        else imageView.setImageDrawable(materias.get(tarea.materia));
+        else imageView.setImageDrawable(materias.get(tarea.getMateria()));
 
         TextView textViewItem = (TextView) convertView.findViewById(R.id.descViewItem);
-        textViewItem.setText(tarea.desc);
+        textViewItem.setText(tarea.getDesc());
 
         textViewItem = (TextView) convertView.findViewById(R.id.textViewItem);
         textViewItem.setText(tarea.getTitulo());
 
-        long time = (tarea.fecha.getTime() - now);
+        long time = (tarea.getFecha().getTime() - now);
         if(time < 0){
             textViewItem.setTypeface(null, Typeface.NORMAL);
             textViewItem = (TextView) convertView.findViewById(R.id.dateViewItem);
             textViewItem.setVisibility(View.INVISIBLE);
-            imageView.setImageDrawable(getOldDrawable(tarea.materia));
+            imageView.setImageDrawable(getOldDrawable(tarea.getMateria()));
             return convertView;
         }
         textViewItem = (TextView) convertView.findViewById(R.id.dateViewItem);
