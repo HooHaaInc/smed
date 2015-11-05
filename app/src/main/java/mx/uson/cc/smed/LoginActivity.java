@@ -829,7 +829,7 @@ public class LoginActivity extends Activity
                     break;
                 default:
                     Toast.makeText(LoginActivity.this,
-                            R.string.smed_server_error, Toast.LENGTH_SHORT).show();
+                            "ERROR: "+ result.get("message"), Toast.LENGTH_SHORT).show();
             }
         }
 

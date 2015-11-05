@@ -78,7 +78,7 @@ public class SMEDClient {
         datosPersona.put(SMEDClient.KEY_ACCOUNT_TYPE,Integer.toString(accountType));
 
         JSONObject result = SMEDClient.sendPostRequest(URL_REGISTER,datosPersona);
-
+        Log.d("SMED", result.toString());
 
         try {
             datosPersona.put("message",result.getString("message"));
