@@ -57,9 +57,16 @@ public class ReadReportFragment extends Fragment  {
         tv = (TextView) view.findViewById(R.id.victim);
         tv.setText(this.acusador);
        // tv = (TextView)view.findViewById(R.id.report_date);
-        //tv.setText(this.fecha);
+        //tv.setText(this.fecha)111111111111111111;
         tv = (TextView)view.findViewById(R.id.desc);
         tv.setText(this.descripcion);
+        view.findViewById(R.id.back_to_list).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ((MainActivity) getActivity()).goBack();
+                    }
+                });
         return view;
     }
 

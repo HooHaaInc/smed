@@ -19,8 +19,8 @@ import mx.uson.cc.smed.util.ResourcesMan;
 /**
  * Created by Jorge on 10/3/2015.
  */
-public class ReportListFragment extends ListFragment {
-    public ReportListFragment(){
+public class MeetingListFragment extends ListFragment {
+    public MeetingListFragment(){
 
 
     }
@@ -34,8 +34,8 @@ public class ReportListFragment extends ListFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ((AppCompatActivity)getActivity()).getSupportActionBar().show();
-        ReportListAdapter adapter = new ReportListAdapter(inflater.getContext(),R.layout.list_view_row_report_item,
-                ResourcesMan.getReportes());
+        MeetingListAdapter adapter = new MeetingListAdapter(inflater.getContext(),R.layout.list_view_row_report_item,
+                ResourcesMan.getJuntas());
         setListAdapter(adapter);
         ((MainActivity)(getActivity())).setAdapter(adapter);
         getActivity().setTitle(R.string.reports);
@@ -45,9 +45,9 @@ public class ReportListFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        ReadReportFragment  rmf = new ReadReportFragment();
+        ReadMeetingFragment  rrf = new ReadMeetingFragment();
         Bundle b  = new Bundle();
-        b.putSerializable("frag",ReadReportFragment.class);
+        b.putSerializable("frag",ReadMeetingFragment.class);
         b.putInt("Position", position);
         MainActivity a = (MainActivity)getActivity();
         try {

@@ -44,13 +44,12 @@ public class AddReportActivity extends AppCompatActivity {
     }
     public void submitReport(View V){
         Intent i = this.getIntent();
-        //mete aqui al batito que mando al reporte-- posible con el nuevo pull?
-        String acusador = "Batito";
+        //mete aqui al batito que mando al reporte-- posible con el nuevo push
         TextView tv = (TextView)findViewById(R.id.desc_field);
         String descripcion = tv.getText().toString();
         Calendar GC = Calendar.getInstance();
 
-        Reporte r = new Reporte(acusador,descripcion,new Date(GC.getTimeInMillis()));
+        Reporte r = new Reporte(1,descripcion,new Date(GC.getTimeInMillis()));
         i.putExtra("Reporte",r);
         this.setResult(RESULT_OK,i);
         finish();

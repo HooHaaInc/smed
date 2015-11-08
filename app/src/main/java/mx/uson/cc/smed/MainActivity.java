@@ -19,16 +19,12 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import mx.uson.cc.smed.util.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Date;
-
-import mx.uson.cc.smed.util.Reporte;
-import mx.uson.cc.smed.util.ResourcesMan;
-import mx.uson.cc.smed.util.SMEDClient;
-import mx.uson.cc.smed.util.Tarea;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int EDIT_HOMEWORK = 3;
     public static final int DELETE_HOMEWORK = 4;
     public static final int ADD_REPORT = 5;
+    public static final int ADD_MEETING = 6;
 
     public static final int REQUEST_CONNECTION = 20;
 
@@ -160,6 +157,13 @@ public class MainActivity extends AppCompatActivity {
                 ResourcesMan.addReporte(a);
             }
         }
+        if (requestCode == ADD_MEETING) {
+            if (resultCode == RESULT_OK) {
+                // Un reporte fue subido. Lo insertaremos a la lista de reportes.
+                Junta j = (Junta)data.getSerializableExtra("Junta");
+                ResourcesMan.addJunta(j);
+            }
+        }
     }
 
     @Override
@@ -211,9 +215,26 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+        if(id == R.id.action_view_meeting){
+            Bundle b = new Bundle();
+            b.putSerializable("frag", MeetingListFragment.class);
+            try {
+                changeFragments(b);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            }
+
+        }
         if(id == R.id.action_add_report){
             Intent i = new Intent(this,AddReportActivity.class);
             startActivityForResult(i, ADD_REPORT);
+
+        }
+        if(id == R.id.action_add_meeting){
+            Intent i = new Intent(this,AddMeetingActivity.class);
+            startActivityForResult(i, ADD_MEETING);
 
         }
 
@@ -277,9 +298,17 @@ public class MainActivity extends AppCompatActivity {
     public void goBack(){
         if(!dobleFragment){
             fm.popBackStackImmediate();
-            adapter = new HomeworkListAdapter(this,
-                    android.R.layout.simple_list_item_1,
-                    ResourcesMan.getTareas());
+            Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragmentLayout);
+            if(f instanceof MainActivityFragment) {
+                adapter = new HomeworkListAdapter(this,
+                        android.R.layout.simple_list_item_1,
+                        ResourcesMan.getTareas());
+            }
+            if(f instanceof ReportListFragment) {
+                adapter = new ReportListAdapter(this,
+                        android.R.layout.simple_list_item_1,
+                        ResourcesMan.getReportes());
+            }
             ((ListFragment) fm.findFragmentById(R.id.fragmentLayout)).setListAdapter(adapter);
             //System.out.println("onBack: "+currentFragment.toString());
 

@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_log_out">Cerrar sesión</string>
+    <string name="action_add_report">Añadir Reporte</string>
 
+    <string name ="action_add_meeting">Añadir Junta</string>
+    <string name="action_view_report">Ver reportes</string>
 
+    <string name ="action_view_meeting">Ver Juntas</string>
+
+    <string name ="action_submit_meeting">Subir Junta</string>
+    <string name="action_submit_report">Subir Reporte</string>
+    <string name="meetings">Juntas</string>
     <string name="reports">Reportes</string>
     <string name="action_settings">Configuración</string>
     <string name="action_sign_in">Iniciar Sesión</string>

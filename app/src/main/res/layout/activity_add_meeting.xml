@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="mx.uson.cc.smed.AddHomeworkActivity">
+    tools:context="mx.uson.cc.smed.AddMeetingActivity">
 
     <RelativeLayout android:id="@+id/meeting_title_bar"
         android:layout_width="match_parent"
@@ -34,7 +34,8 @@
             android:layout_alignParentRight="true"
             style="@style/Widget.AppCompat.Toolbar.Button.Navigation"
             android:text="@string/save"
-            android:textColor="#fff" />
+            android:textColor="#fff"
+            android:onClick = "onClick"/>
 
     </RelativeLayout>
 
@@ -69,6 +70,7 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginStart="20dp"
                     android:text="nov. 17 martes, 2015"
+                    android:onClick = "onClick"
                     style="@style/Widget.AppCompat.Toolbar.Button.Navigation" />
             </LinearLayout>
 
@@ -88,7 +90,7 @@
                     android:visibility="invisible"/>
 
                 <EditText
-                    android:id="@+id/spinner_materia"
+                    android:id="@+id/spinner_junta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
@@ -125,6 +127,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Eliminar"
+        android:onClick = "onClick"
         />
 
 </LinearLayout>

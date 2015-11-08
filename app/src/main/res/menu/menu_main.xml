@@ -16,11 +16,20 @@
         app:showAsAction="never"
         android:orderInCategory="400"
         android:id="@+id/action_view_report"/>
+    <item android:title="@string/action_view_meeting"
+        app:showAsAction="never"
+        android:orderInCategory="400"
+        android:id="@+id/action_view_meeting"/>
 
     <item
         android:title="@string/action_add_report"
         app:showAsAction="never"
         android:orderInCategory="500"
         android:id="@+id/action_add_report"/>
+    <item
+            android:title="@string/action_add_meeting"
+        app:showAsAction="never"
+        android:orderInCategory="500"
+        android:id="@+id/action_add_meeting"/>
 
 </menu>

@@ -15,9 +15,13 @@
 
     <string name="action_add_report">Add Report</string>
 
-
+    <string name ="action_add_meeting">Add Meeting</string>
     <string name="action_view_report">View Reports</string>
 
+    <string name ="action_view_meeting">View Meetings</string>
+
+
+    <string name ="action_submit_meeting">Submit Meeting</string>
     <string name="action_submit_report">Submit Report</string>
 
     <string-array name="user_types">
@@ -107,5 +111,6 @@
     <string name="wifidirect_step2">Click below to start looking for devices. You will only find devices that are also looking</string>
 
     <string name="title_activity_find_stundents">FindStundentsActivity</string>
+    <string name="title_activity_add_meeting">Add Meeting</string>
 
 </resources>

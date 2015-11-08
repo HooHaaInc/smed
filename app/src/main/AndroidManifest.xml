@@ -70,6 +70,15 @@
             android:label="@string/title_activity_find_stundents"
             android:theme="@style/AppTheme" >
         </activity>
+        <activity
+            android:name=".AddMeetingActivity"
+            android:label="@string/title_activity_add_meeting"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="mx.uson.cc.smed.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
