@@ -32,6 +32,7 @@
             android:layout_alignParentRight="true"
             style="@style/Widget.AppCompat.Toolbar.Button.Navigation"
             android:text="@string/save"
+            android:onClick="submitReport"
             android:textColor="#fff" />
 
     </RelativeLayout>
@@ -45,52 +46,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="20dp"
-                android:paddingTop="10dp"
-                android:paddingRight="20dp"
-                android:paddingBottom="10dp">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_assignment_black_18dp"
-                    android:visibility="invisible"
-                    android:layout_marginTop="2dp" />
-
-                <EditText
-                    android:id="@+id/bully_field"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:hint="Abusador" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="20dp"
-                android:paddingTop="10dp"
-                android:paddingRight="20dp"
-                android:paddingBottom="10dp">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_subject_black_18dp"
-                    android:visibility="invisible"
-                    android:layout_marginTop="12dp" />
-
-                <EditText
-                    android:id="@+id/victim_field"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:hint="Víctima"
-                    />
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

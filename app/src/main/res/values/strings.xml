@@ -12,6 +12,20 @@
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>
 
+
+    <string name="reports">Reports</string>
+
+    <string name="action_add_report">Add Report</string>
+
+    <string name ="action_add_meeting">Add Meeting</string>
+    <string name="action_view_report">View Reports</string>
+
+    <string name ="action_view_meeting">View Meetings</string>
+
+
+    <string name ="action_submit_meeting">Submit Meeting</string>
+    <string name="action_submit_report">Submit Report</string>
+
     <string-array name="user_types">
         <item>Student</item>
         <item>Teacher</item>
@@ -99,7 +113,7 @@
 
     <string name="wifidirect_step2">Click below to start looking for devices. You will only find devices that are also looking</string>
 
-    <string name="title_activity_find_stundents" translatable="false">FindStundentsActivity</string>
+    <string name="title_activity_find_stundents" translatable="false">FindStudentsActivity</string>
 
     <string name="loading">Loading</string>
     <string name="sign_to_group_question">Sign to group?</string>
@@ -109,5 +123,6 @@
     <string name="link_to_student">Link to student</string>
     <string name="find_group">Find group</string>
     <string name="find_student">Find student</string>
+    <string name="title_activity_add_meeting">Add Meeting</string>
 
 </resources>

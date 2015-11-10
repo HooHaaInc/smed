@@ -84,7 +84,7 @@
                 android:text="Citados:"/>
 
             <TextView
-                android:id="@+id/course"
+                android:id="@+id/cited"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"

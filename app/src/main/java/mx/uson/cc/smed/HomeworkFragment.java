@@ -19,6 +19,7 @@ import java.util.Locale;
 
 import mx.uson.cc.smed.util.ResourcesMan;
 import mx.uson.cc.smed.util.SMEDClient;
+import mx.uson.cc.smed.util.Tarea;
 
 /**
  * Created by Jorge on 9/16/2015.

@@ -1,8 +1,10 @@
-package mx.uson.cc.smed;
+package mx.uson.cc.smed.util;
 
 import android.graphics.Color;
 
 import java.sql.Date;
+
+import mx.uson.cc.smed.R;
 
 /**
  * Created by Jorge on 9/15/2015.
