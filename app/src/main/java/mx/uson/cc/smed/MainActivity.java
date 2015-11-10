@@ -85,16 +85,38 @@ public class MainActivity extends AppCompatActivity {
                 dobleFragment = true;
             }
             frag = fm.findFragmentById(R.id.fragmentLayout);
+
             if(frag instanceof ListFragment){
-                adapter = new HomeworkListAdapter(this,
-                        android.R.layout.simple_list_item_1,
-                        ResourcesMan.getTareas());
+                if(frag instanceof MainActivityFragment){
+                    adapter = new HomeworkListAdapter(this,
+                            android.R.layout.simple_list_item_1,
+                            ResourcesMan.getTareas());
+                }
+                if(frag instanceof ReportListFragment){
+                    adapter = new ReportListAdapter(this,
+                            android.R.layout.simple_list_item_1,
+                            ResourcesMan.getReportes());
+                }
+                if(frag instanceof MeetingListFragment){
+                    adapter = new MeetingListAdapter(this,
+                            android.R.layout.simple_list_item_1,
+                            ResourcesMan.getJuntas());
+
+                }
                 ((ListFragment) frag).setListAdapter(adapter);
             }else{
+
                 getSupportActionBar().hide();
+
+
+            }
+            if(frag instanceof MainActivityFragment){
+                new GetHomework(this).execute();
+
+
             }
 
-            new GetHomework(this).execute();
+
 
         }
 

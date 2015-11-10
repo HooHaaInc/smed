@@ -38,7 +38,7 @@ public class MeetingListFragment extends ListFragment {
                 ResourcesMan.getJuntas());
         setListAdapter(adapter);
         ((MainActivity)(getActivity())).setAdapter(adapter);
-        getActivity().setTitle(R.string.reports);
+        getActivity().setTitle(R.string.meetings);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 

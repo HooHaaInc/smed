@@ -4,19 +4,13 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.sql.Date;
@@ -27,7 +21,6 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import mx.uson.cc.smed.util.Junta;
-import mx.uson.cc.smed.util.Reporte;
 
 public class AddMeetingActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener
         /*TimePicker.OnTimeChangedListener*/, View.OnClickListener,
@@ -101,7 +94,7 @@ public class AddMeetingActivity extends AppCompatActivity implements DatePickerD
                         calendar.get(Calendar.MONTH),
                         calendar.get(Calendar.DAY_OF_MONTH)).show();
                 break;
-            case R.id.delete_homework:
+            case R.id.delete_meeting:
                 Log.v("delete", "entro?");
         }
     }
@@ -133,15 +126,19 @@ public class AddMeetingActivity extends AppCompatActivity implements DatePickerD
     }
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        this.date = Date.valueOf(year + "-" + (monthOfYear+1) + "-" + dayOfMonth);
-        Log.d("AddMeetingDate", date.toString());
-        new TimePickerDialog(this,this,Calendar.HOUR_OF_DAY,Calendar.MINUTE,true).show();
+        if(view.isShown()) {
+            this.date = Date.valueOf(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
+            Log.d("AddMeetingDate", date.toString());
+            new TimePickerDialog(this, this, Calendar.HOUR_OF_DAY, Calendar.MINUTE, true).show();
+        }
     }
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute){
-         long hourInMillis = (hourOfDay*60+minute)*60*1000;
-         date = new Date(date.getTime() + hourInMillis);
+        if(view.isShown()) {
+            long hourInMillis = (hourOfDay * 60 + minute) * 60 * 1000;
+            date = new Date(date.getTime() + hourInMillis);
 
-        fechaBtn.setText(formatter.format(date));
+            fechaBtn.setText(formatter.format(date));
+        }
     }
 }
