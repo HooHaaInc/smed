@@ -18,16 +18,24 @@
         android:orientation="vertical"
         android:visibility="gone">
 
-        <TextView
+        <TextView android:id="@+id/find_text"
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:text="@string/no_group"/>
 
         <android.support.v7.widget.AppCompatButton
+            android:id="@+id/find_button"
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:text="@string/action_find_group"
             android:onClick="findGroup"/>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/wifi_button"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:text="@string/action_use_wifidirect"
+            android:onClick="wifidirect"/>
 
     </LinearLayout>
 

@@ -17,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import mx.uson.cc.smed.util.*;
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int ADD_MEETING = 6;
 
     public static final int REQUEST_CONNECTION = 20;
+    public static final int REQUEST_GROUP = 21;
+    public static final int REQUEST_STUDENT_LINK = 22;
 
     public int account_type;
 
@@ -69,9 +73,14 @@ public class MainActivity extends AppCompatActivity {
             }
             //buscar grupo si no está en uno o pertenece al grupo default
             if(preferences.getInt(SMEDClient.KEY_ID_GROUP, 1) == 1 &&
-                    account_type == SMEDClient.STUDENT){ //TODO:por ahora
+                    account_type != SMEDClient.TEACHER){
                 View find = findViewById(R.id.view_find_group);
                 find.setVisibility(View.VISIBLE);
+                if(account_type == SMEDClient.PARENT) {
+                    ((TextView)find.findViewById(R.id.find_text)).setText(R.string.no_son);
+                    ((Button)find.findViewById(R.id.find_button)).setText(R.string.find_student);
+                    find.findViewById(R.id.wifi_button).setVisibility(View.GONE);
+                }
             }else {
                 //start fragment
                 frag = new MainActivityFragment();
@@ -171,6 +180,28 @@ public class MainActivity extends AppCompatActivity {
                 ResourcesMan.eliminarTarea(new Tarea(id,1,"","","",fecha));
                 adapter.notifyDataSetChanged();
             }
+        }if(requestCode == REQUEST_GROUP){
+            if(resultCode == RESULT_OK){
+                //TODO: su solicitud a sido enviada
+                    View find = findViewById(R.id.view_find_group);
+                    find.setVisibility(View.GONE);
+                    //start fragment
+                    fm.beginTransaction()
+                            .add(R.id.fragmentLayout, new MainActivityFragment())
+                            .commit();
+                    new GetHomework(this).execute();
+            }
+        }if(requestCode == REQUEST_STUDENT_LINK){
+            if(resultCode == RESULT_OK){
+                //TODO: su solicitud a sido enviada
+                View find = findViewById(R.id.view_find_group);
+                find.setVisibility(View.GONE);
+                //start fragment
+                fm.beginTransaction()
+                        .add(R.id.fragmentLayout, new MainActivityFragment())
+                        .commit();
+                new GetHomework(this).execute();
+            }
         }
         if (requestCode == ADD_REPORT) {
             if (resultCode == RESULT_OK) {
@@ -221,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(logout, REQUEST_LOGIN);
             return true;
         } if (id == R.id.action_find_students) {
-            Intent connect = new Intent(this, FindStudentsActivity.class);
+            Intent connect = new Intent(this, ConnectToStudentsActivity.class);
             startActivityForResult(connect, REQUEST_CONNECTION);
         } if(id == R.id.create){
             addHomeworkButton(null);
@@ -278,8 +309,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void findGroup(View v){
-        Intent connect = new Intent(this, FindGroupActivity.class);
-        startActivityForResult(connect, REQUEST_CONNECTION);
+        Intent findGroup = new Intent(this, FindGroupActivity.class);
+        int requestCode = account_type == SMEDClient.STUDENT ? REQUEST_GROUP : REQUEST_STUDENT_LINK;
+        findGroup.putExtra("requestCode", requestCode);
+        startActivityForResult(findGroup, requestCode);
+    }
+
+    public void wifidirect(View v){
+        Intent connect = new Intent(this, ConnectToGroupActivity.class);
+        startActivityForResult(connect, REQUEST_GROUP);
     }
 
     public void addHomeworkButton(View v){
@@ -411,7 +449,7 @@ public class MainActivity extends AppCompatActivity {
             frag.setListAdapter(mainActivity.adapter);
             if(mainActivity.dobleFragment){
                 Fragment fragm = mainActivity.fm.findFragmentById(R.id.fragmentLayout2);
-                if(frag == null)
+                if(fragm == null)
                     fragm = new HomeworkFragment();
                 Bundle bundle = new Bundle();
                 //TODO: if(tareas.size() ==0) "No hay tareas, yey";

@@ -4,11 +4,13 @@
     <string name="app_name" translatable="false">SMED</string>
     <string name="title_activity_main" translatable="false">MainActivity</string>
     <string name="action_new">New</string>
+    <string name="action_use_wifidirect">Use WifiDirect</string>
     <string name="action_find_group">Find group</string>
     <string name="action_find_students">Find students</string>
     <string name="action_find_parents">Find parents</string>
     <string name="action_log_out">Log Out</string>
     <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
 
 
     <string name="reports">Reports</string>
@@ -79,6 +81,7 @@
     <string name="error_incorrect_date">Date is in the past or beyond end of school year</string>
 
     <string name="no_group">You still aren\'t registered to a group</string>
+    <string name="no_son">You still haven\'t linked to a student</string>
     
     <string name="discover_peers_button">Discover</string>
     <string name="connect_peer_button">Connect</string>
@@ -110,7 +113,16 @@
 
     <string name="wifidirect_step2">Click below to start looking for devices. You will only find devices that are also looking</string>
 
-    <string name="title_activity_find_stundents">FindStundentsActivity</string>
+    <string name="title_activity_find_stundents" translatable="false">FindStudentsActivity</string>
+
+    <string name="loading">Loading</string>
+    <string name="sign_to_group_question">Sign to group?</string>
+    <string name="signed_to">Signed to group</string>
+    <string name="link_to_student_question">Link to student?</string>
+    <string name="linked_to">Linked to student</string>
+    <string name="link_to_student">Link to student</string>
+    <string name="find_group">Find group</string>
+    <string name="find_student">Find student</string>
     <string name="title_activity_add_meeting">Add Meeting</string>
 
 </resources>

@@ -10,8 +10,8 @@
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_up">Register</string>
     <string name="action_cancel">Cancel</string>
-    <string name="create_account">No account yet? Create one</string>
-    <string name="has_account">Already a member? Log in</string>
+    <string name="create_account">No account yet? <u>Sing up</u></string>
+    <string name="has_account">Already a member? <u>Log in</u></string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="action_sign_up_short">Sign up</string>
     <string name="plus_sign_out" translatable="false">Switch Google+ account</string>

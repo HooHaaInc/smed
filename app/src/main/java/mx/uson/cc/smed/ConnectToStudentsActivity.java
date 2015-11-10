@@ -1,8 +1,6 @@
 package mx.uson.cc.smed;
 
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -10,21 +8,15 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -37,7 +29,7 @@ import mx.uson.cc.smed.textdrawable.TextDrawable;
 import mx.uson.cc.smed.util.SMEDClient;
 import mx.uson.cc.smed.util.WifiDirect;
 
-public class FindStudentsActivity extends AppCompatActivity
+public class ConnectToStudentsActivity extends AppCompatActivity
         implements WifiDirect.WifiDirectEventListener{
 
     WifiDirect direct;
@@ -167,7 +159,7 @@ public class FindStudentsActivity extends AppCompatActivity
         public static final int STEP_ONE_FRAGMENT = 0;
         public static final int STEP_TWO_FRAGMENT = 1;
 
-        public WiFiFragmentPagerAdapter(FindStudentsActivity activity) {
+        public WiFiFragmentPagerAdapter(ConnectToStudentsActivity activity) {
             super(activity.getSupportFragmentManager());
         }
 
@@ -197,7 +189,7 @@ public class FindStudentsActivity extends AppCompatActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             pos = getArguments().getInt(ARG_POSITION);
-            final FindStudentsActivity activity = (FindStudentsActivity)getActivity();
+            final ConnectToStudentsActivity activity = (ConnectToStudentsActivity)getActivity();
             View v = null;
             switch(pos){
                 case WiFiFragmentPagerAdapter.STEP_ONE_FRAGMENT:
@@ -225,13 +217,13 @@ public class FindStudentsActivity extends AppCompatActivity
     }
 
     public static class DeviceListFragment extends ListFragment {
-        FindStudentsActivity activity;
+        ConnectToStudentsActivity activity;
         StudentListAdapter adapter;
 
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            activity = (FindStudentsActivity)getActivity();
+            activity = (ConnectToStudentsActivity)getActivity();
             View v = inflater.inflate(R.layout.device_list, container,false);
             adapter = new StudentListAdapter(activity,
                     android.R.layout.simple_list_item_1, activity.peers);
