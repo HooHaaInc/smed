@@ -1,54 +1,101 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:id="@+id/content"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+android:id="@+id/content"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent">
 
+<RelativeLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:id="@+id/fragmentLayout">
+</RelativeLayout>
+
+<LinearLayout android:id="@+id/view_find_group"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <TextView android:id="@+id/find_text"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:text="@string/no_group"/>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/find_button"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_find_group"
+        android:onClick="findGroup"/>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/wifi_button"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_use_wifidirect"
+        android:onClick="wifidirect"/>
+
+</LinearLayout>
+<!-- Contenido del main -->
+<RelativeLayout
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+</RelativeLayout>
+
+<!-- Contenido deslizable (DRAWER PANE) -->
+<RelativeLayout
+    android:id="@+id/drawer_pane"
+    android:layout_gravity="start"
+    android:layout_width="280dp"
+    android:layout_height="match_parent">
+
+    <!-- Caja de Perfil Usuario (PROFILE BOX)-->
 
     <RelativeLayout
-        android:layout_height="match_parent"
+        android:id="@+id/profile_box"
+        android:background="#FF0916"
+        android:gravity="center_vertical"
         android:layout_width="match_parent"
-        android:id="@+id/fragmentLayout">
+        android:layout_height="100dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#FFF"
+                android:text="Tipo"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#FFF"
+                android:text="Nombre"
+                />
+        </LinearLayout>
     </RelativeLayout>
-
-    <LinearLayout android:id="@+id/view_find_group"
+    <!-- Lista de navegacion (NAV LISTENER)-->
+    <ListView
+        android:id="@+id/nav_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView android:id="@+id/find_text"
-            android:layout_width="240dp"
-            android:layout_height="wrap_content"
-            android:text="@string/no_group"/>
-
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/find_button"
-            android:layout_width="240dp"
-            android:layout_height="wrap_content"
-            android:text="@string/action_find_group"
-            android:onClick="findGroup"/>
-
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/wifi_button"
-            android:layout_width="240dp"
-            android:layout_height="wrap_content"
-            android:text="@string/action_use_wifidirect"
-            android:onClick="wifidirect"/>
-
-    </LinearLayout>
-
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_nueva_tarea"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="false"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="15dp"
-        android:onClick="addHomeworkButton"
-        android:src="@drawable/ic_action_new" />
+        android:layout_below="@+id/profile_box"
+        android:choiceMode="singleChoice"
+        android:background="#FFFFFF"
+        ></ListView>
+    
 </RelativeLayout>
+
+</android.support.v4.widget.DrawerLayout>
