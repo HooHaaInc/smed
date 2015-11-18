@@ -21,6 +21,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pushbots.push.Pushbots;
+
 import mx.uson.cc.smed.util.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
             fab = null;
         }
         Fragment frag;
+        Pushbots.sharedInstance().init(this);
+        Pushbots.sharedInstance().setPushEnabled(true);
         if(findViewById(R.id.fragmentLayout2) != null)
             dobleFragment = true;
         if(savedInstanceState == null) { //Se crea por primera vez

@@ -43,6 +43,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.pushbots.push.Pushbots;
 //import com.pushbots.push.Pushbots;
 
 import java.util.ArrayList;
@@ -745,7 +746,7 @@ public class LoginActivity extends Activity
             mLastName1 = apellidoPaterno;
             mLastName2 = apellidoMaterno;
             mAccountType = tipoUsuario;
-            mGmcId = null; //Pushbots.sharedInstance().regID();
+            mGmcId = Pushbots.sharedInstance().regID();
             task = REGISTER;
         }
 
@@ -759,7 +760,7 @@ public class LoginActivity extends Activity
             mLastName1 = null;
             mLastName2 = null;
             mAccountType = -1;
-            mGmcId = null; //Pushbots.sharedInstance().regID();
+            mGmcId = Pushbots.sharedInstance().regID();
             task = GOOGLE_PLUS;
         }
 
@@ -774,7 +775,7 @@ public class LoginActivity extends Activity
             mLastName1 = space == -1 ? lastName : lastName.substring(0, space);
             mLastName2 = space == -1 ? "" : lastName.substring(space);
             mAccountType = accountType;
-            mGmcId = null; //Pushbots.sharedInstance().regID();
+            mGmcId = Pushbots.sharedInstance().regID();
             task = GOOGLE_PLUS|REGISTER;
         }
 
