@@ -43,9 +43,9 @@ public class ResourcesMan {
     static{
         Calendar C =Calendar.getInstance();
         Date D = new java.sql.Date(C.getTime().getTime());
-        ResourcesMan.addReporte(new Reporte(2,"Me pego",D));
+        ResourcesMan.addReporte(new Reporte("de","Me pego",D));
 
-        ResourcesMan.addReporte(new Reporte(3,"Me cosho",D));
+        ResourcesMan.addReporte(new Reporte("dsad","Me cosho",D));
         ResourcesMan.addJunta(new Junta("Titulo","Desc",1,D,false));
 
     }
@@ -80,6 +80,14 @@ public class ResourcesMan {
 
     public static void quitarTareas(){
         tareas.clear();
+    }
+
+    public static void quitarReportes(){
+        reportes.clear();
+    }
+
+    public static void quitarJuntas(){
+        juntas.clear();
     }
 
     public static void eliminarTarea(Tarea tarea){

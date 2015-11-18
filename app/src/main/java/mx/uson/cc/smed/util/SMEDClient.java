@@ -31,6 +31,8 @@ public class SMEDClient {
     private static final String URL_GET_ALL_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerTareas.php";
     private static final String URL_EDIT_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ActualizarTarea.php";
     private static final String URL_DELETE_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/borrarTarea.php";
+    private static final String URL_GET_ALL_REPORTS = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerReportes.php";
+    private static final String URL_NEW_REPORT = "http://148.225.83.3/~e5ingsoft2/smed/CrearReporte.php";
 
     public static final int STUDENT = 1;
     public static final int TEACHER = 2;
@@ -51,6 +53,9 @@ public class SMEDClient {
     public static final String KEY_DESCRIPTION = "descripcion";
     public static final String KEY_CLASS = "materia";
     public static final String KEY_DATE = "fecha";
+    public static final String KEY_ID_STUDENT = "id_alumno";
+    public static final String KEY_COMMENT = "comentario";
+    public static final String KEY_GCM = "gcm_regid";
 
     public static final String KEY_GROUP_NAME = "group_name";
 
@@ -64,8 +69,8 @@ public class SMEDClient {
     public static final String RESULT_NEW_HOMEWORK_CREATED = "Tarea creada.";
 
     public static HashMap<String,String> register(String email, String password,
-                                  String name, String lastName1,
-                                  String lastName2, int accountType){
+                                                  String name, String lastName1,
+                                                  String lastName2, int accountType,String gcm){
 
         final String TAG_SUCESS = "exito";
 
@@ -76,13 +81,14 @@ public class SMEDClient {
         datosPersona.put(SMEDClient.KEY_LASTNAME1,lastName1);
         datosPersona.put(SMEDClient.KEY_LASTNAME2,lastName2);
         datosPersona.put(SMEDClient.KEY_ACCOUNT_TYPE,Integer.toString(accountType));
+        datosPersona.put(SMEDClient.KEY_GCM,gcm);
 
         JSONObject result = SMEDClient.sendPostRequest(URL_REGISTER,datosPersona);
-        Log.d("SMED", result.toString());
+
 
         try {
             datosPersona.put("message",result.getString("message"));
-            datosPersona.put(KEY_ID_PERSON,result.getString("id_persona"));
+            //datosPersona.put(KEY_ID_PERSON,result.getString("id_persona"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -147,6 +153,29 @@ public class SMEDClient {
             res = RESULT_ERROR;
         }
 
+        return res;
+    }
+
+    public static String newReporte(int id_alumno,String comentario,Date fecha){
+        HashMap<String,String> datosReporte = new HashMap<>();
+
+        datosReporte.put(SMEDClient.KEY_ID_STUDENT,Integer.toString(id_alumno));
+        datosReporte.put(SMEDClient.KEY_COMMENT,comentario);
+        datosReporte.put(SMEDClient.KEY_DATE,fecha.toString());
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_NEW_REPORT,datosReporte);
+
+        String res = "";
+
+        try{
+            res = result.getString("message");
+            Log.v("test", res);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            res = RESULT_ERROR;
+        }
+        Log.v("D:",res);
         return res;
     }
 
@@ -216,8 +245,25 @@ public class SMEDClient {
         return result;
     }
 
+    public static JSONObject getAllReports(){
+        HashMap<String,String> params = new HashMap<>();
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_GET_ALL_REPORTS,params);
+
+        String res = "";
+        try{
+            res = result.getString("message");
+        }catch (JSONException e){
+            e.printStackTrace();
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     private static JSONObject sendPostRequest(String requestURL,
-                                  HashMap<String, String> postDataParams) {
+                                              HashMap<String, String> postDataParams) {
 
         URL url;
         String response = "";

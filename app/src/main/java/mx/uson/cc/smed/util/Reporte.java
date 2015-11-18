@@ -7,12 +7,11 @@ import java.sql.Date;
  * Created by Jorge on 10/2/2015.
  */
 public class Reporte implements Serializable {
-    String alumno_acusador = "Derp";
+    String alumno_acusador;
     String descripcion;
     Date fecha;
-    int ID;
-    public Reporte(int ID, String desc,Date fecha){
-        this.ID = ID;
+    public Reporte(String acusador, String desc,Date fecha){
+        alumno_acusador = acusador;
         descripcion = desc;
         this.fecha = fecha;
     }
