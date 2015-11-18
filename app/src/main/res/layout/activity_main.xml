@@ -36,12 +36,25 @@ android:layout_height="fill_parent">
         android:text="@string/action_use_wifidirect"
         android:onClick="wifidirect"/>
 
+
 </LinearLayout>
 <!-- Contenido del main -->
 <RelativeLayout
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_nueva_tarea"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="15dp"
+        android:onClick="addHomeworkButton"
+        android:src="@drawable/ic_action_new" />
 
 </RelativeLayout>
 
@@ -56,7 +69,7 @@ android:layout_height="fill_parent">
 
     <RelativeLayout
         android:id="@+id/profile_box"
-        android:background="#FF0916"
+        android:background="#fb8c00"
         android:gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="100dp">
@@ -95,6 +108,8 @@ android:layout_height="fill_parent">
         android:choiceMode="singleChoice"
         android:background="#FFFFFF"
         ></ListView>
+
+
     
 </RelativeLayout>
 
