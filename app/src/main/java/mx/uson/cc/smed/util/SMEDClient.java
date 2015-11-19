@@ -58,6 +58,7 @@ public class SMEDClient {
     public static final String KEY_DATE = "fecha";
     public static final String KEY_ID_STUDENT = "id_alumno";
     public static final String KEY_COMMENT = "comentario";
+    public static final String KEY_GCM = "gcm_regid";
 
     public static final String KEY_ID_PARENT = "id_padre";
     public static final String KEY_MOTIVE = "motivo";
@@ -75,7 +76,7 @@ public class SMEDClient {
 
     public static HashMap<String,String> register(String email, String password,
                                                   String name, String lastName1,
-                                                  String lastName2, int accountType){
+                                                  String lastName2, int accountType,String id){
 
         final String TAG_SUCESS = "exito";
 
@@ -86,6 +87,7 @@ public class SMEDClient {
         datosPersona.put(SMEDClient.KEY_LASTNAME1,lastName1);
         datosPersona.put(SMEDClient.KEY_LASTNAME2,lastName2);
         datosPersona.put(SMEDClient.KEY_ACCOUNT_TYPE,Integer.toString(accountType));
+        datosPersona.put(SMEDClient.KEY_GCM,id);
 
         JSONObject result = SMEDClient.sendPostRequest(URL_REGISTER,datosPersona);
         Log.d("SMED", result.toString());
