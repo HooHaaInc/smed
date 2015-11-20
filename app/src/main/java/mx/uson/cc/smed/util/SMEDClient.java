@@ -36,6 +36,8 @@ public class SMEDClient {
     private static final String URL_NEW_MEETING = "http://148.225.83.3/~e5ingsoft2/smed/CrearJunta.php";
     private static final String URL_GET_ALL_MEETINGS = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerJuntas.php";
     private static final String URL_GET_PERSON_NAME_BY_ID = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerNombrePorIDAlumno.php";
+    private static final String URL_GET_ALL_GROUPS = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerGrupos.php";
+    private static final String URL_ASK_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/solicitudGrupo.php";
 
     public static final int STUDENT = 1;
     public static final int TEACHER = 2;
@@ -46,6 +48,8 @@ public class SMEDClient {
     public static final String KEY_LASTNAME1 = "apellido_paterno";
     public static final String KEY_LASTNAME2 = "apellido_materno";
     public static final String KEY_ACCOUNT_TYPE = "tipo_persona";
+
+    public static final String KEY_ID_TEACHER = "id_maestro";
 
     public static final String KEY_EMAIL = "correo";
     public static final String KEY_PASSWORD = "clave";
@@ -95,6 +99,7 @@ public class SMEDClient {
         try {
             datosPersona.put("message",result.getString("message"));
             datosPersona.put(KEY_ID_PERSON,result.getString("id_persona"));
+            Log.v("ID_PERSONA", result.getString("id_persona"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -106,6 +111,7 @@ public class SMEDClient {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         return datosPersona;
 
     }
@@ -122,12 +128,15 @@ public class SMEDClient {
         String res="";
         try{
             datosPersona.put("message",result.getString("message"));
-            Log.v("login:",result.getString("nombre"));
-            datosPersona.put(KEY_ID_PERSON,result.getString("id_persona"));
+            Log.v("login:", result.getString("nombre"));
+            datosPersona.put(KEY_ID_PERSON, result.getString("id_persona"));
             datosPersona.put(KEY_NAME,result.getString("nombre"));
             datosPersona.put(KEY_LASTNAME1,result.getString("apellido_paterno"));
             datosPersona.put(KEY_LASTNAME2,result.getString("apellido_materno"));
             datosPersona.put(KEY_ACCOUNT_TYPE, result.getString("tipo_persona"));
+            if(result.getString("tipo_persona").equals("2")) datosPersona.put(KEY_ID_TEACHER,result.getString("id_maestro"));
+            if(result.getString("tipo_persona").equals("1")) datosPersona.put(KEY_ID_STUDENT,result.getString("id_alumno"));
+            Log.v("ID_ALUMNO_CLIENT", result.getString("id_alumno"));
         }catch(JSONException e){
             e.printStackTrace();
         }catch (NullPointerException e){
@@ -313,6 +322,22 @@ public class SMEDClient {
         return result;
     }
 
+    public static JSONObject getAllGroups(){
+        HashMap<String,String> params = new HashMap<>();
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_GET_ALL_GROUPS,params);
+        String res = "";
+        try{
+            res = result.getString("message");
+        }catch (JSONException e){
+            e.printStackTrace();
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public static String getPersonNameByStudentID(int id_alumno){
         HashMap<String,String> params = new HashMap<>();
 
@@ -332,6 +357,29 @@ public class SMEDClient {
         }
 
         return res;
+    }
+
+    public static boolean askForGroup(int id_alumno,int id_grupo){
+        HashMap<String,String> params = new HashMap<>();
+
+        params.put(SMEDClient.KEY_ID_STUDENT,Integer.toString(id_alumno));
+        params.put(SMEDClient.KEY_ID_GROUP,Integer.toString(id_grupo));
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_ASK_GROUP,params);
+
+        String res = "";
+        try{
+            res = result.getString("message");
+            if(res.equals("Solicitud enviada.")){
+                return true;
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     private static JSONObject sendPostRequest(String requestURL,

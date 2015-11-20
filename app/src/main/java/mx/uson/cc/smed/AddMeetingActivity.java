@@ -3,6 +3,7 @@ package mx.uson.cc.smed;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -21,6 +23,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import mx.uson.cc.smed.util.Junta;
+import mx.uson.cc.smed.util.SMEDClient;
 
 public class AddMeetingActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener
         /*TimePicker.OnTimeChangedListener*/, View.OnClickListener,
@@ -79,6 +82,7 @@ public class AddMeetingActivity extends AppCompatActivity implements DatePickerD
                 java.sql.Date fecha =  new java.sql.Date(GC.getTimeInMillis());
                 Junta j = new Junta(titulo,desc,0/*ID del padre*/,fecha,juntaGrupal);
                 i.putExtra("Junta",j);
+                new newMeeting(1,titulo,desc,fecha,true).execute();
                 this.setResult(RESULT_OK, i);
                 finish();
                 break;
@@ -139,6 +143,42 @@ public class AddMeetingActivity extends AppCompatActivity implements DatePickerD
             date = new Date(date.getTime() + hourInMillis);
 
             fechaBtn.setText(formatter.format(date));
+        }
+    }
+
+    public class newMeeting extends AsyncTask<Void,Void,String>{
+
+        private final int mId_padre;
+        private final int mId_grupo;
+        private final Date mFecha;
+        private final String mMotivo;
+        private final String mDescripcion;
+        private final boolean mGrupal;
+
+        public newMeeting(int id,String motivo,String descripcion,Date fecha, boolean grupal){
+            if(grupal){
+                mId_grupo = id;
+                mId_padre = 0;
+            }else{
+                mId_padre = id;
+                mId_grupo = 0;
+            }
+            mFecha = fecha;
+            mMotivo = motivo;
+            mDescripcion = descripcion;
+            mGrupal = grupal;
+        }
+
+
+        @Override
+        protected String doInBackground(Void... params) {
+            if(mGrupal) return SMEDClient.newJunta(mId_grupo,mMotivo,mDescripcion,mFecha,mGrupal);
+            return SMEDClient.newJunta(mId_padre,mMotivo,mDescripcion,mFecha,mGrupal);
+        }
+
+
+        protected void onPostExecute(String res) {
+            Toast.makeText(AddMeetingActivity.this, res, Toast.LENGTH_SHORT).show();
         }
     }
 }

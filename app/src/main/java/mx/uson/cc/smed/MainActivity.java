@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(login, REQUEST_LOGIN);
             }
             //buscar grupo si no está en uno o pertenece al grupo default
-            if(preferences.getInt(SMEDClient.KEY_ID_GROUP, 1) == 1 &&
+            if(preferences.getInt(SMEDClient.KEY_ID_GROUP, 0) == 0 &&
                     account_type != SMEDClient.TEACHER){
                 View find = findViewById(R.id.view_find_group);
                 find.setVisibility(View.VISIBLE);

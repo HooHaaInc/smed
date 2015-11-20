@@ -729,7 +729,7 @@ public class LoginActivity extends Activity
             mLastName1 = null;
             mLastName2 = null;
             mAccountType = -1;
-            mGmcId = null;
+            mGmcId = Pushbots.sharedInstance().regID();
             task = LOGIN;
         }
 
@@ -876,6 +876,8 @@ public class LoginActivity extends Activity
                 .putString(SMEDClient.KEY_EMAIL, result.get(SMEDClient.KEY_EMAIL))
                 .putInt(SMEDClient.KEY_ACCOUNT_TYPE,
                         Integer.parseInt(result.get(SMEDClient.KEY_ACCOUNT_TYPE)))
+                .putString(SMEDClient.KEY_ID_STUDENT,result.get(SMEDClient.KEY_ID_STUDENT))
+                .putString(SMEDClient.KEY_ID_TEACHER,result.get(SMEDClient.KEY_ID_TEACHER))
                 .apply();
         //startActivity(main);
         setResult(RESULT_OK, main);

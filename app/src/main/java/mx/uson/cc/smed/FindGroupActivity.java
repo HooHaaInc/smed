@@ -4,11 +4,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -21,11 +23,16 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import mx.uson.cc.smed.textdrawable.TextDrawable;
 import mx.uson.cc.smed.util.Group;
+import mx.uson.cc.smed.util.SMEDClient;
 
 public class FindGroupActivity extends AppCompatActivity
         implements AdapterView.OnItemClickListener {
@@ -33,19 +40,23 @@ public class FindGroupActivity extends AppCompatActivity
     List<Group> items = new ArrayList<>();
     GroupAdapter adapter;
     ProgressDialog progress;
+    SharedPreferences preferences;
     int request;
+    public static final int GETGROUPS = 1;
+    public static final int ASKGROUP = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_group);
 
+        preferences = getSharedPreferences("user",0);
         request = getIntent().getIntExtra("requestCode", -1);
         adapter = new GroupAdapter(this, items);
         ListView list = (ListView)findViewById(android.R.id.list);
         list.setAdapter(adapter);
         list.setOnItemClickListener(this);
-        new GroupTask(this).execute();
+        new GroupTask(this,GETGROUPS,0,0).execute();
         progress = new ProgressDialog(this);
         progress.setMessage(getString(R.string.loading));
         progress.show();
@@ -108,9 +119,16 @@ public class FindGroupActivity extends AppCompatActivity
                     public void onClick(DialogInterface dialog, int which) {
                         //TODO: neto, inscribir gente
                         Group g = adapter.getItem(position);
+                        Log.v("ID_GRUPO:", "" + g.getId());   //TODO <--- CONSIGO ID DEL GRUPO
+                        String id = preferences.getString(SMEDClient.KEY_ID_STUDENT,"0");
+                        Log.v("ID_ALUMNO:",id);
+                        new GroupTask(FindGroupActivity.this,ASKGROUP,Integer.parseInt(id),g.getId()).execute();
                         Toast.makeText(FindGroupActivity.this,
                                 getString(R.string.signed_to)+" "+g.getName(), Toast.LENGTH_SHORT).show();
                         setResult(RESULT_OK);
+                        getSharedPreferences("user", 0).edit()
+                                .putInt(SMEDClient.KEY_ID_GROUP,g.getId())
+                                .apply();
                         finish();
                     }
                 }).setNegativeButton(R.string.action_cancel, null).create().show();
@@ -139,24 +157,49 @@ public class FindGroupActivity extends AppCompatActivity
 
     public static class GroupTask extends AsyncTask<Void,Void,Boolean> {
 
+        private final int mTask;
+        private int mId_alumno;
+        private int mId_grupo;
         FindGroupActivity activity;
-
-        public GroupTask(FindGroupActivity act){
+        JSONArray grupos = null;
+        public GroupTask(FindGroupActivity act,int task,int id_a,int id_g){
             activity = act;
+            mTask = task;
+            mId_alumno = id_a;
+            mId_grupo = id_g;
         }
+
 
         @Override
         protected Boolean doInBackground(Void... params) {
             //TODO: neto pls
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if(mTask == GETGROUPS) {
+                JSONObject result = SMEDClient.getAllGroups();
+                try {
+                    grupos = result.getJSONArray("grupos");
+
+                    for (int i = 0; i < grupos.length(); ++i) {
+                        JSONObject c = null;
+                        c = grupos.getJSONObject(i);
+
+                        String id_grupo = c.getString("id_grupo");
+                        Log.v("id grupo?", id_grupo);
+                        String id_maestro = c.getString("id_maestro");
+                        String clave = c.getString("clave");
+                        String turno = c.getString("turno");
+
+                        activity.items.add(new Group(Integer.parseInt(id_grupo), clave, turno, "Maestro con ID: " + id_maestro));
+                    }
+                    return true;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                return SMEDClient.askForGroup(mId_alumno,mId_grupo);
             }
-            activity.items.add(new Group(1, "5A", "Matutino", "Sr Dr Prof Roberto"));
-            activity.items.add(new Group(2, "1B", "Vespertino", "MNan"));
-            activity.items.add(new Group(3, "4Z", "Nocturno", "Picador Criminal Mutilador PhD"));
-            return true;
+            return false;
         }
 
         @Override
