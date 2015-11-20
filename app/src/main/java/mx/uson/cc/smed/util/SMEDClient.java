@@ -185,37 +185,13 @@ public class SMEDClient {
         return res;
     }
 
-    public static String newJunta(int id_padre,String titulo,String desc,Date fecha){
-        HashMap<String,String> datosJunta = new HashMap<>();
-
-        datosJunta.put(SMEDClient.KEY_ID_PARENT,Integer.toString(id_padre));
-        datosJunta.put(SMEDClient.KEY_MOTIVE,titulo);
-        datosJunta.put(SMEDClient.KEY_DESCRIPTION,desc);
-        datosJunta.put(SMEDClient.KEY_DATE,fecha.toString());
-
-        JSONObject result = SMEDClient.sendPostRequest(URL_NEW_MEETING,datosJunta);
-
-        String res = "";
-
-        try{
-            res = result.getString("message");
-            Log.v("test", res);
-        }catch(JSONException e){
-            e.printStackTrace();
-        }catch (NullPointerException e){
-            res = RESULT_ERROR;
-        }
-        Log.v("D:",res);
-        return res;
-    }
-
-    public static String newJunta(int id_grupo,int id_padre,String titulo,String desc,Date fecha,boolean x){
+    public static String newJunta(int id,String titulo,String desc,Date fecha,boolean x){
         HashMap<String,String> datosJunta = new HashMap<>();
 
         if(!x){
-            datosJunta.put(SMEDClient.KEY_ID_PARENT,Integer.toString(id_padre));
+            datosJunta.put(SMEDClient.KEY_ID_PARENT,Integer.toString(id));
         }else{
-            datosJunta.put(SMEDClient.KEY_ID_GROUP,Integer.toString(id_grupo));
+            datosJunta.put(SMEDClient.KEY_ID_GROUP,Integer.toString(id));
         }
         datosJunta.put(SMEDClient.KEY_MOTIVE,titulo);
         datosJunta.put(SMEDClient.KEY_DESCRIPTION,desc);
