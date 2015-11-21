@@ -883,6 +883,7 @@ public class LoginActivity extends Activity
                 .apply();
         //startActivity(main);
         setResult(RESULT_OK, main);
+        Log.v("ID PADRE",""+result.get(SMEDClient.KEY_ID_PARENT));
         finish();
     }
 

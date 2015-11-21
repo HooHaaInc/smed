@@ -39,6 +39,7 @@ public class SMEDClient {
     private static final String URL_GET_ALL_GROUPS = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerGrupos.php";
     private static final String URL_ASK_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/solicitudGrupo.php";
     private static final String URL_GET_STUDENTS_FROM_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/obtenerAlumnosDeGrupo.php";
+    private static final String URL_CONNECT_PARENT_STUDENT = "http://148.225.83.3/~e5ingsoft2/smed/conectarPadreAlumno.php";
 
     public static final int STUDENT = 1;
     public static final int TEACHER = 2;
@@ -100,9 +101,14 @@ public class SMEDClient {
         Log.d("SMED", result.toString());
 
         try {
-            datosPersona.put("message",result.getString("message"));
-            datosPersona.put(KEY_ID_PERSON,result.getString("id_persona"));
+            datosPersona.put("message", result.getString("message"));
+            datosPersona.put(KEY_ID_PERSON, result.getString("id_persona"));
+            if(accountType==3){
+                datosPersona.put(KEY_ID_PARENT,result.getString("id_padre"));
+                Log.v("ID_PADRE", result.getString("id_padre"));
+            }
             Log.v("ID_PERSONA", result.getString("id_persona"));
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -395,6 +401,29 @@ public class SMEDClient {
         try{
             res = result.getString("message");
             if(res.equals("Solicitud enviada.")){
+                return true;
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public static boolean connectParentStudent(int id_alumno,int id_padre){
+        HashMap<String,String> params = new HashMap<>();
+
+        params.put(SMEDClient.KEY_ID_STUDENT,Integer.toString(id_alumno));
+        params.put(SMEDClient.KEY_ID_PARENT,Integer.toString(id_padre));
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_CONNECT_PARENT_STUDENT,params);
+
+        String res = "";
+        try{
+            res = result.getString("message");
+            if(res.equals("Conexion realizada.")){
                 return true;
             }
         }catch (JSONException e){
