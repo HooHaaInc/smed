@@ -11,16 +11,17 @@ public class Junta implements Serializable {
     String desc;
     String titulo;
     Date fecha;
-    String citado = "Papi";
+    String citado;
     boolean juntaGrupal;
     int ID;
     public Junta(String titulo, String desc, int id,Date fecha, boolean juntaGrupal){
         this.titulo = titulo;
         this.fecha = fecha;
         this.desc = desc;
-        this.ID = ID;
+        this.ID = id;
         this.juntaGrupal = juntaGrupal;
         if(juntaGrupal == true) citado = "Todos";
+        else citado = "Papi con ID:"+id;
     }
     public int getID(){return ID;}
     public String getDesc(){return desc;}

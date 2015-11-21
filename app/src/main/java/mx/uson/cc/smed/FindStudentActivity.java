@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -20,10 +21,15 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import mx.uson.cc.smed.textdrawable.TextDrawable;
+import mx.uson.cc.smed.util.SMEDClient;
 import mx.uson.cc.smed.util.Student;
 
 public class FindStudentActivity extends AppCompatActivity
@@ -43,6 +49,7 @@ public class FindStudentActivity extends AppCompatActivity
         list.setAdapter(adapter);
         list.setOnItemClickListener(this);
         new StudentTask(this, getIntent().getIntExtra("groupId", -1)).execute();
+        Log.v("GROUPID:", ""+getIntent().getIntExtra("groupId",-1));
         progress = new ProgressDialog(this);
         progress.setMessage(getString(R.string.loading));
         progress.show();
@@ -114,27 +121,42 @@ public class FindStudentActivity extends AppCompatActivity
     }
 
     public static class StudentTask extends AsyncTask<Void,Void,Boolean> {
-
+        JSONArray alumnos;
         FindStudentActivity activity;
         int groupId;
 
         public StudentTask(FindStudentActivity act, int groupId){
             activity = act;
-            groupId = groupId;
+            this.groupId = groupId;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             //TODO: neto pls
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+
+            JSONObject result = SMEDClient.getAllStudentsFromGroup(groupId);
+
+            try{
+                alumnos = result.getJSONArray("alumnos");
+
+                for(int i=0;i<alumnos.length();++i){
+                    JSONObject a = null;
+                    a = alumnos.getJSONObject(i);
+
+                    String id_alumno = a.getString("id_alumno");
+                    String nombre = a.getString("nombre");
+                    String apellido_paterno = a.getString("apellido_paterno");
+                    String id_padre = a.getString("id_padre");
+
+                    activity.items.add(new Student(Integer.parseInt(id_alumno),nombre,apellido_paterno,null));
+                }
+                return true;
+            }catch (JSONException e) {
+                e.printStackTrace();
+            } catch (NullPointerException e) {
                 e.printStackTrace();
             }
-            activity.items.add(new Student(1, "Nan", "Montaño", "Valdez"));
-            activity.items.add(new Student(2, "El", "Neto", null));
-            activity.items.add(new Student(3, "Erick", "Lopez", "F."));
-            return true;
+            return false;
         }
 
         @Override

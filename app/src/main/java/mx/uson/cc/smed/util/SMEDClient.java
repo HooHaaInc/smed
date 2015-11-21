@@ -38,6 +38,7 @@ public class SMEDClient {
     private static final String URL_GET_PERSON_NAME_BY_ID = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerNombrePorIDAlumno.php";
     private static final String URL_GET_ALL_GROUPS = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerGrupos.php";
     private static final String URL_ASK_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/solicitudGrupo.php";
+    private static final String URL_GET_STUDENTS_FROM_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/obtenerAlumnosDeGrupo.php";
 
     public static final int STUDENT = 1;
     public static final int TEACHER = 2;
@@ -63,6 +64,8 @@ public class SMEDClient {
     public static final String KEY_ID_STUDENT = "id_alumno";
     public static final String KEY_COMMENT = "comentario";
     public static final String KEY_GCM = "gcm_regid";
+
+    public static final String KEY_ID_GROUPS = "esgrupal";
 
     public static final String KEY_ID_PARENT = "id_padre";
     public static final String KEY_MOTIVE = "motivo";
@@ -199,8 +202,10 @@ public class SMEDClient {
 
         if(!x){
             datosJunta.put(SMEDClient.KEY_ID_PARENT,Integer.toString(id));
+            datosJunta.put(SMEDClient.KEY_ID_GROUPS,"1");
         }else{
             datosJunta.put(SMEDClient.KEY_ID_GROUP,Integer.toString(id));
+            datosJunta.put(SMEDClient.KEY_ID_GROUPS,"0");
         }
         datosJunta.put(SMEDClient.KEY_MOTIVE,titulo);
         datosJunta.put(SMEDClient.KEY_DESCRIPTION,desc);
@@ -313,6 +318,7 @@ public class SMEDClient {
         String res = "";
         try{
             res = result.getString("message");
+            Log.v("getMeetings",res);
         }catch (JSONException e){
             e.printStackTrace();
         } catch (NullPointerException e){
@@ -326,6 +332,24 @@ public class SMEDClient {
         HashMap<String,String> params = new HashMap<>();
 
         JSONObject result = SMEDClient.sendPostRequest(URL_GET_ALL_GROUPS,params);
+        String res = "";
+        try{
+            res = result.getString("message");
+        }catch (JSONException e){
+            e.printStackTrace();
+        } catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public static JSONObject getAllStudentsFromGroup(int id_grupo){
+        HashMap<String,String> params = new HashMap<>();
+
+        params.put(SMEDClient.KEY_ID_GROUP,Integer.toString(id_grupo));
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_GET_STUDENTS_FROM_GROUP,params);
         String res = "";
         try{
             res = result.getString("message");
