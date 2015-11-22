@@ -73,7 +73,7 @@ public class HomeworkListAdapter extends ArrayAdapter<Tarea> {
     }
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_view_row_item, parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_avatar_with_text_and_icon, parent, false);
         }else{
             ((TextView) convertView.findViewById(R.id.textViewItem))
                     .setTypeface(null, Typeface.BOLD);

@@ -30,7 +30,6 @@ public class ResourcesMan {
     private static ArrayList<Tarea> tareas = new ArrayList<>();
     private static ArrayList<Reporte> reportes = new ArrayList<>();
     private static ArrayList<Junta> juntas = new ArrayList<>();
-    public static boolean initialized = false;
 
     public static ArrayList<Reporte> getReportes() {
         return reportes;
@@ -46,8 +45,8 @@ public class ResourcesMan {
         ResourcesMan.addReporte(new Reporte(2,"Me pego",D));
 
         ResourcesMan.addReporte(new Reporte(3,"Me cosho",D));
-        ResourcesMan.addJunta(new Junta("Titulo","Desc",1,D,false));
-
+        ResourcesMan.addJunta(new Junta("Titulo","Desc",1,D,true));
+        ResourcesMan.addJunta(new Junta("Entrega de boletas", "bblb", 2, D, "Mamá Derp"));
     }
     public static void addReporte(Reporte reporte){
         reportes.add(reporte);

@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import mx.uson.cc.smed.util.ResourcesMan;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -21,13 +23,12 @@ SwipeRefreshLayout swipeLayout;
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ((AppCompatActivity)getActivity()).getSupportActionBar().show();
+        HomeworkListAdapter adapter = new HomeworkListAdapter(inflater.getContext(),R.layout.list_view_row_report_item,
+                ResourcesMan.getTareas());
+        setListAdapter(adapter);
         getActivity().setTitle(R.string.homeworks);
 
-
-
         View v = inflater.inflate(R.layout.fragment_main, container,false);
-
-
 
         swipeLayout = (SwipeRefreshLayout)v.findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(this);

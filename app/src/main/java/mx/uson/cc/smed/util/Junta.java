@@ -18,14 +18,24 @@ public class Junta implements Serializable {
         this.titulo = titulo;
         this.fecha = fecha;
         this.desc = desc;
-        this.ID = ID;
+        this.ID = id;
         this.juntaGrupal = juntaGrupal;
-        if(juntaGrupal == true) citado = "Todos";
+        if(juntaGrupal) citado = "Todos";
+    }
+
+    public Junta(String titulo, String desc, int id,Date fecha, String citado){
+        this.titulo = titulo;
+        this.fecha = fecha;
+        this.desc = desc;
+        this.ID = id;
+        this.juntaGrupal = citado == null;
+        this.citado = !juntaGrupal ? citado : "Todos";
     }
     public int getID(){return ID;}
     public String getDesc(){return desc;}
     public String getTitulo(){return titulo;}
     public Date getFecha(){return fecha;}
     public String getCitado(){return citado;}
+    public boolean isJuntaGrupal(){ return juntaGrupal; }
 
 }

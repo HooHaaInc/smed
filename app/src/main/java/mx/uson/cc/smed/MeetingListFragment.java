@@ -37,8 +37,7 @@ public class MeetingListFragment extends ListFragment {
         MeetingListAdapter adapter = new MeetingListAdapter(inflater.getContext(),R.layout.list_view_row_report_item,
                 ResourcesMan.getJuntas());
         setListAdapter(adapter);
-        ((MainActivity)(getActivity())).setAdapter(adapter);
-        getActivity().setTitle(R.string.reports);
+        getActivity().setTitle(R.string.meetings);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 

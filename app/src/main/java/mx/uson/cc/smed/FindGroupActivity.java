@@ -91,7 +91,7 @@ public class FindGroupActivity extends AppCompatActivity
             return;
         }
 
-        View convertView = LayoutInflater.from(this).inflate(R.layout.list_view_item_3, null, false);
+        View convertView = LayoutInflater.from(this).inflate(R.layout.list_item_two_line_with_avatar, null, false);
         ((TextView)convertView.findViewById(R.id.title)).setText(
                 adapter.getItem(position).getTeacher());
         ((TextView)convertView.findViewById(R.id.desc)).setText(
@@ -126,7 +126,7 @@ public class FindGroupActivity extends AppCompatActivity
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if(convertView == null)
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_view_item_3, parent, false);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_two_line_with_avatar, parent, false);
             ((TextView)convertView.findViewById(R.id.title)).setText(
                     getItem(position).getTeacher());
             ((TextView)convertView.findViewById(R.id.desc)).setText(

@@ -1,6 +1,8 @@
 package mx.uson.cc.smed;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -11,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -18,6 +21,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
 
     public int account_type;
 
-    ArrayAdapter adapter;
     boolean dobleFragment = false;
 
     FragmentManager fm = getSupportFragmentManager();
@@ -56,54 +60,54 @@ public class MainActivity extends AppCompatActivity {
         account_type = getSharedPreferences("user", 0)
                 .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1);
         System.out.println("account_type " + account_type);
-        fab = (FloatingActionButton)findViewById(R.id.fab_nueva_tarea);
-        if(fab != null && account_type != SMEDClient.TEACHER){
+        fab = (FloatingActionButton) findViewById(R.id.fab_nueva_tarea);
+        if (fab != null && account_type != SMEDClient.TEACHER) {
             fab.setVisibility(View.GONE);
             fab = null;
         }
         Fragment frag;
-        if(findViewById(R.id.fragmentLayout2) != null)
+        if (findViewById(R.id.fragmentLayout2) != null)
             dobleFragment = true;
-        if(savedInstanceState == null) { //Se crea por primera vez
-            //LoginActivity
-            SharedPreferences preferences = getSharedPreferences("user", 0);
-            if (!preferences.getBoolean("login", false)) {
-                Intent login = new Intent(this, LoginActivity.class);
-                startActivityForResult(login, REQUEST_LOGIN);
-            }
+
+        //LoginActivity
+        SharedPreferences preferences = getSharedPreferences("user", 0);
+        if (!preferences.getBoolean("login", false)) {
+            Intent login = new Intent(this, LoginActivity.class);
+            startActivityForResult(login, REQUEST_LOGIN);
+        }
+        if (preferences.getInt(SMEDClient.KEY_ID_GROUP, -1) == -1) {
             //buscar grupo si no está en uno o pertenece al grupo default
-            if(preferences.getInt(SMEDClient.KEY_ID_GROUP, 1) == 1 &&
-                    account_type != SMEDClient.TEACHER){
-                View find = findViewById(R.id.view_find_group);
-                find.setVisibility(View.VISIBLE);
-                if(account_type == SMEDClient.PARENT) {
-                    ((TextView)find.findViewById(R.id.find_text)).setText(R.string.no_son);
-                    ((Button)find.findViewById(R.id.find_button)).setText(R.string.find_student);
+            View find = findViewById(R.id.view_find_group);
+            switch (account_type) {
+                case SMEDClient.TEACHER:
+                    createGroup();
+                    break;
+                case SMEDClient.PARENT:
+                    ((TextView) find.findViewById(R.id.find_text)).setText(R.string.no_son);
+                    ((Button) find.findViewById(R.id.find_button)).setText(R.string.find_student);
                     find.findViewById(R.id.wifi_button).setVisibility(View.GONE);
-                }
-            }else {
-                //start fragment
-                frag = new MainActivityFragment();
-                fm.beginTransaction()
-                        .add(R.id.fragmentLayout, frag)
-                        .commit();
-                new GetHomework(this).execute();
+                case SMEDClient.STUDENT:
+                    find.setVisibility(View.VISIBLE);
             }
+            return;
+        }
+
+        if(savedInstanceState == null || fm.findFragmentById(R.id.fragmentLayout) == null) { //Se crea por primera vez {
+        //start fragment
+        frag = new MainActivityFragment();
+        fm.beginTransaction()
+                .add(R.id.fragmentLayout, frag)
+                .commit();
+        new GetHomework(this).execute();
+
         }else{
-            if(findViewById(R.id.fragmentLayout2) != null) {
-                dobleFragment = true;
-            }
             frag = fm.findFragmentById(R.id.fragmentLayout);
             if(frag instanceof ListFragment){
-                adapter = new HomeworkListAdapter(this,
-                        android.R.layout.simple_list_item_1,
-                        ResourcesMan.getTareas());
-                ((ListFragment) frag).setListAdapter(adapter);
+                //TODO: actualizar fragment
             }else{
                 getSupportActionBar().hide();
             }
-
-            new GetHomework(this).execute();
+            //TODO: new GetHomework(this).execute();
 
         }
 
@@ -133,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 String materia = data.getStringExtra("MateriaTarea");
                 Date fecha = (Date) data.getSerializableExtra("FechaTarea");
                 ResourcesMan.addTarea(new Tarea(titulo, desc, materia, fecha));
-                adapter.notifyDataSetChanged();
+                //TODO: notifyDataChanged
             }
         }
         if(requestCode == EDIT_HOMEWORK){
@@ -145,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
                 Date fecha = (Date) data.getSerializableExtra("FechaTarea");
                 int id = data.getIntExtra("Id", -1);
                 int pos = ResourcesMan.editTarea(new Tarea(id,1, titulo, desc, materia, fecha));
-                //adapter.notifyDataSetChanged();
                 ((HomeworkFragment)fm.findFragmentById(!dobleFragment
                         ?R.id.fragmentLayout : R.id.fragmentLayout2)).setTarea(pos);
             }
@@ -156,18 +159,18 @@ public class MainActivity extends AppCompatActivity {
                 int id = data.getIntExtra("Id", -1);
                 Date fecha = (Date)data.getSerializableExtra("fecha");
                 ResourcesMan.eliminarTarea(new Tarea(id,1,"","","",fecha));
-                adapter.notifyDataSetChanged();
+                //TODO: notifyDataChanged
             }
         }if(requestCode == REQUEST_GROUP){
             if(resultCode == RESULT_OK){
                 //TODO: su solicitud a sido enviada
-                    View find = findViewById(R.id.view_find_group);
-                    find.setVisibility(View.GONE);
-                    //start fragment
-                    fm.beginTransaction()
-                            .add(R.id.fragmentLayout, new MainActivityFragment())
-                            .commit();
-                    new GetHomework(this).execute();
+                View find = findViewById(R.id.view_find_group);
+                find.setVisibility(View.GONE);
+                //start fragment
+                fm.beginTransaction()
+                        .add(R.id.fragmentLayout, new MainActivityFragment())
+                        .commit();
+                new GetHomework(this).execute();
             }
         }if(requestCode == REQUEST_STUDENT_LINK){
             if(resultCode == RESULT_OK){
@@ -201,11 +204,35 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        if(!dobleFragment || account_type != SMEDClient.TEACHER)
+        if(getSharedPreferences("user",0).getInt(SMEDClient.KEY_ID_GROUP, 1) == 1){
             menu.removeItem(R.id.create);
-        if(account_type != SMEDClient.TEACHER) {
             menu.removeItem(R.id.action_find_students);
             menu.removeItem(R.id.action_find_parents);
+            menu.removeItem(R.id.action_view_report);
+            menu.removeItem(R.id.action_view_meeting);
+            menu.removeItem(R.id.action_add_meeting);
+            menu.removeItem(R.id.action_add_report);
+            return true;
+        }
+
+        if(!dobleFragment || account_type != SMEDClient.TEACHER)
+            menu.removeItem(R.id.create);
+        switch(account_type){
+            case SMEDClient.TEACHER:
+                menu.removeItem(R.id.action_add_report);
+                break;
+            case SMEDClient.STUDENT:
+                menu.removeItem(R.id.action_find_students);
+                menu.removeItem(R.id.action_find_parents);
+                menu.removeItem(R.id.action_view_report);
+                menu.removeItem(R.id.action_view_meeting);
+                menu.removeItem(R.id.action_add_meeting);
+                break;
+            case SMEDClient.PARENT:
+                menu.removeItem(R.id.action_find_students);
+                menu.removeItem(R.id.action_find_parents);
+                menu.removeItem(R.id.action_add_report);
+                menu.removeItem(R.id.action_add_meeting);
         }
         return true;
     }
@@ -274,6 +301,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        //TODO: fuck the police
+        View find = findViewById(R.id.view_find_group);
+        if(find.getVisibility() == View.VISIBLE){
+            find.setVisibility(View.GONE);
+            Fragment frag = new MainActivityFragment();
+            fm.beginTransaction()
+                    .add(R.id.fragmentLayout, frag)
+                    .commit();
+            new GetHomework(this).execute();
+            return;
+        }
+
         if (fm.getBackStackEntryCount() > 0 ){
             goBack();
         } else {
@@ -281,11 +320,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    public void setAdapter(ArrayAdapter a){
-        adapter = a;
-
+    private void createGroup() {
+        new AlertDialog.Builder(this)
+                .setView(R.layout.create_group_dialog)
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        finish();
+                    }
+                })
+                .setPositiveButton(R.string.action_create, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ProgressDialog progress = new ProgressDialog(MainActivity.this);
+                        progress.show();
+                        AlertDialog aDialog = (AlertDialog) dialog;
+                        String name = ((EditText) aDialog.findViewById(R.id.group_name)).getText().toString();
+                        boolean matutino = ((Spinner) aDialog.findViewById(R.id.shift_spinner)).getSelectedItemPosition() == 0;
+                        int teacherId = getSharedPreferences("user", 0).getInt(SMEDClient.KEY_TEACHER_ID, -1);
+                        new CreateGroupTask(teacherId, name, matutino, progress).execute();
+                    }
+                }).create().show();
     }
+
     public void findGroup(View v){
         Intent findGroup = new Intent(this, FindGroupActivity.class);
         int requestCode = account_type == SMEDClient.STUDENT ? REQUEST_GROUP : REQUEST_STUDENT_LINK;
@@ -319,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
             Fragment f;
 
             Class<? extends Fragment> fragclass =
-                    (Class)b.getSerializable("frag");
+                    (Class<? extends Fragment>)b.getSerializable("frag");
             f = fragclass.newInstance();
             f.setArguments(b);
             FragmentTransaction ft = fm.beginTransaction();
@@ -337,17 +394,7 @@ public class MainActivity extends AppCompatActivity {
         if(!dobleFragment){
             fm.popBackStackImmediate();
             Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragmentLayout);
-            if(f instanceof MainActivityFragment) {
-                adapter = new HomeworkListAdapter(this,
-                        android.R.layout.simple_list_item_1,
-                        ResourcesMan.getTareas());
-            }
-            if(f instanceof ReportListFragment) {
-                adapter = new ReportListAdapter(this,
-                        android.R.layout.simple_list_item_1,
-                        ResourcesMan.getReportes());
-            }
-            ((ListFragment) fm.findFragmentById(R.id.fragmentLayout)).setListAdapter(adapter);
+
             //System.out.println("onBack: "+currentFragment.toString());
 
             if(fab != null)
@@ -368,6 +415,55 @@ public class MainActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(color);
     }
 
+    public void mainFlow(int step){
+        account_type = getSharedPreferences("user", 0)
+                .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1);
+        System.out.println("account_type " + account_type);
+        fab = (FloatingActionButton)findViewById(R.id.fab_nueva_tarea);
+        if(fab != null && account_type != SMEDClient.TEACHER){
+            fab.setVisibility(View.GONE);
+            fab = null;
+        }
+        Fragment frag;
+        if(findViewById(R.id.fragmentLayout2) != null)
+            dobleFragment = true;
+        SharedPreferences preferences = getSharedPreferences("user", 0);
+        View find = findViewById(R.id.view_find_group);
+        //there's no breaks in the hype(switch)train!
+        switch(step){
+            case 0:
+                if (!preferences.getBoolean("login", false)) {
+                    Intent login = new Intent(this, LoginActivity.class);
+                    startActivityForResult(login, REQUEST_LOGIN);
+                }
+            case 1:
+                if(preferences.getInt(SMEDClient.KEY_ID_GROUP, -1) == -1){
+                    //buscar grupo si no está en uno o pertenece al grupo default
+
+                    switch(account_type){
+                        case SMEDClient.TEACHER:
+                            createGroup();
+                            break;
+                        case SMEDClient.PARENT:
+                            ((TextView)find.findViewById(R.id.find_text)).setText(R.string.no_son);
+                            ((Button)find.findViewById(R.id.find_button)).setText(R.string.find_student);
+                            find.findViewById(R.id.wifi_button).setVisibility(View.GONE);
+                        case SMEDClient.STUDENT:
+                            find.setVisibility(View.VISIBLE);
+                    }
+                }
+            case 2:
+                //start fragment
+                find.setVisibility(View.GONE);
+                frag = new MainActivityFragment();
+                fm.beginTransaction()
+                        .add(R.id.fragmentLayout, frag)
+                        .commit();
+                new GetHomework(this).execute();
+        }
+    }
+
+
 
     static class GetHomework extends AsyncTask<Void,Void,Boolean> {
         MainActivity mainActivity;
@@ -383,7 +479,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... voids) {
                 ResourcesMan.quitarTareas();
-                JSONObject result = SMEDClient.getAllHomework();
+                int groupId = mainActivity.getSharedPreferences("user", 0)
+                        .getInt(SMEDClient.KEY_ID_GROUP, -1);
+                JSONObject result = SMEDClient.getAllHomework(groupId);
                 try {
                     hw = result.getJSONArray("tareas");
 
@@ -421,10 +519,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean res) {
             ListFragment frag = (ListFragment)mainActivity.fm.findFragmentById(R.id.fragmentLayout);
-            mainActivity.adapter = new HomeworkListAdapter(mainActivity,
+            HomeworkListAdapter adapter = new HomeworkListAdapter(mainActivity,
                     android.R.layout.simple_list_item_1,
                     ResourcesMan.getTareas());
-            frag.setListAdapter(mainActivity.adapter);
+            frag.setListAdapter(adapter);
             if(mainActivity.dobleFragment){
                 Fragment fragm = mainActivity.fm.findFragmentById(R.id.fragmentLayout2);
                 if(fragm == null)
@@ -437,6 +535,35 @@ public class MainActivity extends AppCompatActivity {
                         .add(R.id.fragmentLayout2, fragm)
                         .commit();
             }
+        }
+    }
+
+    private class CreateGroupTask extends AsyncTask<Void,Void,String> {
+
+        private int teacherId;
+        private String groupName;
+        private boolean morning;
+        private ProgressDialog progressDialog;
+
+        public CreateGroupTask(int tId, String name, boolean matutino, ProgressDialog progress) {
+            teacherId = tId;
+            groupName = name;
+            morning = matutino;
+            progressDialog = progress;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            return SMEDClient.createGroup(teacherId, groupName, morning);
+        }
+
+        @Override
+        protected void onPostExecute(String groupId) {
+            progressDialog.dismiss();
+            getSharedPreferences("user", 0).edit()
+                    .putInt(SMEDClient.KEY_ID_GROUP, Integer.parseInt(groupId))
+                    .apply();
+            recreate();
         }
     }
 }

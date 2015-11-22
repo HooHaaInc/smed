@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_log_out">Cerrar sesión</string>
-    <string name="action_add_report">Añadir Reporte</string>
+    <string name="action_add_report">Reportar</string>
 
-    <string name ="action_add_meeting">Añadir Junta</string>
+    <string name ="action_add_meeting">Nueva junta</string>
     <string name="action_view_report">Ver reportes</string>
 
-    <string name ="action_view_meeting">Ver Juntas</string>
+    <string name ="action_view_meeting">Ver juntas</string>
 
-    <string name ="action_submit_meeting">Subir Junta</string>
-    <string name="action_submit_report">Subir Reporte</string>
+    <string name ="action_submit_meeting">Subir junta</string>
+    <string name="action_submit_report">Subir reporte</string>
     <string name="meetings">Juntas</string>
     <string name="reports">Reportes</string>
     <string name="action_settings">Configuración</string>
@@ -111,4 +111,10 @@
     <string name="linked_to">Vinculado con alumno</string>
     <string name="find_student">Bucar alumno</string>
     <string name="no_son">Aún no estás vinculado a un alumno</string>
+    <array name="shifts">
+        <item>Morning</item>
+        <item>Evening</item>
+    </array>
+    <string name="group_name">Grupo (ej: 5A)</string>
+    <string name="action_create">Crear</string>
 </resources>

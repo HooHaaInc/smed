@@ -24,8 +24,6 @@ public class ReadMeetingFragment extends Fragment {
     String fecha;
     int position;
     int id;
-    public ReadMeetingFragment() {
-    }
 
     @Override
     public void setArguments(Bundle b){

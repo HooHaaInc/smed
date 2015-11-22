@@ -37,7 +37,6 @@ public class ReportListFragment extends ListFragment {
         ReportListAdapter adapter = new ReportListAdapter(inflater.getContext(),R.layout.list_view_row_report_item,
                 ResourcesMan.getReportes());
         setListAdapter(adapter);
-        ((MainActivity)(getActivity())).setAdapter(adapter);
         getActivity().setTitle(R.string.reports);
         return super.onCreateView(inflater, container, savedInstanceState);
     }

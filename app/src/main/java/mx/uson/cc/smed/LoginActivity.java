@@ -859,6 +859,19 @@ public class LoginActivity extends Activity
      */
     private void finishedLogin(HashMap<String, String> result){
         Intent main = new Intent(this, MainActivity.class);
+        String specificKey = null;
+        int accountType = Integer.parseInt(result.get(SMEDClient.KEY_ACCOUNT_TYPE));
+        switch(accountType){
+            case SMEDClient.TEACHER:
+                specificKey = SMEDClient.KEY_TEACHER_ID;
+                break;
+            case SMEDClient.PARENT:
+                //TODO: no mame
+                specificKey = "id_padre";
+                        break;
+            case SMEDClient.STUDENT:
+                specificKey = "id_alumno";
+        }
         getSharedPreferences("user", 0).edit()
                 .putBoolean("login", true)
                 .putString(SMEDClient.KEY_ID_PERSON, result.get(SMEDClient.KEY_ID_PERSON))
@@ -866,8 +879,8 @@ public class LoginActivity extends Activity
                 .putString(SMEDClient.KEY_LASTNAME1, result.get(SMEDClient.KEY_LASTNAME1))
                 .putString(SMEDClient.KEY_LASTNAME2, result.get(SMEDClient.KEY_LASTNAME2))
                 .putString(SMEDClient.KEY_EMAIL, result.get(SMEDClient.KEY_EMAIL))
-                .putInt(SMEDClient.KEY_ACCOUNT_TYPE,
-                    Integer.parseInt(result.get(SMEDClient.KEY_ACCOUNT_TYPE)))
+                .putInt(SMEDClient.KEY_ACCOUNT_TYPE, accountType)
+                .putInt(specificKey, Integer.parseInt(result.get(specificKey)))
                 .apply();
         //startActivity(main);
         setResult(RESULT_OK, main);

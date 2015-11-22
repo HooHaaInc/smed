@@ -71,7 +71,7 @@ public class FindStudentActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-        View convertView = LayoutInflater.from(this).inflate(R.layout.list_view_item_4, null, false);
+        View convertView = LayoutInflater.from(this).inflate(R.layout.list_item_single_line_with_avatar, null, false);
         ((TextView)convertView.findViewById(R.id.title)).setText(
                 adapter.getItem(position).toString());
         ((ImageView)convertView.findViewById(R.id.icon)).setImageDrawable(
@@ -104,7 +104,7 @@ public class FindStudentActivity extends AppCompatActivity
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if(convertView == null)
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_view_item_4, parent, false);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_single_line_with_avatar, parent, false);
             ((TextView)convertView.findViewById(R.id.title)).setText(
                     getItem(position).toString());
             ((ImageView)convertView.findViewById(R.id.icon)).setImageDrawable(

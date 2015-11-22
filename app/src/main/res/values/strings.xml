@@ -15,16 +15,16 @@
 
     <string name="reports">Reports</string>
 
-    <string name="action_add_report">Add Report</string>
+    <string name="action_add_report">Report</string>
 
-    <string name ="action_add_meeting">Add Meeting</string>
-    <string name="action_view_report">View Reports</string>
+    <string name ="action_add_meeting">New meeting</string>
+    <string name="action_view_report">View reports</string>
 
-    <string name ="action_view_meeting">View Meetings</string>
+    <string name ="action_view_meeting">View meetings</string>
 
 
-    <string name ="action_submit_meeting">Submit Meeting</string>
-    <string name="action_submit_report">Submit Report</string>
+    <string name ="action_submit_meeting">Submit meeting</string>
+    <string name="action_submit_report">Submit report</string>
 
     <string-array name="user_types">
         <item>Student</item>
@@ -124,5 +124,14 @@
     <string name="find_group">Find group</string>
     <string name="find_student">Find student</string>
     <string name="title_activity_add_meeting">Add Meeting</string>
+    <string name="meetings">Meetings</string>
+
+    <string name="group_name">Group name (ej: 5A)</string>
+    <string name="group_shift">Group shift</string>
+    <array name="shifts">
+        <item>Morning</item>
+        <item>Evening</item>
+    </array>
+    <string name="action_create">Create</string>
 
 </resources>

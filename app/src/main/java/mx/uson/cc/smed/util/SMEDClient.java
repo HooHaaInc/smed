@@ -31,6 +31,8 @@ public class SMEDClient {
     private static final String URL_GET_ALL_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerTareas.php";
     private static final String URL_EDIT_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/ActualizarTarea.php";
     private static final String URL_DELETE_HOMEWORK = "http://148.225.83.3/~e5ingsoft2/smed/borrarTarea.php";
+    private static final String URL_CREATE_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/CrearGrupo.php";
+
 
     public static final int STUDENT = 1;
     public static final int TEACHER = 2;
@@ -41,6 +43,7 @@ public class SMEDClient {
     public static final String KEY_LASTNAME1 = "apellido_paterno";
     public static final String KEY_LASTNAME2 = "apellido_materno";
     public static final String KEY_ACCOUNT_TYPE = "tipo_persona";
+    public static final String KEY_TEACHER_ID = "id_maestro";
 
     public static final String KEY_EMAIL = "correo";
     public static final String KEY_PASSWORD = "clave";
@@ -53,6 +56,8 @@ public class SMEDClient {
     public static final String KEY_DATE = "fecha";
 
     public static final String KEY_GROUP_NAME = "group_name";
+    public static final String KEY_GROUP_KEY = "clave";
+    public static final String KEY_TURNO = "turno";
 
     public static final String RESULT_NEW_USER = "Registro exitoso.";
     public static final String RESULT_OK = "Operación exitosa.";
@@ -110,12 +115,15 @@ public class SMEDClient {
         String res="";
         try{
             datosPersona.put("message",result.getString("message"));
-            Log.v("login:",result.getString("nombre"));
+            Log.v("login:",result.toString());
             datosPersona.put(KEY_ID_PERSON,result.getString("id_persona"));
             datosPersona.put(KEY_NAME,result.getString("nombre"));
             datosPersona.put(KEY_LASTNAME1,result.getString("apellido_paterno"));
             datosPersona.put(KEY_LASTNAME2,result.getString("apellido_materno"));
             datosPersona.put(KEY_ACCOUNT_TYPE,result.getString("tipo_persona"));
+            //TODO: put groupId
+            if(result.has(KEY_TEACHER_ID))
+                datosPersona.put(KEY_TEACHER_ID, result.getString(KEY_TEACHER_ID));
         }catch(JSONException e){
             e.printStackTrace();
         }catch (NullPointerException e){
@@ -197,9 +205,9 @@ public class SMEDClient {
         return res;
     }
 
-    public static JSONObject getAllHomework(){
+    public static JSONObject getAllHomework(int groupId){
         HashMap<String,String> params = new HashMap<>();
-
+        params.put(KEY_ID_GROUP, groupId+"");
         JSONObject result = SMEDClient.sendPostRequest(URL_GET_ALL_HOMEWORK,params);
 
         String res="";
@@ -214,6 +222,28 @@ public class SMEDClient {
         }
 
         return result;
+    }
+
+    public static String createGroup(int teacherId, String groupName, boolean morningShift){
+        HashMap<String,String> params = new HashMap<>();
+        params.put(KEY_TEACHER_ID, teacherId+"");
+        params.put(KEY_GROUP_KEY, groupName);
+        params.put(KEY_TURNO, morningShift? "matutino" : "vespertino");
+        JSONObject result = SMEDClient.sendPostRequest(URL_CREATE_GROUP,params);
+
+        String res="";
+        try{
+            Log.v("test",result.toString());
+            Log.v("test", teacherId+"");
+            res = result.getString(KEY_ID_GROUP);
+            return res;
+        }catch(JSONException e){
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     private static JSONObject sendPostRequest(String requestURL,
