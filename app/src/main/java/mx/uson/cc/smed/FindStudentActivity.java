@@ -3,11 +3,13 @@ package mx.uson.cc.smed;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -20,10 +22,15 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import mx.uson.cc.smed.textdrawable.TextDrawable;
+import mx.uson.cc.smed.util.SMEDClient;
 import mx.uson.cc.smed.util.Student;
 
 public class FindStudentActivity extends AppCompatActivity
@@ -31,18 +38,23 @@ public class FindStudentActivity extends AppCompatActivity
 
     List<Student> items = new ArrayList<>();
     StudentAdapter adapter;
+    SharedPreferences preferences;
     ProgressDialog progress;
+    FindStudentActivity act;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_group);
-
+        preferences = getSharedPreferences("user",0);
+        act = this;
         adapter = new StudentAdapter(this, items);
         ListView list = (ListView)findViewById(android.R.id.list);
         list.setAdapter(adapter);
         list.setOnItemClickListener(this);
-        new StudentTask(this, getIntent().getIntExtra("groupId", -1)).execute();
+        new StudentTask(this, getIntent().getIntExtra("groupId", -1),0).execute();
+        Log.v("GROUPID:", "" + getIntent().getIntExtra("groupId", -1));
         progress = new ProgressDialog(this);
         progress.setMessage(getString(R.string.loading));
         progress.show();
@@ -88,6 +100,11 @@ public class FindStudentActivity extends AppCompatActivity
                         Student g = adapter.getItem(position);
                         Toast.makeText(FindStudentActivity.this,
                                 getString(R.string.linked_to)+" "+g.getName(), Toast.LENGTH_SHORT).show();
+                        //TODO TASK Alumno conectado con papa
+                        String id = preferences.getString(SMEDClient.KEY_ID_PARENT,"0");
+
+                        new StudentTask(act, g.getId(),1,Integer.parseInt(id)).execute();
+
                         setResult(RESULT_OK);
                         finish();
                     }
@@ -114,27 +131,59 @@ public class FindStudentActivity extends AppCompatActivity
     }
 
     public static class StudentTask extends AsyncTask<Void,Void,Boolean> {
-
+        JSONArray alumnos;
         FindStudentActivity activity;
         int groupId;
+        int mTask=0;
+        int id_padre;
 
-        public StudentTask(FindStudentActivity act, int groupId){
+        public StudentTask(FindStudentActivity act, int groupId,int task){
             activity = act;
-            groupId = groupId;
+            this.groupId = groupId;
+            mTask = task;
+        }
+        public StudentTask(FindStudentActivity act,int groupId,int task,int id){
+            activity = act;
+            this.groupId = groupId;
+            mTask = task;
+            id_padre = id;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             //TODO: neto pls
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if(mTask == 1){
+                Log.v("IDS","PADRE: "+id_padre + "  ALUMNO: "+groupId);
+                if(SMEDClient.connectParentStudent(groupId,id_padre))
+                    Log.v("D:","se hizo?");
+                else Log.v("no","no");
+                return true;
+            }else{
+                JSONObject result = SMEDClient.getAllStudentsFromGroup(groupId);
+
+                try{
+                    alumnos = result.getJSONArray("alumnos");
+
+                    for(int i=0;i<alumnos.length();++i){
+                        JSONObject a = null;
+                        a = alumnos.getJSONObject(i);
+
+                        String id_alumno = a.getString("id_alumno");
+                        String nombre = a.getString("nombre");
+                        String apellido_paterno = a.getString("apellido_paterno");
+                        String id_padre = a.getString("id_padre");
+
+                        activity.items.add(new Student(Integer.parseInt(id_alumno),nombre,apellido_paterno,null));
+                    }
+                    return true;
+                }catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
             }
-            activity.items.add(new Student(1, "Nan", "Montaño", "Valdez"));
-            activity.items.add(new Student(2, "El", "Neto", null));
-            activity.items.add(new Student(3, "Erick", "Lopez", "F."));
-            return true;
+
+            return false;
         }
 
         @Override

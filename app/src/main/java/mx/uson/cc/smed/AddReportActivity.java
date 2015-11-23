@@ -1,17 +1,20 @@
 package mx.uson.cc.smed;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.sql.Date;
 import java.util.Calendar;
 
 import mx.uson.cc.smed.util.Reporte;
+import mx.uson.cc.smed.util.SMEDClient;
 
 public class AddReportActivity extends AppCompatActivity {
 
@@ -44,14 +47,42 @@ public class AddReportActivity extends AppCompatActivity {
     }
     public void submitReport(View V){
         Intent i = this.getIntent();
-        //mete aqui al batito que mando al reporte-- posible con el nuevo push
+        //mete aqui al batito que mando al reporte-- posible con el nuevo pull?
+        String acusador = "Batito"; //TODO funcion getUserInfo (getNombre)
         TextView tv = (TextView)findViewById(R.id.desc_field);
         String descripcion = tv.getText().toString();
         Calendar GC = Calendar.getInstance();
 
-        Reporte r = new Reporte(1,descripcion,new Date(GC.getTimeInMillis()));
+        Reporte r = new Reporte(acusador,descripcion,new Date(GC.getTimeInMillis()));
+
+        new newReport(1,descripcion,new Date(GC.getTimeInMillis())).execute();
+        //TODO ^ poner ahi luego un string con el nombre?
         i.putExtra("Reporte",r);
         this.setResult(RESULT_OK,i);
         finish();
+    }
+
+    //TODO añadir clase Report que extienda de asynctask para llamar el script.
+    public class newReport extends AsyncTask<Void,Void,String>{
+
+        private final int mId_alumno;
+        private final String mComentario;
+        private final Date mFecha;
+
+        public newReport(int id_alumno,String comentario,Date fecha){
+            mId_alumno = id_alumno;
+            mComentario = comentario;
+            mFecha = fecha;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            return SMEDClient.newReporte(mId_alumno,mComentario,mFecha);
+        }
+
+        protected void onPostExecute(String res){
+            Toast.makeText(AddReportActivity.this, res, Toast.LENGTH_SHORT).show();
+            //TODO seguirle
+        }
     }
 }

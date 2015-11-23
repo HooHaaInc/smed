@@ -43,6 +43,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.pushbots.push.Pushbots;
+//import com.pushbots.push.Pushbots;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -713,6 +715,7 @@ public class LoginActivity extends Activity
         private final String mName;
         private final String mLastName1;
         private final String mLastName2;
+        private final String mGmcId;
         private final int mAccountType;
         private final int task;
 
@@ -726,6 +729,7 @@ public class LoginActivity extends Activity
             mLastName1 = null;
             mLastName2 = null;
             mAccountType = -1;
+            mGmcId = Pushbots.sharedInstance().regID();
             task = LOGIN;
         }
 
@@ -742,6 +746,8 @@ public class LoginActivity extends Activity
             mLastName1 = apellidoPaterno;
             mLastName2 = apellidoMaterno;
             mAccountType = tipoUsuario;
+            Log.v("cuenta:",Integer.toString(mAccountType));
+            mGmcId = Pushbots.sharedInstance().regID();
             task = REGISTER;
         }
 
@@ -755,6 +761,7 @@ public class LoginActivity extends Activity
             mLastName1 = null;
             mLastName2 = null;
             mAccountType = -1;
+            mGmcId = Pushbots.sharedInstance().regID();
             task = GOOGLE_PLUS;
         }
 
@@ -769,6 +776,7 @@ public class LoginActivity extends Activity
             mLastName1 = space == -1 ? lastName : lastName.substring(0, space);
             mLastName2 = space == -1 ? "" : lastName.substring(space);
             mAccountType = accountType;
+            mGmcId = Pushbots.sharedInstance().regID();
             task = GOOGLE_PLUS|REGISTER;
         }
 
@@ -785,7 +793,8 @@ public class LoginActivity extends Activity
                             mName,
                             mLastName1,
                             mLastName2,
-                            mAccountType);
+                            mAccountType,
+                            mGmcId);
 
             }
 
@@ -829,7 +838,7 @@ public class LoginActivity extends Activity
                     break;
                 default:
                     Toast.makeText(LoginActivity.this,
-                            "ERROR: "+ result.get("message"), Toast.LENGTH_SHORT).show();
+                            R.string.smed_server_error, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -879,6 +888,11 @@ public class LoginActivity extends Activity
                 .putString(SMEDClient.KEY_LASTNAME1, result.get(SMEDClient.KEY_LASTNAME1))
                 .putString(SMEDClient.KEY_LASTNAME2, result.get(SMEDClient.KEY_LASTNAME2))
                 .putString(SMEDClient.KEY_EMAIL, result.get(SMEDClient.KEY_EMAIL))
+                .putInt(SMEDClient.KEY_ACCOUNT_TYPE,
+                        Integer.parseInt(result.get(SMEDClient.KEY_ACCOUNT_TYPE)))
+                .putString(SMEDClient.KEY_ID_STUDENT,result.get(SMEDClient.KEY_ID_STUDENT))
+                .putString(SMEDClient.KEY_ID_TEACHER,result.get(SMEDClient.KEY_ID_TEACHER))
+                .putString(SMEDClient.KEY_ID_PARENT,result.get(SMEDClient.KEY_ID_PARENT))
                 .putInt(SMEDClient.KEY_ACCOUNT_TYPE, accountType)
                 .putInt(specificKey, Integer.parseInt(result.get(specificKey)))
                 .apply();

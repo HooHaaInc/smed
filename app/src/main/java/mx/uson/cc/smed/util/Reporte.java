@@ -10,15 +10,8 @@ public class Reporte implements Serializable {
     String alumno_acusador = "Derp Morales";
     String descripcion;
     Date fecha;
-    int ID;
-    public Reporte(int ID, String desc,Date fecha){
-        this.ID = ID;
-        descripcion = desc;
-        this.fecha = fecha;
-    }
-
     public Reporte(String acusador, String desc,Date fecha){
-        this.alumno_acusador = acusador;
+        alumno_acusador = acusador;
         descripcion = desc;
         this.fecha = fecha;
     }

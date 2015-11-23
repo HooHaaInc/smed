@@ -26,6 +26,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pushbots.push.Pushbots;
+
 import mx.uson.cc.smed.util.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
         }
         Fragment frag;
         if (findViewById(R.id.fragmentLayout2) != null)
+        Pushbots.sharedInstance().init(this);
+        Pushbots.sharedInstance().setPushEnabled(true);
+        if(findViewById(R.id.fragmentLayout2) != null)
             dobleFragment = true;
 
         //LoginActivity
@@ -103,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
         }else{
             frag = fm.findFragmentById(R.id.fragmentLayout);
             if(frag instanceof ListFragment){
-                //TODO: actualizar fragment
             }else{
                 getSupportActionBar().hide();
             }
@@ -342,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }).create().show();
     }
-
+    
     public void findGroup(View v){
         Intent findGroup = new Intent(this, FindGroupActivity.class);
         int requestCode = account_type == SMEDClient.STUDENT ? REQUEST_GROUP : REQUEST_STUDENT_LINK;
@@ -414,55 +418,6 @@ public class MainActivity extends AppCompatActivity {
         if (!dobleFragment && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             getWindow().setStatusBarColor(color);
     }
-
-    public void mainFlow(int step){
-        account_type = getSharedPreferences("user", 0)
-                .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1);
-        System.out.println("account_type " + account_type);
-        fab = (FloatingActionButton)findViewById(R.id.fab_nueva_tarea);
-        if(fab != null && account_type != SMEDClient.TEACHER){
-            fab.setVisibility(View.GONE);
-            fab = null;
-        }
-        Fragment frag;
-        if(findViewById(R.id.fragmentLayout2) != null)
-            dobleFragment = true;
-        SharedPreferences preferences = getSharedPreferences("user", 0);
-        View find = findViewById(R.id.view_find_group);
-        //there's no breaks in the hype(switch)train!
-        switch(step){
-            case 0:
-                if (!preferences.getBoolean("login", false)) {
-                    Intent login = new Intent(this, LoginActivity.class);
-                    startActivityForResult(login, REQUEST_LOGIN);
-                }
-            case 1:
-                if(preferences.getInt(SMEDClient.KEY_ID_GROUP, -1) == -1){
-                    //buscar grupo si no está en uno o pertenece al grupo default
-
-                    switch(account_type){
-                        case SMEDClient.TEACHER:
-                            createGroup();
-                            break;
-                        case SMEDClient.PARENT:
-                            ((TextView)find.findViewById(R.id.find_text)).setText(R.string.no_son);
-                            ((Button)find.findViewById(R.id.find_button)).setText(R.string.find_student);
-                            find.findViewById(R.id.wifi_button).setVisibility(View.GONE);
-                        case SMEDClient.STUDENT:
-                            find.setVisibility(View.VISIBLE);
-                    }
-                }
-            case 2:
-                //start fragment
-                find.setVisibility(View.GONE);
-                frag = new MainActivityFragment();
-                fm.beginTransaction()
-                        .add(R.id.fragmentLayout, frag)
-                        .commit();
-                new GetHomework(this).execute();
-        }
-    }
-
 
 
     static class GetHomework extends AsyncTask<Void,Void,Boolean> {

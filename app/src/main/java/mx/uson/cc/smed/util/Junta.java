@@ -11,7 +11,7 @@ public class Junta implements Serializable {
     String desc;
     String titulo;
     Date fecha;
-    String citado = "Papi";
+    String citado;
     boolean juntaGrupal;
     int ID;
     public Junta(String titulo, String desc, int id,Date fecha, boolean juntaGrupal){
@@ -20,7 +20,8 @@ public class Junta implements Serializable {
         this.desc = desc;
         this.ID = id;
         this.juntaGrupal = juntaGrupal;
-        if(juntaGrupal) citado = "Todos";
+        if(juntaGrupal == true) citado = "Todos";
+        else citado = "Papi con ID:"+id;
     }
 
     public Junta(String titulo, String desc, int id,Date fecha, String citado){

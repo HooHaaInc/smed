@@ -123,7 +123,7 @@
         </LinearLayout>
     </ScrollView>
     <Button
-        android:id="@+id/delete_homework"
+        android:id="@+id/delete_meeting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Eliminar"
