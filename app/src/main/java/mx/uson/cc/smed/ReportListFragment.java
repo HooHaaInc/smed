@@ -1,4 +1,5 @@
 package mx.uson.cc.smed;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v4.app.ListFragment;
 import android.content.Context;
@@ -45,14 +46,23 @@ public class ReportListFragment extends ListFragment {
                              Bundle savedInstanceState) {
         this.inflater = inflater;
         ((AppCompatActivity)getActivity()).getSupportActionBar().show();
-        adapter = new ReportListAdapter(inflater.getContext(),R.layout.list_view_row_report_item,
-                ResourcesMan.getReportes());
+
         contexto = inflater.getContext();
-        setListAdapter(adapter);
         getActivity().setTitle(R.string.reports);
 
         //TODO agregar new GetReportes
-        new getReports().execute();
+        if(ResourcesMan.getReportes() == null) {
+            ResourcesMan.initReportes();
+            SharedPreferences preferences = getActivity().getSharedPreferences("user", 0);
+            new getReports(
+                    preferences.getInt(SMEDClient.KEY_ID_GROUP, -1),
+                    preferences.getInt(SMEDClient.KEY_ID_PARENT, -1) //si es maestro, parentId = -1, y entonces se deben obtener todos los reportes del grupo
+            ).execute();
+        }else{
+            adapter = new ReportListAdapter(inflater.getContext(),R.layout.list_view_row_report_item,
+                    ResourcesMan.getReportes());
+            setListAdapter(adapter);
+        }
 
         return super.onCreateView(inflater, container, savedInstanceState);
 
@@ -83,14 +93,20 @@ public class ReportListFragment extends ListFragment {
 
     class getReports extends AsyncTask<Void,Void,Boolean>{
 
+        public getReports(int groupId, int parentId){
+            this.groupId = groupId;
+            this.parentId = parentId;
+        }
+
         JSONArray reportes;
         JSONObject reporte;
         String id_reporte,id_alumno,fecha,comentario;
+        int groupId, parentId;
 
         @Override
         protected Boolean doInBackground(Void... params) {
             ResourcesMan.quitarReportes();
-            JSONObject result = SMEDClient.getAllReports();
+            JSONObject result = SMEDClient.getAllReports(groupId, parentId);
             try{
                 reportes = result.getJSONArray("reportes");
 

@@ -89,6 +89,9 @@
             android:theme="@style/AppTheme" >
         </activity>
 
+        <activity android:name=".ConnectToGroupActivity" />
+        <activity android:name=".ConnectToStudentsActivity" />
+
         <receiver
             android:name="com.pushbots.google.gcm.GCMBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >

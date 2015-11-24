@@ -151,6 +151,7 @@ public class SMEDClient {
             datosPersona.put(KEY_ACCOUNT_TYPE, result.getString("tipo_persona"));
             if(result.getString("tipo_persona").equals("2")) datosPersona.put(KEY_ID_TEACHER,result.getString("id_maestro"));
             if(result.getString("tipo_persona").equals("1")) datosPersona.put(KEY_ID_STUDENT,result.getString("id_alumno"));
+            //TODO: datosPersona.put(KEY_ID_GROUP, result.getString(KEY_ID_GROUP));
             Log.v("ID_ALUMNO_CLIENT", result.getString("id_alumno"));
         }catch(JSONException e){
             e.printStackTrace();
@@ -187,6 +188,7 @@ public class SMEDClient {
     }
 
     public static String newReporte(int id_alumno,String comentario,Date fecha){
+        //supongo que con el id_alumno puedes obtener el del grupo (8
         HashMap<String,String> datosReporte = new HashMap<>();
 
         datosReporte.put(SMEDClient.KEY_ID_STUDENT, Integer.toString(id_alumno));
@@ -327,9 +329,11 @@ public class SMEDClient {
         return null;
     }
 
-    public static JSONObject getAllReports(){
+    public static JSONObject getAllReports(int groupId, int parentId){
         HashMap<String,String> params = new HashMap<>();
-
+        params.put(KEY_ID_GROUP, groupId+"");
+        params.put(KEY_ID_PARENT, parentId+"");
+        //TODO: si parentId == -1, obtener todos los reportes del grupo
         JSONObject result = SMEDClient.sendPostRequest(URL_GET_ALL_REPORTS,params);
 
         String res = "";
@@ -344,9 +348,10 @@ public class SMEDClient {
         return result;
     }
 
-    public static JSONObject getAllMeetings(){
+    public static JSONObject getAllMeetings(int groupId, int parentId){
         HashMap<String,String> params = new HashMap<>();
-
+        params.put(KEY_ID_GROUP, groupId+"");
+        params.put(KEY_ID_PARENT, parentId+"");
         JSONObject result = SMEDClient.sendPostRequest(URL_GET_ALL_MEETINGS,params);
 
         String res = "";

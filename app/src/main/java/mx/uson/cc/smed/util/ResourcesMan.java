@@ -28,8 +28,11 @@ public class ResourcesMan {
     };
 
     private static ArrayList<Tarea> tareas = new ArrayList<>();
-    private static ArrayList<Reporte> reportes = new ArrayList<>();
-    private static ArrayList<Junta> juntas = new ArrayList<>();
+    private static ArrayList<Reporte> reportes;
+    private static ArrayList<Junta> juntas;
+
+    public static void initReportes(){ reportes = new ArrayList<>(); }
+    public static void initJuntas(){ juntas = new ArrayList<>(); }
 
     public static ArrayList<Reporte> getReportes() {
         return reportes;
@@ -39,15 +42,7 @@ public class ResourcesMan {
         return juntas;
     }
 
-    static{
-        Calendar C =Calendar.getInstance();
-        Date D = new java.sql.Date(C.getTime().getTime());
-        ResourcesMan.addReporte(new Reporte("de","Me pego",D));
 
-        ResourcesMan.addReporte(new Reporte("dsad","Me cosho",D));
-        ResourcesMan.addJunta(new Junta("Titulo","Desc",1,D,false));
-
-    }
     public static void addReporte(Reporte reporte){
         reportes.add(reporte);
 

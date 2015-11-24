@@ -119,11 +119,12 @@ public class AddHomeworkActivity extends AppCompatActivity
 
                 if(edit)
                     mNewHomework = new NewHomework(id,
-                            1, titulo.getText().toString(),
+                            getSharedPreferences("user", 0).getInt(SMEDClient.KEY_ID_GROUP, -1),
+                            titulo.getText().toString(),
                             desc.getText().toString(),
                             Tarea.getCourseFromArray(list.getSelectedItemPosition()),
                             date);
-                else mNewHomework = new NewHomework(1,
+                else mNewHomework = new NewHomework(getSharedPreferences("user", 0).getInt(SMEDClient.KEY_ID_GROUP, -1),
                         titulo.getText().toString(),
                         desc.getText().toString(),
                         Tarea.getCourseFromArray(list.getSelectedItemPosition()),

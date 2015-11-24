@@ -216,7 +216,6 @@ public class MainActivity extends AppCompatActivity {
         if(getSharedPreferences("user",0).getInt(SMEDClient.KEY_ID_GROUP, -1) == -1){
             menu.removeItem(R.id.create);
             menu.removeItem(R.id.action_find_students);
-            menu.removeItem(R.id.action_find_parents);
             menu.removeItem(R.id.action_view_report);
             menu.removeItem(R.id.action_view_meeting);
             menu.removeItem(R.id.action_add_meeting);
@@ -232,14 +231,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case SMEDClient.STUDENT:
                 menu.removeItem(R.id.action_find_students);
-                menu.removeItem(R.id.action_find_parents);
                 menu.removeItem(R.id.action_view_report);
                 menu.removeItem(R.id.action_view_meeting);
                 menu.removeItem(R.id.action_add_meeting);
                 break;
             case SMEDClient.PARENT:
                 menu.removeItem(R.id.action_find_students);
-                menu.removeItem(R.id.action_find_parents);
                 menu.removeItem(R.id.action_add_report);
                 menu.removeItem(R.id.action_add_meeting);
         }

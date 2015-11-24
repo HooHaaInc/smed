@@ -1,4 +1,5 @@
 package mx.uson.cc.smed;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v4.app.ListFragment;
 import android.content.Context;
@@ -45,14 +46,22 @@ public class MeetingListFragment extends ListFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ((AppCompatActivity)getActivity()).getSupportActionBar().show();
-        MeetingListAdapter adapter = new MeetingListAdapter(inflater.getContext(),R.layout.list_view_row_report_item,
-                ResourcesMan.getJuntas());
-        setListAdapter(adapter);
+
         getActivity().setTitle(R.string.meetings);
         contexto = inflater.getContext();
         getActivity().setTitle(R.string.meetings);
-
-        new getMeetings().execute();
+        if(ResourcesMan.getJuntas() == null) {
+            ResourcesMan.initJuntas();
+            SharedPreferences preferences = getActivity().getSharedPreferences("user", 0);
+            new getMeetings(
+                    preferences.getInt(SMEDClient.KEY_ID_GROUP, -1),
+                    preferences.getInt(SMEDClient.KEY_ID_PARENT, -1) //si es maestro, parentId = -1, entonces se debera obtener todas las juntas del grupo
+            ).execute();
+        }else{
+            adapter = new MeetingListAdapter(inflater.getContext(),R.layout.list_view_row_report_item,
+                    ResourcesMan.getJuntas());
+            setListAdapter(adapter);
+        }
 
         return super.onCreateView(inflater, container, savedInstanceState);
     }
@@ -77,14 +86,21 @@ public class MeetingListFragment extends ListFragment {
     }
 
     class getMeetings extends AsyncTask<Void,Void,Boolean>{
+
+        public getMeetings(int groupId, int parentId){
+            this.groupId = groupId;
+            this.parentId = parentId;
+        }
+
         JSONArray juntas;
         JSONObject junta;
         String id_junta,id_padre,id_grupo,fecha,motivo,descripcion,esgrupal;
+        int groupId, parentId;
 
         @Override
         protected Boolean doInBackground(Void... params) {
             ResourcesMan.quitarJuntas();
-            JSONObject result = SMEDClient.getAllMeetings();
+            JSONObject result = SMEDClient.getAllMeetings(groupId, parentId);
 
             try{
                 juntas = result.getJSONArray("juntas");
