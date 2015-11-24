@@ -109,7 +109,10 @@ public class SMEDClient {
             if(accountType==3){
                 datosPersona.put(KEY_ID_PARENT,result.getString("id_padre"));
                 Log.v("ID_PADRE", result.getString("id_padre"));
-            }
+            }else if(accountType==2){
+                datosPersona.put(KEY_ID_TEACHER, result.getString("id_maestro"));
+            }else if(accountType == 1)
+                datosPersona.put(KEY_ID_STUDENT, result.getString("id_alumno"));
             Log.v("ID_PERSONA", result.getString("id_persona"));
 
         } catch (JSONException e) {
@@ -304,7 +307,7 @@ public class SMEDClient {
 
     public static String createGroup(int teacherId, String groupName, boolean morningShift){
         HashMap<String,String> params = new HashMap<>();
-        params.put(KEY_TEACHER_ID, teacherId+"");
+        params.put(KEY_ID_TEACHER, teacherId+"");
         params.put(KEY_GROUP_KEY, groupName);
         params.put(KEY_TURNO, morningShift? "matutino" : "vespertino");
         JSONObject result = SMEDClient.sendPostRequest(URL_CREATE_GROUP,params);

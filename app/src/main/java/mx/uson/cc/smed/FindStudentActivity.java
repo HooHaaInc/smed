@@ -41,7 +41,7 @@ public class FindStudentActivity extends AppCompatActivity
     SharedPreferences preferences;
     ProgressDialog progress;
     FindStudentActivity act;
-
+    int groupId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +53,9 @@ public class FindStudentActivity extends AppCompatActivity
         ListView list = (ListView)findViewById(android.R.id.list);
         list.setAdapter(adapter);
         list.setOnItemClickListener(this);
-        new StudentTask(this, getIntent().getIntExtra("groupId", -1),0).execute();
-        Log.v("GROUPID:", "" + getIntent().getIntExtra("groupId", -1));
+        groupId = getIntent().getIntExtra("groupId", -1);
+        new StudentTask(this, groupId,0).execute();
+        Log.v("GROUPID:", "" + groupId);
         progress = new ProgressDialog(this);
         progress.setMessage(getString(R.string.loading));
         progress.show();
@@ -101,9 +102,9 @@ public class FindStudentActivity extends AppCompatActivity
                         Toast.makeText(FindStudentActivity.this,
                                 getString(R.string.linked_to)+" "+g.getName(), Toast.LENGTH_SHORT).show();
                         //TODO TASK Alumno conectado con papa
-                        String id = preferences.getString(SMEDClient.KEY_ID_PARENT,"0");
+                        int id = preferences.getInt(SMEDClient.KEY_ID_PARENT, 0);
 
-                        new StudentTask(act, g.getId(),1,Integer.parseInt(id)).execute();
+                        new StudentTask(act, g.getId(),1,id).execute();
 
                         setResult(RESULT_OK);
                         finish();
@@ -191,6 +192,11 @@ public class FindStudentActivity extends AppCompatActivity
             activity.progress.dismiss();
             if(success){
                 activity.adapter.notifyDataSetChanged();
+                if(mTask == 1){
+                    activity.getSharedPreferences("user", 0).edit()
+                            .putInt(SMEDClient.KEY_ID_GROUP, activity.groupId)
+                            .apply();
+                }
             }
         }
     }

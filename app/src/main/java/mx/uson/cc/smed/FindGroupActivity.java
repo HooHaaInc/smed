@@ -120,7 +120,7 @@ public class FindGroupActivity extends AppCompatActivity
                         //TODO: neto, inscribir gente
                         Group g = adapter.getItem(position);
                         Log.v("ID_GRUPO:", "" + g.getId());   //TODO <--- CONSIGO ID DEL GRUPO
-                        String id = preferences.getString(SMEDClient.KEY_ID_STUDENT,"0");
+                        String id = preferences.getInt(SMEDClient.KEY_ID_STUDENT,0)+"";
                         Log.v("ID_ALUMNO:",id);
                         new GroupTask(FindGroupActivity.this,ASKGROUP,Integer.parseInt(id),g.getId()).execute();
                         Toast.makeText(FindGroupActivity.this,
@@ -207,6 +207,11 @@ public class FindGroupActivity extends AppCompatActivity
             activity.progress.dismiss();
             if(success){
                 activity.adapter.notifyDataSetChanged();
+                if(mTask == GETGROUPS){
+                    activity.getSharedPreferences("user", 0).edit()
+                            .putInt(SMEDClient.KEY_ID_GROUP, mId_grupo)
+                            .apply();
+                }
             }
         }
     }

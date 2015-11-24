@@ -61,7 +61,7 @@ public class ConnectToGroupActivity extends AppCompatActivity
 
         myInfo = new Bundle();
         SharedPreferences preferences = getSharedPreferences("user", 0);
-        myInfo.putString(WifiDirect.EXTRAS_ID, preferences.getString(SMEDClient.KEY_ID_PERSON, "-1"));
+        myInfo.putString(WifiDirect.EXTRAS_ID, preferences.getInt(SMEDClient.KEY_ID_PERSON, -1)+"");
         myInfo.putInt(WifiDirect.EXTRAS_ACCOUNT, preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1));
         myInfo.putString(WifiDirect.EXTRAS_NAME, preferences.getString(SMEDClient.KEY_NAME, "NaN"));
         myInfo.putString(WifiDirect.EXTRAS_LASTNAME1, preferences.getString(SMEDClient.KEY_LASTNAME1, "McGreggor"));

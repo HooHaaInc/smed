@@ -872,27 +872,22 @@ public class LoginActivity extends Activity
         int accountType = Integer.parseInt(result.get(SMEDClient.KEY_ACCOUNT_TYPE));
         switch(accountType){
             case SMEDClient.TEACHER:
-                specificKey = SMEDClient.KEY_TEACHER_ID;
+                specificKey = SMEDClient.KEY_ID_TEACHER;
                 break;
             case SMEDClient.PARENT:
                 //TODO: no mame
-                specificKey = "id_padre";
+                specificKey = SMEDClient.KEY_ID_PARENT;
                         break;
             case SMEDClient.STUDENT:
-                specificKey = "id_alumno";
+                specificKey = SMEDClient.KEY_ID_STUDENT;
         }
         getSharedPreferences("user", 0).edit()
                 .putBoolean("login", true)
-                .putString(SMEDClient.KEY_ID_PERSON, result.get(SMEDClient.KEY_ID_PERSON))
+                .putInt(SMEDClient.KEY_ID_PERSON, Integer.parseInt(result.get(SMEDClient.KEY_ID_PERSON)))
                 .putString(SMEDClient.KEY_NAME, result.get(SMEDClient.KEY_NAME))
                 .putString(SMEDClient.KEY_LASTNAME1, result.get(SMEDClient.KEY_LASTNAME1))
                 .putString(SMEDClient.KEY_LASTNAME2, result.get(SMEDClient.KEY_LASTNAME2))
                 .putString(SMEDClient.KEY_EMAIL, result.get(SMEDClient.KEY_EMAIL))
-                .putInt(SMEDClient.KEY_ACCOUNT_TYPE,
-                        Integer.parseInt(result.get(SMEDClient.KEY_ACCOUNT_TYPE)))
-                .putString(SMEDClient.KEY_ID_STUDENT,result.get(SMEDClient.KEY_ID_STUDENT))
-                .putString(SMEDClient.KEY_ID_TEACHER,result.get(SMEDClient.KEY_ID_TEACHER))
-                .putString(SMEDClient.KEY_ID_PARENT,result.get(SMEDClient.KEY_ID_PARENT))
                 .putInt(SMEDClient.KEY_ACCOUNT_TYPE, accountType)
                 .putInt(specificKey, Integer.parseInt(result.get(specificKey)))
                 .apply();

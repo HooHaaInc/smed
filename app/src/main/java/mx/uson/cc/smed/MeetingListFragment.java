@@ -50,7 +50,6 @@ public class MeetingListFragment extends ListFragment {
         setListAdapter(adapter);
         getActivity().setTitle(R.string.meetings);
         contexto = inflater.getContext();
-        ((MainActivity)(getActivity())).setAdapter(adapter);
         getActivity().setTitle(R.string.meetings);
 
         new getMeetings().execute();
@@ -129,7 +128,6 @@ public class MeetingListFragment extends ListFragment {
             adapter = new MeetingListAdapter(contexto,R.layout.list_view_row_report_item,
                     ResourcesMan.getJuntas());
             setListAdapter(adapter);
-            ((MainActivity)(getActivity())).setAdapter(adapter);
         }
 
     }

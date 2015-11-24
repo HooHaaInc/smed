@@ -41,7 +41,8 @@ public class MeetingListAdapter extends ArrayAdapter<Junta> {
                     .setImageDrawable(groupAvatar);
         else {
             String[] split = junta.getCitado().split(" ");
-            String initials = "" + split[0].charAt(0) + split[1].charAt(0);
+            String initials = "" + split[0].charAt(0) + (split.length > 1
+                    ? split[1].charAt(0) : "");
             ((ImageView) convertView.findViewById(R.id.imageViewItem))
                     .setImageDrawable(TextDrawable.builder().buildRound(initials, Color.LTGRAY));
         }

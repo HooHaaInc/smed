@@ -122,7 +122,6 @@ public class ReportListFragment extends ListFragment {
             adapter = new ReportListAdapter(contexto,R.layout.list_view_row_report_item,
                     ResourcesMan.getReportes());
             setListAdapter(adapter);
-            ((MainActivity)(getActivity())).setAdapter(adapter);
         }
     }
 

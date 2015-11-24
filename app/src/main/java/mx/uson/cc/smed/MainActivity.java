@@ -68,9 +68,10 @@ public class MainActivity extends AppCompatActivity {
             fab = null;
         }
         Fragment frag;
-        if (findViewById(R.id.fragmentLayout2) != null)
+
         Pushbots.sharedInstance().init(this);
         Pushbots.sharedInstance().setPushEnabled(true);
+
         if(findViewById(R.id.fragmentLayout2) != null)
             dobleFragment = true;
 
@@ -168,24 +169,26 @@ public class MainActivity extends AppCompatActivity {
         }if(requestCode == REQUEST_GROUP){
             if(resultCode == RESULT_OK){
                 //TODO: su solicitud a sido enviada
-                View find = findViewById(R.id.view_find_group);
+                recreate();
+                /*View find = findViewById(R.id.view_find_group);
                 find.setVisibility(View.GONE);
                 //start fragment
                 fm.beginTransaction()
                         .add(R.id.fragmentLayout, new MainActivityFragment())
                         .commit();
-                new GetHomework(this).execute();
+                new GetHomework(this).execute();*/
             }
         }if(requestCode == REQUEST_STUDENT_LINK){
             if(resultCode == RESULT_OK){
                 //TODO: su solicitud a sido enviada
-                View find = findViewById(R.id.view_find_group);
+                recreate();
+                /*View find = findViewById(R.id.view_find_group);
                 find.setVisibility(View.GONE);
                 //start fragment
                 fm.beginTransaction()
                         .add(R.id.fragmentLayout, new MainActivityFragment())
                         .commit();
-                new GetHomework(this).execute();
+                new GetHomework(this).execute();*/
             }
         }
         if (requestCode == ADD_REPORT) {
@@ -208,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        if(getSharedPreferences("user",0).getInt(SMEDClient.KEY_ID_GROUP, 1) == 1){
+        if(getSharedPreferences("user",0).getInt(SMEDClient.KEY_ID_GROUP, -1) == -1){
             menu.removeItem(R.id.create);
             menu.removeItem(R.id.action_find_students);
             menu.removeItem(R.id.action_find_parents);
@@ -341,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
                         AlertDialog aDialog = (AlertDialog) dialog;
                         String name = ((EditText) aDialog.findViewById(R.id.group_name)).getText().toString();
                         boolean matutino = ((Spinner) aDialog.findViewById(R.id.shift_spinner)).getSelectedItemPosition() == 0;
-                        int teacherId = getSharedPreferences("user", 0).getInt(SMEDClient.KEY_TEACHER_ID, -1);
+                        int teacherId = getSharedPreferences("user", 0).getInt(SMEDClient.KEY_ID_TEACHER, -1);
                         new CreateGroupTask(teacherId, name, matutino, progress).execute();
                     }
                 }).create().show();
