@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int DELETE_HOMEWORK = 4;
     public static final int ADD_REPORT = 5;
     public static final int ADD_MEETING = 6;
+    public static final int EDIT_MEETING = 7;
+    public static final int CANCEL_MEETING = 8;
 
     public static final int REQUEST_CONNECTION = 20;
     public static final int REQUEST_GROUP = 21;
@@ -404,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
 
             //System.out.println("onBack: "+currentFragment.toString());
 
-            if(fab != null)
+            if(fab != null && f instanceof MainActivityFragment)
                 fab.show();
             setStatusBarColor(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                     ? getResources().getColor(R.color.primaryDark, null)

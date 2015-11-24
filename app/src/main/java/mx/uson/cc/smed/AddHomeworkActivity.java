@@ -69,6 +69,7 @@ public class AddHomeworkActivity extends AppCompatActivity
             int pos = (int)(Math.random()*5);
             list.setSelection(pos);
             setBackground(pos);
+            findViewById(R.id.delete_homework).setVisibility(View.GONE);
         }
         if(savedInstanceState != null){
             date = Date.valueOf(savedInstanceState.getString("date"));
@@ -129,8 +130,7 @@ public class AddHomeworkActivity extends AppCompatActivity
                         date);
 
                 mNewHomework.execute((Void) null);
-
-
+                v.setEnabled(false);
                 break;
             case R.id.back_to_list:
                 finish();

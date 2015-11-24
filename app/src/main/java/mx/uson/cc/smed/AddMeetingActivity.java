@@ -36,7 +36,7 @@ public class AddMeetingActivity extends AppCompatActivity implements DatePickerD
     EditText titulo;
     EditText desc;
     int padre;
-
+    boolean edit;
 
     SimpleDateFormat formatter;
     @Override
@@ -59,6 +59,18 @@ public class AddMeetingActivity extends AppCompatActivity implements DatePickerD
         titulo = (EditText) findViewById(R.id.editTitulo);
         desc = (EditText) findViewById(R.id.editDesc);
         findViewById(R.id.back_to_list).setOnClickListener(this);
+        edit = getIntent().getBooleanExtra("edit", false);
+        if(edit){
+            titulo.setText(getIntent().getStringExtra("Titulo"));
+            desc.setText(getIntent().getStringExtra("Descripcion"));
+            date = Date.valueOf(getIntent().getStringExtra("Fecha"));
+            fechaBtn.setText(formatter.format(date));
+            String strCitados = getIntent().getStringExtra("Citado");
+            if(!strCitados.equals("Todos")) {
+                EditText citados = (EditText)findViewById(R.id.spinner_junta);
+                citados.setText(strCitados);
+            }
+        }else findViewById(R.id.delete_meeting).setVisibility(View.GONE);
     }
 
     @Override
@@ -82,8 +94,12 @@ public class AddMeetingActivity extends AppCompatActivity implements DatePickerD
                 java.sql.Date fecha =  new java.sql.Date(GC.getTimeInMillis());
                 Junta j = new Junta(titulo,desc,0/*ID del padre*/,fecha,juntaGrupal);
                 i.putExtra("Junta",j);
-                new newMeeting(1,titulo,desc,fecha,true).execute();
-                this.setResult(RESULT_OK, i);
+                if(edit) {
+                    //TODO: netooooo editar junta (8
+                }else {
+                    new newMeeting(1, titulo, desc, fecha, true).execute();
+                    this.setResult(RESULT_OK, i);
+                }
                 finish();
                 break;
             case R.id.back_to_list:

@@ -1,5 +1,6 @@
 package mx.uson.cc.smed;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import java.util.Locale;
 
 import mx.uson.cc.smed.util.Junta;
 import mx.uson.cc.smed.util.ResourcesMan;
+import mx.uson.cc.smed.util.SMEDClient;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -52,7 +54,7 @@ public class ReadMeetingFragment extends Fragment {
             citado = savedInstanceState.getString("Citado");
             ((MainActivity)getActivity()).hideFab();
         }else {
-            Junta junta = ResourcesMan.getJuntas().get(position);
+            final Junta junta = ResourcesMan.getJuntas().get(position);
             titulo = junta.getTitulo();
             desc =  junta.getDesc();
             citado = junta.getCitado();
@@ -66,6 +68,22 @@ public class ReadMeetingFragment extends Fragment {
                             ((MainActivity) getActivity()).goBack();
                         }
                     });
+            if(getActivity().getSharedPreferences("user", 0)
+                    .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1) == SMEDClient.TEACHER)
+                view.findViewById(R.id.edit_meeting).setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent edit = new Intent(getActivity(), AddMeetingActivity.class);
+                                edit.putExtra("edit", true);
+                                edit.putExtra("Titulo", titulo);
+                                edit.putExtra("Descripcion", desc);
+                                edit.putExtra("Citado", citado);
+                                edit.putExtra("Fecha", junta.getFecha().toString());
+                                getActivity().startActivityForResult(edit, MainActivity.EDIT_MEETING);
+                            }
+                        });
+            else view.findViewById(R.id.edit_meeting).setVisibility(View.GONE);
 
         }
 
