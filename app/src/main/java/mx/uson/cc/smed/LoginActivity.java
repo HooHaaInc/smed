@@ -120,6 +120,9 @@ public class LoginActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        //Pushbots.sharedInstance().init(this);
+        //Pushbots.sharedInstance().setPushEnabled(true);
+
         // Find the Google+ sign in button.
         SignInButton mPlusSignInButton = (SignInButton) findViewById(R.id.plus_sign_in_button);
         if (supportsGooglePlayServices()) {

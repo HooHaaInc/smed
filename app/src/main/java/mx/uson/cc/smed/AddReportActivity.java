@@ -1,6 +1,7 @@
 package mx.uson.cc.smed;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,10 +19,13 @@ import mx.uson.cc.smed.util.SMEDClient;
 
 public class AddReportActivity extends AppCompatActivity {
 
+    SharedPreferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_report);
+        preferences = getSharedPreferences("user",0);
 
     }
 
@@ -53,11 +57,13 @@ public class AddReportActivity extends AppCompatActivity {
         String descripcion = tv.getText().toString();
         Calendar GC = Calendar.getInstance();
 
-        Reporte r = new Reporte(acusador,descripcion,new Date(GC.getTimeInMillis()));
+        //Reporte r = new Reporte(acusador,descripcion,new Date(GC.getTimeInMillis()));
 
-        new newReport(1,descripcion,new Date(GC.getTimeInMillis())).execute();
+        int id = preferences.getInt(SMEDClient.KEY_ID_STUDENT,0);
+
+        new newReport(id,descripcion,new Date(GC.getTimeInMillis())).execute();
         //TODO ^ poner ahi luego un string con el nombre?
-        i.putExtra("Reporte",r);
+        //i.putExtra("Reporte",r);
         this.setResult(RESULT_OK,i);
         finish();
     }

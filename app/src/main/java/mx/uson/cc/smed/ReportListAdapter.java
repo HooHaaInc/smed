@@ -29,9 +29,8 @@ public class ReportListAdapter extends ArrayAdapter<Reporte> {
         }
 
         Reporte reporte = getItem(position);
-        String[] split = reporte.getAcusador().split(" ");
-        String initials = ""+ split[0].charAt(0) + (split.length > 1 ?
-                split[1].charAt(0) : "");
+        String split = reporte.getAcusador();
+        String initials = ""+ split.charAt(0);
         ((ImageView)convertView.findViewById(R.id.icon))
                 .setImageDrawable(TextDrawable.builder().buildRound(initials, Color.LTGRAY));
         TextView text = (TextView) convertView.findViewById(R.id.title);

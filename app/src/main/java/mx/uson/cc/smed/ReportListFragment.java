@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,13 +118,13 @@ public class ReportListFragment extends ListFragment {
                     id_alumno = reporte.getString("id_alumno");
                     fecha = reporte.getString("fecha");
                     comentario = reporte.getString("comentario");
+                    int id = Integer.parseInt(id_alumno);
+                    String idA = SMEDClient.getPersonNameByStudentID(id);
+                    Log.v("nombre",idA);
 
-                    ResourcesMan.addReporte(new Reporte(
-                            "getNameById"+i,
-                            comentario,
-                            Date.valueOf(fecha)
 
-                    ));
+                    Reporte r = new Reporte(idA,comentario,Date.valueOf(fecha));
+                    ResourcesMan.addReporte(r);
                 }
                 return true;
 
