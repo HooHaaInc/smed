@@ -344,15 +344,15 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == ADD_REPORT) {
             if (resultCode == RESULT_OK) {
                 // Un reporte fue subido. Lo insertaremos a la lista de reportes.
-                Reporte a = (Reporte)data.getSerializableExtra("Reporte");
-                ResourcesMan.addReporte(a);
+                //Reporte a = (Reporte)data.getSerializableExtra("Reporte");
+                //ResourcesMan.addReporte(a);
             }
         }
         if (requestCode == ADD_MEETING) {
             if (resultCode == RESULT_OK) {
                 // Un reporte fue subido. Lo insertaremos a la lista de reportes.
-                Junta j = (Junta)data.getSerializableExtra("Junta");
-                ResourcesMan.addJunta(j);
+                //Junta j = (Junta)data.getSerializableExtra("Junta");
+                //ResourcesMan.addJunta(j);
             }
         }
     }
@@ -538,6 +538,7 @@ public class MainActivity extends AppCompatActivity {
                 ResourcesMan.quitarTareas();
                 int groupId = mainActivity.getSharedPreferences("user", 0)
                         .getInt(SMEDClient.KEY_ID_GROUP, -1);
+            Log.v("id",groupId+"");
                 JSONObject result = SMEDClient.getAllHomework(groupId);
                 try {
                     hw = result.getJSONArray("tareas");

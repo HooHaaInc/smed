@@ -250,7 +250,7 @@ public class AddHomeworkActivity extends AppCompatActivity
         protected String doInBackground(Void... voids) {
             if(!mEdit && mId_grupo != -1) {
                 Log.v("agregando?",":c");
-                return SMEDClient.newHomework(1, mTitulo, mDesc, mMateria, mFecha);
+                return SMEDClient.newHomework(mId_grupo, mTitulo, mDesc, mMateria, mFecha);
             }
             if(mEdit && mId_grupo != -1){
                 Log.v("editando?",":c");
@@ -265,12 +265,13 @@ public class AddHomeworkActivity extends AppCompatActivity
             mNewHomework = null;
             Toast.makeText(AddHomeworkActivity.this,res, Toast.LENGTH_SHORT).show();
             Intent i = AddHomeworkActivity.this.getIntent();
-
+            Log.v("ID GRUPO tarea subiendo",mId_grupo+"");
             i.putExtra("TituloTarea", mTitulo);
             i.putExtra("DescTarea", mDesc);
             i.putExtra("MateriaTarea", mMateria);
             i.putExtra("FechaTarea", mFecha);
             i.putExtra("Id", mId);
+            i.putExtra("id_grupo",mId_grupo);
             AddHomeworkActivity.this.setResult(RESULT_OK, i);
             AddHomeworkActivity.this.finish();
         }

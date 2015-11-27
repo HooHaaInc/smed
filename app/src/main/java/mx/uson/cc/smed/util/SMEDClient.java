@@ -35,7 +35,7 @@ public class SMEDClient {
     private static final String URL_NEW_REPORT = "http://148.225.83.3/~e5ingsoft2/smed/CrearReporte.php";
     private static final String URL_NEW_MEETING = "http://148.225.83.3/~e5ingsoft2/smed/CrearJunta.php";
     private static final String URL_GET_ALL_MEETINGS = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerJuntas.php";
-    private static final String URL_GET_PERSON_NAME_BY_ID = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerNombrePorIDAlumno.php";
+    private static final String URL_GET_PERSON_NAME_BY_ID = "http://148.225.83.3/~e5ingsoft2/smed/obtenerNombrePorIDAlumno.php";
     private static final String URL_GET_ALL_GROUPS = "http://148.225.83.3/~e5ingsoft2/smed/ObtenerGrupos.php";
     private static final String URL_ASK_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/solicitudGrupo.php";
     private static final String URL_GET_STUDENTS_FROM_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/obtenerAlumnosDeGrupo.php";
@@ -405,7 +405,7 @@ public class SMEDClient {
     public static String getPersonNameByStudentID(int id_alumno){
         HashMap<String,String> params = new HashMap<>();
 
-        params.put(SMEDClient.KEY_ID_PERSON, Integer.toString(id_alumno));
+        params.put(SMEDClient.KEY_ID_STUDENT, Integer.toString(id_alumno));
 
         JSONObject result = SMEDClient.sendPostRequest(URL_GET_PERSON_NAME_BY_ID,params);
 

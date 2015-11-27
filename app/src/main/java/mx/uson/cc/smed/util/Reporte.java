@@ -7,7 +7,7 @@ import java.sql.Date;
  * Created by Jorge on 10/2/2015.
  */
 public class Reporte implements Serializable {
-    String alumno_acusador = "Derp Morales";
+    String alumno_acusador;
     String descripcion;
     Date fecha;
     public Reporte(String acusador, String desc,Date fecha){
@@ -17,5 +17,8 @@ public class Reporte implements Serializable {
     }
     public String getAcusador(){return alumno_acusador; }
     public String getDescripcion(){ return descripcion; }
+    public void setAcusador(String noombre){
+        alumno_acusador = noombre;
+    }
     public Date getFecha(){return fecha;}
 }
