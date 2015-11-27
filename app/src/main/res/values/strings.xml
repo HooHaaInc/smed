@@ -21,7 +21,7 @@
     <string name="action_view_report">View reports</string>
 
     <string name ="action_view_meeting">View meetings</string>
-
+    <string name="action_view_homework">View homeworks</string>
 
     <string name ="action_submit_meeting">Submit meeting</string>
     <string name="action_submit_report">Submit report</string>

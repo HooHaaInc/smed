@@ -75,7 +75,7 @@ public class MeetingListFragment extends ListFragment {
         b.putInt("Position", position);
         MainActivity a = (MainActivity)getActivity();
         try {
-            ((MainActivity)getActivity()).changeFragments(b);
+            ((MainActivity)getActivity()).changeFragments(b, null);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (java.lang.InstantiationException e) {

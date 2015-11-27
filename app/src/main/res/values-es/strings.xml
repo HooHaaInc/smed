@@ -117,4 +117,6 @@
     </array>
     <string name="group_name">Grupo (ej: 5A)</string>
     <string name="action_create">Crear</string>
+    <string name="group_shift">Turno</string>
+    <string name="action_view_homework">Ver tareas</string>
 </resources>

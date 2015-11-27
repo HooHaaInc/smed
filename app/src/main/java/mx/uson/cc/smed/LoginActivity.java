@@ -870,6 +870,7 @@ public class LoginActivity extends Activity
         Intent main = new Intent(this, MainActivity.class);
         String specificKey = null;
         int accountType = Integer.parseInt(result.get(SMEDClient.KEY_ACCOUNT_TYPE));
+        Log.d("account", accountType+"");
         switch(accountType){
             case SMEDClient.TEACHER:
                 specificKey = SMEDClient.KEY_ID_TEACHER;
@@ -877,7 +878,7 @@ public class LoginActivity extends Activity
             case SMEDClient.PARENT:
                 //TODO: no mame
                 specificKey = SMEDClient.KEY_ID_PARENT;
-                        break;
+                break;
             case SMEDClient.STUDENT:
                 specificKey = SMEDClient.KEY_ID_STUDENT;
         }

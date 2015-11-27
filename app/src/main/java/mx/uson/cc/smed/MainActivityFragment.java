@@ -51,9 +51,10 @@ SwipeRefreshLayout swipeLayout;
         Bundle b  = new Bundle();
         b.putSerializable("frag", HomeworkFragment.class);
         b.putInt("position", position);
+        b.putString("transitionName","homework");
 
         try {
-            ((MainActivity)getActivity()).changeFragments(b);
+            ((MainActivity)getActivity()).changeFragments(b, v);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (java.lang.InstantiationException e) {

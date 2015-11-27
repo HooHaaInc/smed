@@ -1,20 +1,30 @@
 package mx.uson.cc.smed;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,12 +32,14 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pushbots.push.Pushbots;
 
+import mx.uson.cc.smed.textdrawable.TextDrawable;
 import mx.uson.cc.smed.util.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_coordinator_layout);
         account_type = getSharedPreferences("user", 0)
                 .getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1);
         System.out.println("account_type " + account_type);
@@ -83,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
             Intent login = new Intent(this, LoginActivity.class);
             startActivityForResult(login, REQUEST_LOGIN);
         }
+
+        setupNavigation();
+
         if (preferences.getInt(SMEDClient.KEY_ID_GROUP, -1) == -1) {
             //buscar grupo si no está en uno o pertenece al grupo default
             View find = findViewById(R.id.view_find_group);
@@ -118,6 +133,139 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void setupNavigation() {
+        //actionbar
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitleTextColor(Color.WHITE);
+
+
+        //header
+        NavigationView navigationView = (NavigationView)findViewById(R.id.nav_view);
+        SharedPreferences preferences = getSharedPreferences("user", 0);
+        View profile = navigationView.getHeaderView(0);
+        String name = preferences.getString(SMEDClient.KEY_NAME, "Derp") + " " +
+                preferences.getString(SMEDClient.KEY_LASTNAME1, "Gay");
+        if(preferences.getString(SMEDClient.KEY_LASTNAME2, null) != null)
+            name += " " + preferences.getString(SMEDClient.KEY_LASTNAME2, "Man");
+        String[] nms = name.split(" ");
+        String initials = "" + nms[0].charAt(0) + nms[1].charAt(0) +
+                (nms.length > 2 ? nms[2].charAt(0) : "");
+        String group = preferences.getString(SMEDClient.KEY_GROUP_NAME, "1Z");
+        //TODO: background guapo
+        profile.setBackgroundColor(Color.rgb(0xfb, 0x8c, 0x00)); //naranjita smed
+        ((ImageView) profile.findViewById(R.id.icon)).setImageDrawable(
+                TextDrawable.builder().buildRound(initials, Color.LTGRAY));
+        ((TextView)profile.findViewById(R.id.title)).setText(name);
+        ((TextView)profile.findViewById(R.id.desc)).setText(group);
+
+        //menu
+        Menu menu = navigationView.getMenu();
+        final DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer);
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                int id = item.getItemId();
+                drawer.closeDrawer(GravityCompat.START);
+                //noinspection SimplifiableIfStatement
+                if (id == R.id.action_settings) {
+                    return true;
+                }
+                if (id == R.id.action_log_out) {
+                    getSharedPreferences("user", 0).edit()
+                            .clear()
+                            .apply();
+
+                    Intent logout = new Intent(MainActivity.this, LoginActivity.class);
+                    logout.putExtra("logout", true);
+                    startActivityForResult(logout, REQUEST_LOGIN);
+                    return true;
+                }
+                if (id == R.id.action_find_students) {
+                    Intent connect = new Intent(MainActivity.this, ConnectToStudentsActivity.class);
+                    startActivityForResult(connect, REQUEST_CONNECTION);
+                }
+                if (id == R.id.create) {
+                    addHomeworkButton(null);
+                }
+                if (id == R.id.action_view_report) {
+                    Bundle b = new Bundle();
+                    b.putSerializable("frag", ReportListFragment.class);
+                    try {
+                        changeFragments(b, null);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InstantiationException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                if (id == R.id.action_view_meeting) {
+                    Bundle b = new Bundle();
+                    b.putSerializable("frag", MeetingListFragment.class);
+                    try {
+                        changeFragments(b, null);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InstantiationException e) {
+                        e.printStackTrace();
+                    }
+
+                }if (id == R.id.action_view_homework) {
+                    Bundle b = new Bundle();
+                    b.putSerializable("frag", MainActivityFragment.class);
+                    try {
+                        changeFragments(b, null);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InstantiationException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (id == R.id.action_add_report) {
+                    Intent i = new Intent(MainActivity.this, AddReportActivity.class);
+                    startActivityForResult(i, ADD_REPORT);
+
+                }
+                if (id == R.id.action_add_meeting) {
+                    Intent i = new Intent(MainActivity.this, AddMeetingActivity.class);
+                    startActivityForResult(i, ADD_MEETING);
+
+                }
+                return true;
+            }
+        });
+        if(getSharedPreferences("user",0).getInt(SMEDClient.KEY_ID_GROUP, -1) == -1){
+            menu.removeItem(R.id.create);
+            menu.removeItem(R.id.action_find_students);
+            menu.removeItem(R.id.action_view_report);
+            menu.removeItem(R.id.action_view_meeting);
+            menu.removeItem(R.id.action_add_meeting);
+            menu.removeItem(R.id.action_add_report);
+            menu.removeItem(R.id.action_view_homework);
+            return;
+        }
+
+        menu.removeItem(R.id.create);
+
+        switch(account_type){
+            case SMEDClient.TEACHER:
+                menu.removeItem(R.id.action_add_report);
+                break;
+            case SMEDClient.STUDENT:
+                menu.removeItem(R.id.action_find_students);
+                menu.removeItem(R.id.action_view_report);
+                menu.removeItem(R.id.action_view_meeting);
+                menu.removeItem(R.id.action_add_meeting);
+                break;
+            case SMEDClient.PARENT:
+                menu.removeItem(R.id.action_find_students);
+                menu.removeItem(R.id.action_add_report);
+                menu.removeItem(R.id.action_add_meeting);
+        }
     }
 
     @Override
@@ -212,34 +360,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        if(!dobleFragment) return false;
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.removeItem(R.id.action_find_students);
+        menu.removeItem(R.id.action_view_report);
+        menu.removeItem(R.id.action_view_meeting);
+        menu.removeItem(R.id.action_add_meeting);
+        menu.removeItem(R.id.action_add_report);
+        menu.removeItem(R.id.action_view_homework);
+        menu.removeItem(R.id.action_log_out);
+        menu.removeItem(R.id.action_settings);
         if(getSharedPreferences("user",0).getInt(SMEDClient.KEY_ID_GROUP, -1) == -1){
             menu.removeItem(R.id.create);
-            menu.removeItem(R.id.action_find_students);
-            menu.removeItem(R.id.action_view_report);
-            menu.removeItem(R.id.action_view_meeting);
-            menu.removeItem(R.id.action_add_meeting);
-            menu.removeItem(R.id.action_add_report);
+
             return true;
         }
 
-        if(!dobleFragment || account_type != SMEDClient.TEACHER)
+        if(account_type != SMEDClient.TEACHER)
             menu.removeItem(R.id.create);
-        switch(account_type){
-            case SMEDClient.TEACHER:
-                menu.removeItem(R.id.action_add_report);
-                break;
-            case SMEDClient.STUDENT:
-                menu.removeItem(R.id.action_find_students);
-                menu.removeItem(R.id.action_view_report);
-                menu.removeItem(R.id.action_view_meeting);
-                menu.removeItem(R.id.action_add_meeting);
-                break;
-            case SMEDClient.PARENT:
-                menu.removeItem(R.id.action_find_students);
-                menu.removeItem(R.id.action_add_report);
-                menu.removeItem(R.id.action_add_meeting);
-        }
+
         return true;
     }
 
@@ -251,55 +390,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } if (id == R.id.action_log_out) {
-            getSharedPreferences("user", 0).edit()
-                    .clear()
-                    .apply();
-
-            Intent logout = new Intent(this, LoginActivity.class);
-            logout.putExtra("logout", true);
-            startActivityForResult(logout, REQUEST_LOGIN);
-            return true;
-        } if (id == R.id.action_find_students) {
-            Intent connect = new Intent(this, ConnectToStudentsActivity.class);
-            startActivityForResult(connect, REQUEST_CONNECTION);
-        } if(id == R.id.create){
+        if(id == R.id.create){
             addHomeworkButton(null);
-        }if(id == R.id.action_view_report){
-            Bundle b = new Bundle();
-            b.putSerializable("frag", ReportListFragment.class);
-            try {
-                changeFragments(b);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            }
-
-        }
-        if(id == R.id.action_view_meeting){
-            Bundle b = new Bundle();
-            b.putSerializable("frag", MeetingListFragment.class);
-            try {
-                changeFragments(b);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            }
-
-        }
-        if(id == R.id.action_add_report){
-            Intent i = new Intent(this,AddReportActivity.class);
-            startActivityForResult(i, ADD_REPORT);
-
-        }
-        if(id == R.id.action_add_meeting){
-            Intent i = new Intent(this,AddMeetingActivity.class);
-            startActivityForResult(i, ADD_MEETING);
-
         }
 
         return super.onOptionsItemSelected(item);
@@ -307,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        //TODO: fuck the police
+        /*/TODO: fuck the police
         View find = findViewById(R.id.view_find_group);
         if(find.getVisibility() == View.VISIBLE){
             find.setVisibility(View.GONE);
@@ -317,13 +409,13 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
             new GetHomework(this).execute();
             return;
-        }
-
-        if (fm.getBackStackEntryCount() > 0 ){
+        }*/
+        DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer);
+        if(drawer.isDrawerOpen(GravityCompat.START))
+            drawer.closeDrawer(GravityCompat.START);
+        else if (fm.getBackStackEntryCount() > 0 )
             goBack();
-        } else {
-            super.onBackPressed();
-        }
+        else super.onBackPressed();
     }
 
     private void createGroup() {
@@ -374,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
      * @throws InstantiationException
      * @throws NullPointerException
      */
-    public void changeFragments(Bundle b) throws IllegalAccessException,
+    public void changeFragments(Bundle b, View sharedElement) throws IllegalAccessException,
             InstantiationException, NullPointerException {
         if(dobleFragment) {
             fm.findFragmentById(R.id.fragmentLayout2).setArguments(b);
@@ -385,8 +477,16 @@ public class MainActivity extends AppCompatActivity {
                     (Class<? extends Fragment>)b.getSerializable("frag");
             f = fragclass.newInstance();
             f.setArguments(b);
+            //f.setSharedElementEnterTransition(¿Transition?);
             FragmentTransaction ft = fm.beginTransaction();
+
             ft.replace(R.id.fragmentLayout, f);
+            //ft.setTransitionStyle(1)
+            if(sharedElement != null) {
+                //ft.addSharedElement(sharedElement, b.getString("transitionName"));
+                //ft.setTransitionStyle(R.transition.homework_selected_transition);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            }
             ft.addToBackStack(null);
             ft.commit();
             if(fab != null)

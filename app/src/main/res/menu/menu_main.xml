@@ -10,14 +10,20 @@
         android:orderInCategory="200" app:showAsAction="never" />
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="300" app:showAsAction="never" />
-    <item android:title="@string/action_view_report"
-        app:showAsAction="never"
-        android:orderInCategory="400"
-        android:id="@+id/action_view_report"/>
-    <item android:title="@string/action_view_meeting"
-        app:showAsAction="never"
-        android:orderInCategory="400"
-        android:id="@+id/action_view_meeting"/>
+    <group android:checkableBehavior="single">
+        <item android:title="@string/action_view_homework"
+            app:showAsAction="never"
+            android:orderInCategory="400"
+            android:id="@+id/action_view_homework" />
+        <item android:title="@string/action_view_report"
+            app:showAsAction="never"
+            android:orderInCategory="400"
+            android:id="@+id/action_view_report"/>
+        <item android:title="@string/action_view_meeting"
+            app:showAsAction="never"
+            android:orderInCategory="400"
+            android:id="@+id/action_view_meeting"/>
+    </group>
 
     <item
         android:title="@string/action_add_report"
