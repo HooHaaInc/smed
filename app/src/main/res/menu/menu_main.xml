@@ -6,6 +6,7 @@
         android:icon="@drawable/ic_action_new"/>
     <item android:id="@+id/action_find_students" android:icon="@drawable/ic_search_black_24dp" android:title="@string/action_find_students"
         android:orderInCategory="100" app:showAsAction="never" />
+
     <item android:id="@+id/action_log_out" android:icon="@drawable/ic_power_settings_new_black_24dp" android:title="@string/action_log_out"
         android:orderInCategory="700" app:showAsAction="never" />
     <item android:id="@+id/action_settings" android:icon="@drawable/ic_settings_black_24dp" android:title="@string/action_settings"
@@ -16,7 +17,7 @@
             app:showAsAction="never"
             android:icon="@drawable/ic_view_list_black_24dp"
             android:orderInCategory="400"
-            android:id="@+id/action_view_homework" />
+            android:id="@+id/action_view_homework"/>
         <item android:title="@string/action_view_report"
             app:showAsAction="never"
             android:icon="@drawable/ic_report_black_24dp"
