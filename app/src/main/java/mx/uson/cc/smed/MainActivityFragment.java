@@ -32,10 +32,10 @@ SwipeRefreshLayout swipeLayout;
 
         swipeLayout = (SwipeRefreshLayout)v.findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(this);
-        swipeLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
+        swipeLayout.setColorSchemeResources(android.R.color.holo_orange_light,
+                android.R.color.holo_orange_dark,
                 android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
+                android.R.color.holo_orange_dark);
 
         return v;
     }
@@ -51,9 +51,10 @@ SwipeRefreshLayout swipeLayout;
         Bundle b  = new Bundle();
         b.putSerializable("frag", HomeworkFragment.class);
         b.putInt("position", position);
+        b.putString("transitionName","homework");
 
         try {
-            ((MainActivity)getActivity()).changeFragments(b);
+            ((MainActivity)getActivity()).changeFragments(b, v);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (java.lang.InstantiationException e) {

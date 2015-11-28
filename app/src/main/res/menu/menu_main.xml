@@ -4,30 +4,45 @@
     <item android:id="@+id/create" android:title="@string/action_new"
         android:orderInCategory="0" app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_new"/>
-    <item android:id="@+id/action_find_students" android:title="@string/action_find_students"
+    <item android:id="@+id/action_find_students" android:icon="@drawable/ic_search_black_24dp" android:title="@string/action_find_students"
         android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/action_log_out" android:title="@string/action_log_out"
-        android:orderInCategory="200" app:showAsAction="never" />
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="300" app:showAsAction="never" />
-    <item android:title="@string/action_view_report"
-        app:showAsAction="never"
-        android:orderInCategory="400"
-        android:id="@+id/action_view_report"/>
-    <item android:title="@string/action_view_meeting"
-        app:showAsAction="never"
-        android:orderInCategory="400"
-        android:id="@+id/action_view_meeting"/>
+    <item android:id="@+id/action_log_out" android:icon="@drawable/ic_power_settings_new_black_24dp" android:title="@string/action_log_out"
+        android:orderInCategory="700" app:showAsAction="never" />
+    <item android:id="@+id/action_settings" android:icon="@drawable/ic_settings_black_24dp" android:title="@string/action_settings"
+        android:orderInCategory="600" app:showAsAction="never" />
+    <group android:checkableBehavior="single"
+        android:id="@+id/listviews_group">
+        <item android:title="@string/action_view_homework"
+            app:showAsAction="never"
+            android:icon="@drawable/ic_view_list_black_24dp"
+            android:orderInCategory="400"
+            android:id="@+id/action_view_homework" />
+        <item android:title="@string/action_view_report"
+            app:showAsAction="never"
+            android:icon="@drawable/ic_report_black_24dp"
+            android:orderInCategory="400"
+            android:id="@+id/action_view_report"/>
+        <item android:title="@string/action_view_meeting"
+            app:showAsAction="never"
+            android:orderInCategory="400"
+            android:icon="@drawable/ic_group_black_24dp"
+            android:id="@+id/action_view_meeting"/>
+    </group>
 
+    <group android:checkableBehavior="single"
+        android:id="@+id/new_stuff_group">
     <item
         android:title="@string/action_add_report"
         app:showAsAction="never"
         android:orderInCategory="500"
+        android:icon="@drawable/ic_add_alert_black_24dp"
         android:id="@+id/action_add_report"/>
     <item
             android:title="@string/action_add_meeting"
         app:showAsAction="never"
         android:orderInCategory="500"
+        android:icon="@drawable/ic_group_add_black_24dp"
         android:id="@+id/action_add_meeting"/>
+    </group>
 
 </menu>

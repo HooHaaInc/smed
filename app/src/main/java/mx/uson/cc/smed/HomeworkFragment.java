@@ -106,6 +106,7 @@ public class HomeworkFragment extends Fragment {
      * @param pos posicion de la tarea en ResourcesMan
      */
     public void setTarea(int pos){
+        if(ResourcesMan.getTareas().size() <= pos) return;
         Tarea tarea = ResourcesMan.getTareas().get(pos);
         titulo = tarea.getTitulo();
         desc = tarea.getDesc();

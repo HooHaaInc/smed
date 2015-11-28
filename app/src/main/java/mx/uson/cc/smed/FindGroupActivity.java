@@ -128,6 +128,7 @@ public class FindGroupActivity extends AppCompatActivity
                         setResult(RESULT_OK);
                         getSharedPreferences("user", 0).edit()
                                 .putInt(SMEDClient.KEY_ID_GROUP,g.getId())
+                                .putString(SMEDClient.KEY_GROUP_NAME, g.getName())
                                 .apply();
                         finish();
                     }
