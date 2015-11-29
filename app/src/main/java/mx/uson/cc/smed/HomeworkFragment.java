@@ -79,6 +79,7 @@ public class HomeworkFragment extends Fragment {
             id = savedInstanceState.getInt("Id");
                 ((MainActivity)getActivity()).hideFab();
         }if(titulo == null){
+            root.findViewById(R.id.edit_homework).setVisibility(View.GONE);
             return root;
         }
         setViews();

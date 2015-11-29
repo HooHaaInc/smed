@@ -257,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         menu.removeItem(R.id.create);
+        menu.removeItem(R.id.settings);
 
         switch(account_type){
             case SMEDClient.TEACHER:
