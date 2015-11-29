@@ -194,6 +194,8 @@ public class MainActivity extends AppCompatActivity {
                 if (id == R.id.action_view_report) {
                     Bundle b = new Bundle();
                     b.putSerializable("frag", ReportListFragment.class);
+                    b.putSerializable("frag2", ReadReportFragment.class);
+                    b.putBoolean("list", true);
                     try {
                         changeFragments(b, null);
                     } catch (IllegalAccessException e) {
@@ -206,6 +208,8 @@ public class MainActivity extends AppCompatActivity {
                 if (id == R.id.action_view_meeting) {
                     Bundle b = new Bundle();
                     b.putSerializable("frag", MeetingListFragment.class);
+                    b.putSerializable("frag2", ReadMeetingFragment.class);
+                    b.putBoolean("list", true);
                     try {
                         changeFragments(b, null);
                     } catch (IllegalAccessException e) {
@@ -214,9 +218,12 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                }if (id == R.id.action_view_homework) {
+                }
+                if (id == R.id.action_view_homework) {
                     Bundle b = new Bundle();
                     b.putSerializable("frag", MainActivityFragment.class);
+                    b.putSerializable("frag2", HomeworkFragment.class);
+                    b.putBoolean("list", true);
                     try {
                         changeFragments(b, null);
                     } catch (IllegalAccessException e) {
@@ -468,13 +475,39 @@ public class MainActivity extends AppCompatActivity {
      */
     public void changeFragments(Bundle b, View sharedElement) throws IllegalAccessException,
             InstantiationException, NullPointerException {
-        if(dobleFragment) {
-            fm.findFragmentById(R.id.fragmentLayout2).setArguments(b);
-        }else{
-            Fragment f;
+        Fragment f;
 
-            Class<? extends Fragment> fragclass =
-                    (Class<? extends Fragment>)b.getSerializable("frag");
+        Class<? extends Fragment> fragclass =
+                (Class<? extends Fragment>)b.getSerializable("frag");
+        if(dobleFragment) {
+            if(b.getBoolean("list", false)){
+                if(fm.findFragmentById(R.id.fragmentLayout).getClass().equals(fragclass)){
+                    return;
+                }
+                Class<? extends Fragment> fragclass2 =
+                        (Class<? extends Fragment>)b.getSerializable("frag2");
+                f = fragclass.newInstance();
+                Fragment f2 = fragclass2.newInstance();
+                fm.beginTransaction()
+                        .replace(R.id.fragmentLayout, f)
+                        .replace(R.id.fragmentLayout2, f2)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .addToBackStack(null)
+                        .commit();
+            }else {
+                f = fragclass.newInstance();
+                f.setArguments(b);
+                fm.beginTransaction()
+                        .replace(R.id.fragmentLayout2, f)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }else{
+
+            if(fm.findFragmentById(R.id.fragmentLayout).getClass().equals(fragclass)){
+                return;
+            }
             f = fragclass.newInstance();
             f.setArguments(b);
             //f.setSharedElementEnterTransition(¿Transition?);
@@ -482,15 +515,20 @@ public class MainActivity extends AppCompatActivity {
 
             ft.replace(R.id.fragmentLayout, f);
             //ft.setTransitionStyle(1)
-            if(sharedElement != null) {
+            /*if(sharedElement != null) {
                 //ft.addSharedElement(sharedElement, b.getString("transitionName"));
                 //ft.setTransitionStyle(R.transition.homework_selected_transition);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            }
+            }*/
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             ft.addToBackStack(null);
             ft.commit();
-            if(fab != null)
-                fab.hide();
+
+            if(fab != null) {
+                if (f instanceof MainActivityFragment) {
+                    if (account_type == SMEDClient.TEACHER)
+                        fab.show();
+                } else fab.hide();
+            }
             getSupportActionBar().hide();
         }
     }
@@ -619,6 +657,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String groupId) {
             progressDialog.dismiss();
             getSharedPreferences("user", 0).edit()
+                    .putString(SMEDClient.KEY_GROUP_NAME, groupName)
                     .putInt(SMEDClient.KEY_ID_GROUP, Integer.parseInt(groupId))
                     .apply();
             recreate();

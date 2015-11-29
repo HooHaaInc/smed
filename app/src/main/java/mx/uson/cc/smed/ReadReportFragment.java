@@ -24,7 +24,7 @@ public class ReadReportFragment extends Fragment  {
     String acusador;
     String descripcion;
     String fecha;
-    int position;
+    int position = -1;
     View root;
     public ReadReportFragment(){
 
@@ -40,13 +40,18 @@ public class ReadReportFragment extends Fragment  {
         ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
         View view = inflater.inflate(R.layout.fragment_report, container, false);
         TextView tv;
-
+        if(container.getId() == R.id.fragmentLayout2){
+            view.findViewById(R.id.back_to_list).setVisibility(View.GONE);
+        }
         if(savedInstanceState != null){
             descripcion = savedInstanceState.getString("Descripcion");
             acusador = savedInstanceState.getString("Acusador");
             fecha = savedInstanceState.getString("Fecha");
             ((MainActivity)getActivity()).hideFab();
         }else {
+            if(position < 0) {
+                return view;
+            }
             Reporte reporte = ResourcesMan.getReportes().get(position);
             acusador = reporte.getAcusador();
             descripcion = reporte.getDescripcion();

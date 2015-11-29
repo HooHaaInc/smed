@@ -98,6 +98,11 @@ public class FindGroupActivity extends AppCompatActivity
         if(request == MainActivity.REQUEST_STUDENT_LINK){
             Intent findStudent = new Intent(this, FindStudentActivity.class);
             findStudent.putExtra("groupId", adapter.getItem(position).getId());
+            Group g = adapter.getItem(position);
+            getSharedPreferences("user", 0).edit()
+                    .putInt(SMEDClient.KEY_ID_GROUP,g.getId())
+                    .putString(SMEDClient.KEY_GROUP_NAME, g.getName())
+                    .apply();
             startActivityForResult(findStudent, request);
             return;
         }

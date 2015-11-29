@@ -73,12 +73,9 @@ public class ReportListFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        ReadReportFragment  rrf = new ReadReportFragment();
-        Reporte reporte = ResourcesMan.getReportes().get(position);
         Bundle b  = new Bundle();
         b.putSerializable("frag",ReadReportFragment.class);
         b.putInt("Position", position);
-        MainActivity a = (MainActivity)getActivity();
         try {
             ((MainActivity)getActivity()).changeFragments(b, null);
         } catch (IllegalAccessException e) {

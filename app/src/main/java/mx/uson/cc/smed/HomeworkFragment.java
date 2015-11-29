@@ -50,7 +50,7 @@ public class HomeworkFragment extends Fragment {
         outState.putString("Titulo",titulo);
         outState.putString("Descripcion", desc);
         outState.putString("Materia", materia);
-        outState.putString("Fecha", fecha != null? fecha.toString() : "");
+        outState.putString("Fecha", fecha != null ? fecha.toString() : "");
         outState.putInt("Id", id);
     }
 
@@ -106,7 +106,10 @@ public class HomeworkFragment extends Fragment {
      * @param pos posicion de la tarea en ResourcesMan
      */
     public void setTarea(int pos){
-        if(ResourcesMan.getTareas().size() <= pos) return;
+        if(ResourcesMan.getTareas().size() <= pos) {
+            root.findViewById(R.id.edit_homework).setVisibility(View.GONE);
+            return;
+        }
         Tarea tarea = ResourcesMan.getTareas().get(pos);
         titulo = tarea.getTitulo();
         desc = tarea.getDesc();

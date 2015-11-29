@@ -24,7 +24,7 @@ public class ReadMeetingFragment extends Fragment {
     String desc;
     String citado;
     String fecha;
-    int position;
+    int position = -1;
     int id;
 
     @Override
@@ -47,6 +47,9 @@ public class ReadMeetingFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_meeting, container, false);
         TextView tv = (TextView) view.findViewById(R.id.titulo);
+        if(container.getId() == R.id.fragmentLayout2){
+            view.findViewById(R.id.back_to_list).setVisibility(View.GONE);
+        }
         if(savedInstanceState != null){
             desc = savedInstanceState.getString("Descripcion");
             titulo = savedInstanceState.getString("Titulo");
@@ -54,6 +57,10 @@ public class ReadMeetingFragment extends Fragment {
             citado = savedInstanceState.getString("Citado");
             ((MainActivity)getActivity()).hideFab();
         }else {
+            if(position < 0) {
+                view.findViewById(R.id.edit_meeting).setVisibility(View.GONE);
+                return view;
+            }
             final Junta junta = ResourcesMan.getJuntas().get(position);
             titulo = junta.getTitulo();
             desc =  junta.getDesc();
