@@ -444,6 +444,8 @@ public class MainActivity extends AppCompatActivity {
                         String name = ((EditText) aDialog.findViewById(R.id.group_name)).getText().toString();
                         boolean matutino = ((Spinner) aDialog.findViewById(R.id.shift_spinner)).getSelectedItemPosition() == 0;
                         int teacherId = getSharedPreferences("user", 0).getInt(SMEDClient.KEY_ID_TEACHER, -1);
+                        getSharedPreferences("user",0).edit().putString(SMEDClient.KEY_GROUP_NAME,name);
+                        //TODO Ahí ta la forma pedorra de poner el grupo, una chila Nan? 8)
                         new CreateGroupTask(teacherId, name, matutino, progress).execute();
                     }
                 }).create().show();

@@ -41,6 +41,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:headerLayout="@layout/list_item_two_line_with_avatar"
+        app:headerLayout="@layout/navbarheader"
         app:menu="@menu/menu_main"/>
 </android.support.v4.widget.DrawerLayout>
