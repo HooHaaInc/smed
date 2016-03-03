@@ -117,6 +117,7 @@ public class SMEDClient {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            datosPersona.put("message", RESULT_ERROR);
         }
 
         String res ="";
@@ -136,7 +137,7 @@ public class SMEDClient {
         HashMap<String,String> datosPersona = new HashMap<>();
         datosPersona.put(SMEDClient.KEY_EMAIL,email);
         datosPersona.put(SMEDClient.KEY_PASSWORD, password);
-
+        Log.d("SMED", email+","+password);
         JSONObject result = SMEDClient.sendPostRequest(URL_LOGIN,datosPersona);
 
 
@@ -158,6 +159,7 @@ public class SMEDClient {
             e.printStackTrace();
         }catch (NullPointerException e){
             e.printStackTrace();
+            datosPersona.put("message", RESULT_ERROR);
         }
 
         return datosPersona;

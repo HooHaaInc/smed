@@ -1,0 +1,9 @@
+#!/bin/bash
+#	BUILD GRADLE
+echo "building.."
+./gradlew assembleDebug
+echo "uninstall"
+adb -d uninstall \mx.uson.cc.smed
+echo "install"
+adb -d install app/build/outputs/apk/app-debug.apk
+echo "adb logcat"

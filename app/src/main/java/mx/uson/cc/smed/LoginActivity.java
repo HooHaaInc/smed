@@ -533,7 +533,7 @@ public class LoginActivity extends Activity
         Log.d(TAG, "onConnected: " + bundle);
         mShouldResolve = false;
         String email = null;
-        if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null)
+        //if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null)
             email = Plus.AccountApi.getAccountName(mGoogleApiClient);
 
         //showProgress(false);
@@ -612,11 +612,11 @@ public class LoginActivity extends Activity
                 mPasswordView.setImeActionLabel(signIn ? getString(R.string.action_sign_in_short) : null, R.id.login);
                 break;
             case R.id.plus_sign_in_button:
-                if(!mGoogleApiClient.isConnected()) {
-                    mShouldResolve = true;
-                    mGoogleApiClient.connect();
-                    showProgress(true);
-                }
+                if(mGoogleApiClient.isConnected())
+                    disconnect();
+                mShouldResolve = true;
+                mGoogleApiClient.connect();
+                showProgress(true);
         }
     }
 
@@ -800,7 +800,7 @@ public class LoginActivity extends Activity
                             mGmcId);
 
             }
-
+            Log.d("SMED", "no mame");
             return null;
         }
 

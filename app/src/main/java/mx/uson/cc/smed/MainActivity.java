@@ -152,9 +152,8 @@ public class MainActivity extends AppCompatActivity {
             name += " " + preferences.getString(SMEDClient.KEY_LASTNAME2, "Man");
         String[] nms = name.split(" ");
         String initials = "" + nms[0].charAt(0) + nms[1].charAt(0) +
-                (nms.length > 2 ? nms[2].charAt(0) : "");
+                (nms.length > 2 && nms[2].length() > 0 ? nms[2].charAt(0) : "");
         String group = preferences.getString(SMEDClient.KEY_GROUP_NAME, "1Z");
-        //TODO: background guapo
         profile.setBackgroundColor(Color.rgb(0xfb, 0x8c, 0x00)); //naranjita smed
         ((ImageView) profile.findViewById(R.id.icon)).setImageDrawable(
                 TextDrawable.builder().buildRound(initials, Color.LTGRAY));
