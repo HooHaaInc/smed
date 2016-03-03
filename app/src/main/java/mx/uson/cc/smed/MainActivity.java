@@ -46,6 +46,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.sql.Date;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -95,25 +96,23 @@ public class MainActivity extends AppCompatActivity {
             Intent login = new Intent(this, LoginActivity.class);
             startActivityForResult(login, REQUEST_LOGIN);
         }
+            try{
+                if(preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE,-1) == 2) {
+                    Object result = new getGroupID(preferences.getInt(SMEDClient.KEY_ID_TEACHER, -1), preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1)).execute().get();
+                }else if(preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE,-1) == 3){
+                    Object result = new getGroupID(preferences.getInt(SMEDClient.KEY_ID_PARENT, -1), preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1)).execute().get();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+        }
 
         setupNavigation();
 
-        if (preferences.getInt(SMEDClient.KEY_ID_GROUP, -1) == -1) {
-            //buscar grupo si no está en uno o pertenece al grupo default
-            View find = findViewById(R.id.view_find_group);
-            switch (account_type) {
-                case SMEDClient.TEACHER:
-                    createGroup();
-                    break;
-                case SMEDClient.PARENT:
-                    ((TextView) find.findViewById(R.id.find_text)).setText(R.string.no_son);
-                    ((Button) find.findViewById(R.id.find_button)).setText(R.string.find_student);
-                    find.findViewById(R.id.wifi_button).setVisibility(View.GONE);
-                case SMEDClient.STUDENT:
-                    find.setVisibility(View.VISIBLE);
-            }
-            return;
-        }
+        Log.v("YAAAA",preferences.getInt(SMEDClient.KEY_ID_GROUP, -1)+"");
+
+
 
         if(savedInstanceState == null || fm.findFragmentById(R.id.fragmentLayout) == null) { //Se crea por primera vez {
         //start fragment
@@ -133,6 +132,26 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    public void addGroup(){
+        SharedPreferences preferences = getSharedPreferences("user",0);
+        if (preferences.getInt(SMEDClient.KEY_ID_GROUP, -1) == -1) {
+            //buscar grupo si no está en uno o pertenece al grupo default
+            View find = findViewById(R.id.view_find_group);
+            switch (account_type) {
+                case SMEDClient.TEACHER:
+                    createGroup();
+                    break;
+                case SMEDClient.PARENT:
+                    ((TextView) find.findViewById(R.id.find_text)).setText(R.string.no_son);
+                    ((Button) find.findViewById(R.id.find_button)).setText(R.string.find_student);
+                    find.findViewById(R.id.wifi_button).setVisibility(View.GONE);
+                case SMEDClient.STUDENT:
+                    find.setVisibility(View.VISIBLE);
+            }
+            return;
+        }
     }
 
     private void setupNavigation() {
@@ -662,6 +681,27 @@ public class MainActivity extends AppCompatActivity {
                     .putInt(SMEDClient.KEY_ID_GROUP, Integer.parseInt(groupId))
                     .apply();
             recreate();
+        }
+    }
+
+    private class getGroupID extends AsyncTask<Void,Void,String>{
+        private int id,tipo;
+        public getGroupID(int id_persona,int tipo_usuario){
+            id = id_persona;
+            tipo = tipo_usuario;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            return Integer.toString(SMEDClient.getGroupID(id,tipo));
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            SharedPreferences preferences = getSharedPreferences("user",0);
+            Log.v("nana",s);
+            preferences.edit().putInt(SMEDClient.KEY_ID_GROUP,Integer.parseInt(s)).apply();
+            addGroup();
         }
     }
 }

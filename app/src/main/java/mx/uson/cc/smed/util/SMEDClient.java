@@ -41,6 +41,7 @@ public class SMEDClient {
     private static final String URL_GET_STUDENTS_FROM_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/obtenerAlumnosDeGrupo.php";
     private static final String URL_CONNECT_PARENT_STUDENT = "http://148.225.83.3/~e5ingsoft2/smed/conectarPadreAlumno.php";
     private static final String URL_CREATE_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/CrearGrupo.php";
+    private static final String URL_GET_GROUP_ID = "http://148.225.83.3/~e5ingsoft2/smed/obtenerIDGrupo.php";
 
     public static final int STUDENT = 1;
     public static final int TEACHER = 2;
@@ -137,7 +138,7 @@ public class SMEDClient {
         HashMap<String,String> datosPersona = new HashMap<>();
         datosPersona.put(SMEDClient.KEY_EMAIL,email);
         datosPersona.put(SMEDClient.KEY_PASSWORD, password);
-        Log.d("SMED", email+","+password);
+        Log.d("SMED", email + "," + password);
         JSONObject result = SMEDClient.sendPostRequest(URL_LOGIN,datosPersona);
 
 
@@ -173,7 +174,7 @@ public class SMEDClient {
         datosTarea.put(SMEDClient.KEY_DATE,fecha.toString());
         datosTarea.put(SMEDClient.KEY_CLASS,materia);
         datosTarea.put(SMEDClient.KEY_TITLE,titulo);
-        datosTarea.put(SMEDClient.KEY_DESCRIPTION,descripcion);
+        datosTarea.put(SMEDClient.KEY_DESCRIPTION, descripcion);
 
         JSONObject result = SMEDClient.sendPostRequest(URL_NEW_HOMEWORK,datosTarea);
 
@@ -212,6 +213,29 @@ public class SMEDClient {
         }
         Log.v("D:",res);
         return res;
+    }
+
+    public static int getGroupID(int id_persona,int tipo){
+        HashMap<String,String> datos = new HashMap<>();
+
+        datos.put("id_persona", Integer.toString(id_persona));
+        datos.put("tipo_persona",Integer.toString(tipo));
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_GET_GROUP_ID,datos);
+
+        String res = "";
+        int id = -1;
+        try{
+            res = result.getString("message");
+            id = Integer.parseInt(result.getString(SMEDClient.KEY_ID_GROUP));
+        }catch(JSONException e){
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            res = RESULT_ERROR;
+        }
+        Log.v("GROUPPP",res);
+        return id;
+
     }
 
     public static String newJunta(int id,String titulo,String desc,Date fecha,boolean x){
