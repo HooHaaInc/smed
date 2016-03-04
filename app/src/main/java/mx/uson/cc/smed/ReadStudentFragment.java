@@ -10,7 +10,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import mx.uson.cc.smed.util.ResourcesMan;
 import mx.uson.cc.smed.util.Student;
@@ -27,7 +29,7 @@ public class ReadStudentFragment extends Fragment {
     @Override
     public void setArguments(Bundle b){
         Student ejtudiante = (Student)b.getSerializable("estudiante");
-        nombre = ejtudiante.getName() + " " + ejtudiante.getLastName1() + (ejtudiante.getLastName2() != null ? ejtudiante.getLastName2() : "");
+        nombre = ejtudiante.getName() + " " + ejtudiante.getLastName1()+ " " + (ejtudiante.getLastName2() != null ? ejtudiante.getLastName2() : "");
         tutor = ejtudiante.getTutor();
         noTutor = ejtudiante.getNumero();
         correoT = ejtudiante.getCorreoT();
@@ -36,7 +38,7 @@ public class ReadStudentFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ((AppCompatActivity)getActivity()).getSupportActionBar().show();
+        ((AppCompatActivity)getActivity()).getSupportActionBar().hide();
         View view = inflater.inflate(R.layout.student_details, container, false);
 
         TextView nameText = (TextView)view.findViewById(R.id.user_name);
@@ -45,8 +47,20 @@ public class ReadStudentFragment extends Fragment {
         tutor.setText(this.tutor);
         TextView mail = (TextView)view.findViewById(R.id.parent_mail);
         mail.setText(correoT);
-        TextView telefono = (TextView)view.findViewById(R.id.parent_phone);
+        Button telefono = (Button)view.findViewById(R.id.parent_phone);
         telefono.setText(noTutor);
+        telefono.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "(Abrir app de llamada)", Toast.LENGTH_SHORT).show();
+            }
+        });
+        view.findViewById(R.id.back_to_list).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)getActivity()).goBack();
+            }
+        });
         Log.d("1", nameText.getText().toString());
         Log.d("2", tutor.getText().toString());
         Log.d("3", mail.getText().toString());

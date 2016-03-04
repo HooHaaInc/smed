@@ -134,5 +134,10 @@
         <item>Evening</item>
     </array>
     <string name="action_create">Create</string>
+    <string name="action_complaint">Complaint</string>
+    <string name="action_message">Message</string>
+    <string name="action_meeting">Meeting</string>
+    <string name="action_unparent">Unparent</string>
+    <string name="action_expel">Expel</string>
 
 </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_complaint" android:title="@string/action_complaint" />
+    <item android:id="@+id/action_message" android:title="@string/action_message" />
+    <item android:id="@+id/action_meeting" android:title="@string/action_meeting" />
+    <item android:id="@+id/action_unparent" android:title="@string/action_unparent" />
+    <item android:id="@+id/action_expel" android:title="@string/action_expel" />
+</menu>
