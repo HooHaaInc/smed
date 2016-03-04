@@ -1,9 +1,11 @@
 package mx.uson.cc.smed.util;
 
+import java.io.Serializable;
+
 /**
  * Created by nancio on 4/11/15.
  */
-public class Student {
+public class Student implements Serializable{
     private String name, lastName1, lastName2;
     private int id;
 

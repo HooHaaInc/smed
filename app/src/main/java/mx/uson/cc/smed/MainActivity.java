@@ -287,7 +287,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 return true;
-                return true;
             }
         });
         if(getSharedPreferences("user",0).getInt(SMEDClient.KEY_ID_GROUP, -1) == -1){

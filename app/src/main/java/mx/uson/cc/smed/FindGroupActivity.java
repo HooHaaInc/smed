@@ -182,6 +182,7 @@ public class FindGroupActivity extends AppCompatActivity
             //TODO: neto pls
             if(mTask == GETGROUPS) {
                 JSONObject result = SMEDClient.getAllGroups();
+
                 try {
                     grupos = result.getJSONArray("grupos");
 
@@ -194,8 +195,9 @@ public class FindGroupActivity extends AppCompatActivity
                         String id_maestro = c.getString("id_maestro");
                         String clave = c.getString("clave");
                         String turno = c.getString("turno");
+                        String nombre = SMEDClient.getTeacherInfo(Integer.parseInt(id_grupo));
 
-                        activity.items.add(new Group(Integer.parseInt(id_grupo), clave, turno, "Maestro con ID: " + id_maestro));
+                        activity.items.add(new Group(Integer.parseInt(id_grupo), clave, turno,nombre));
                     }
                     return true;
                 } catch (JSONException e) {
