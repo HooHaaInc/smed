@@ -873,7 +873,7 @@ public class LoginActivity extends Activity
         Intent main = new Intent(this, MainActivity.class);
         String specificKey = null;
         int accountType = Integer.parseInt(result.get(SMEDClient.KEY_ACCOUNT_TYPE));
-        Log.d("account", accountType+"");
+        Log.d("account", accountType + "");
         switch(accountType){
             case SMEDClient.TEACHER:
                 specificKey = SMEDClient.KEY_ID_TEACHER;
@@ -886,7 +886,7 @@ public class LoginActivity extends Activity
                 specificKey = SMEDClient.KEY_ID_STUDENT;
         }
         String s = result.get(SMEDClient.KEY_ID_GROUP);
-        Log.v("BUILDEO",s+"");
+        Log.v("BUILDEO", s + "");
 
         getSharedPreferences("user", 0).edit()
                 .putBoolean("login", true)
@@ -899,6 +899,8 @@ public class LoginActivity extends Activity
                 .putInt(specificKey, Integer.parseInt(result.get(specificKey)))
                 .putInt(SMEDClient.KEY_ID_GROUP, Integer.parseInt(s != null && !s.equals("null") ? s : "-1"))
         .apply();
+
+        new MainActivity.UpdateGCM(Integer.parseInt(result.get(SMEDClient.KEY_ID_PERSON)), Pushbots.sharedInstance().regID()).execute();
 
         //startActivity(main);
         setResult(RESULT_OK, main);

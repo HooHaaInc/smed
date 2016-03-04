@@ -42,6 +42,7 @@ public class SMEDClient {
     private static final String URL_CONNECT_PARENT_STUDENT = "http://148.225.83.3/~e5ingsoft2/smed/conectarPadreAlumno.php";
     private static final String URL_CREATE_GROUP = "http://148.225.83.3/~e5ingsoft2/smed/CrearGrupo.php";
     private static final String URL_GET_GROUP_ID = "http://148.225.83.3/~e5ingsoft2/smed/obtenerIDGrupo.php";
+    private static final String URL_UPDATE_GCM = "http://148.225.83.3/~e5ingsoft2/smed/updateGCM.php";
 
     public static final int STUDENT = 1;
     public static final int TEACHER = 2;
@@ -238,6 +239,25 @@ public class SMEDClient {
         Log.v("GROUPPP",res);
         return id;
 
+    }
+
+    public static void updateGCM(int id_persona,String gcm){
+        HashMap<String,String> datos = new HashMap<>();
+        datos.put(KEY_ID_PERSON, Integer.toString(id_persona));
+        datos.put(KEY_GCM,gcm);
+
+        JSONObject result = SMEDClient.sendPostRequest(URL_UPDATE_GCM,datos);
+        Log.v("updateGCM","entro? id:"+id_persona + "gcm: "+gcm);
+
+        String res = "";
+        try{
+            res = result.getString("message");
+            Log.v("UPDATEGCM", res);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
     }
 
     public static String newJunta(int id,String titulo,String desc,Date fecha,boolean x){

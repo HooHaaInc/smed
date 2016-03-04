@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         if (!preferences.getBoolean("login", false)) {
             Intent login = new Intent(this, LoginActivity.class);
             startActivityForResult(login, REQUEST_LOGIN);
+            new UpdateGCM(preferences.getInt(SMEDClient.KEY_ID_PERSON,-1),Pushbots.sharedInstance().regID());
         }
         /*
         try{
@@ -161,7 +162,14 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitleTextColor(Color.WHITE);
-
+        final DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer);
+        toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawer.openDrawer(GravityCompat.START);
+            }
+        });
 
         //header
         NavigationView navigationView = (NavigationView)findViewById(R.id.nav_view);
@@ -183,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 
         //menu
         Menu menu = navigationView.getMenu();
-        final DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer);
+
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -195,9 +203,12 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 }
                 if (id == R.id.action_log_out) {
+                    int ip = getSharedPreferences("user",0).getInt("id_persona",-1);
                     getSharedPreferences("user", 0).edit()
                             .clear()
                             .apply();
+
+                    new UpdateGCM(ip,"aaaaa").execute();
 
                     Intent logout = new Intent(MainActivity.this, LoginActivity.class);
                     logout.putExtra("logout", true);
@@ -705,6 +716,21 @@ public class MainActivity extends AppCompatActivity {
             if(preferences.getInt(SMEDClient.KEY_ID_GROUP,-2) == -2)
                 preferences.edit().putInt(SMEDClient.KEY_ID_GROUP,Integer.parseInt(s)).apply();
             addGroup();
+        }
+    }
+
+    public static class UpdateGCM extends AsyncTask<Void,Void,String>{
+        private int idd;
+        private String ss;
+        public UpdateGCM(int id,String a){
+            idd = id;
+            ss = a;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            SMEDClient.updateGCM(idd,ss);
+            return "";
         }
     }
 }
