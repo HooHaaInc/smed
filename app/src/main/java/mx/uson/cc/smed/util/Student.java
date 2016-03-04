@@ -9,15 +9,18 @@ public class Student implements Serializable{
     private String name, lastName1, lastName2;
     private int id;
 
-    private String tutor = "Don Vergas";
-    private String noTutor = "01800PITOS";
-    private String correoT = "batito@gmail.com";
+    private String tutor = "";
+    private String noTutor = "";
+    private String correoT = "";
 
-    public Student(int id, String n, String l1, String l2){
+    public Student(int id, String n, String l1, String l2,String tutor,String numTutor,String correoTu){
         this.id = id;
         name = n;
         lastName1 = l1;
         lastName2 = l2;
+        this.tutor = tutor;
+        noTutor = numTutor;
+        correoT = correoTu;
     }
 
     public String getName() {

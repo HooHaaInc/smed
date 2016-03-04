@@ -174,7 +174,7 @@ public class FindStudentActivity extends AppCompatActivity
                         String apellido_paterno = a.getString("apellido_paterno");
                         String id_padre = a.getString("id_padre");
 
-                        activity.items.add(new Student(Integer.parseInt(id_alumno),nombre,apellido_paterno,null));
+                        activity.items.add(new Student(Integer.parseInt(id_alumno),nombre,apellido_paterno,null,null,null,null));
                     }
                     return true;
                 }catch (JSONException e) {
