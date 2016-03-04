@@ -135,6 +135,7 @@ public class FindGroupActivity extends AppCompatActivity
                                 .putInt(SMEDClient.KEY_ID_GROUP,g.getId())
                                 .putString(SMEDClient.KEY_GROUP_NAME, g.getName())
                                 .apply();
+                        Log.v("se disque inscribio",g.getId()+"");
                         finish();
                     }
                 }).setNegativeButton(R.string.action_cancel, null).create().show();

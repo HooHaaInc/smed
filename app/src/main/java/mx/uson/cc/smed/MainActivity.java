@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             Intent login = new Intent(this, LoginActivity.class);
             startActivityForResult(login, REQUEST_LOGIN);
         }
-
+        /*
         try{
             if(preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE,-1) == 2) {
                 Object result = new getGroupID(preferences.getInt(SMEDClient.KEY_ID_TEACHER, -1), preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1)).execute().get();
@@ -108,12 +108,13 @@ public class MainActivity extends AppCompatActivity {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+        */
+
+        new getGroupID(preferences.getInt(SMEDClient.KEY_ID_PARENT, -1), preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1)).execute();
 
         setupNavigation();
 
         Log.v("YAAAA",preferences.getInt(SMEDClient.KEY_ID_GROUP, -1)+"");
-
-
 
         if(savedInstanceState == null || fm.findFragmentById(R.id.fragmentLayout) == null) { //Se crea por primera vez {
         //start fragment
@@ -700,8 +701,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             SharedPreferences preferences = getSharedPreferences("user",0);
-            Log.v("nana",s);
-            preferences.edit().putInt(SMEDClient.KEY_ID_GROUP,Integer.parseInt(s)).apply();
+            Log.v("nana", s);
+            if(preferences.getInt(SMEDClient.KEY_ID_GROUP,-2) == -2)
+                preferences.edit().putInt(SMEDClient.KEY_ID_GROUP,Integer.parseInt(s)).apply();
             addGroup();
         }
     }

@@ -885,6 +885,9 @@ public class LoginActivity extends Activity
             case SMEDClient.STUDENT:
                 specificKey = SMEDClient.KEY_ID_STUDENT;
         }
+        String s = result.get(SMEDClient.KEY_ID_GROUP);
+        Log.v("BUILDEO",s+"");
+
         getSharedPreferences("user", 0).edit()
                 .putBoolean("login", true)
                 .putInt(SMEDClient.KEY_ID_PERSON, Integer.parseInt(result.get(SMEDClient.KEY_ID_PERSON)))
@@ -894,8 +897,8 @@ public class LoginActivity extends Activity
                 .putString(SMEDClient.KEY_EMAIL, result.get(SMEDClient.KEY_EMAIL))
                 .putInt(SMEDClient.KEY_ACCOUNT_TYPE, accountType)
                 .putInt(specificKey, Integer.parseInt(result.get(specificKey)))
-                .putInt(SMEDClient.KEY_ID_GROUP, Integer.parseInt(result.get(SMEDClient.KEY_ID_GROUP)))
-                .apply();
+                .putInt(SMEDClient.KEY_ID_GROUP, Integer.parseInt(s != null && !s.equals("null") ? s : "-1"))
+        .apply();
 
         //startActivity(main);
         setResult(RESULT_OK, main);

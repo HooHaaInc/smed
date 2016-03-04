@@ -145,8 +145,8 @@ public class SMEDClient {
         String res="";
         try{
             datosPersona.put("message",result.getString("message"));
-            Log.v("login:",result.toString());
-            datosPersona.put(KEY_ID_PERSON,result.getString("id_persona"));
+            Log.v("login:", result.toString());
+            datosPersona.put(KEY_ID_PERSON, result.getString("id_persona"));
             datosPersona.put(KEY_NAME,result.getString("nombre"));
             datosPersona.put(KEY_LASTNAME1,result.getString("apellido_paterno"));
             datosPersona.put(KEY_LASTNAME2,result.getString("apellido_materno"));
@@ -228,7 +228,8 @@ public class SMEDClient {
         int id = -1;
         try{
             res = result.getString("message");
-            id = Integer.parseInt(result.getString(SMEDClient.KEY_ID_GROUP));
+            String s = result.getString(SMEDClient.KEY_ID_GROUP);
+            id = Integer.parseInt(s != null && !s.equals("null") ? s : "-1");
         }catch(JSONException e){
             e.printStackTrace();
         }catch (NullPointerException e){
