@@ -33,11 +33,13 @@ public class ResourcesMan {
     private static ArrayList<Student> estudiantes = new ArrayList<>();
     static{
 
-        estudiantes.add(new Student(1,"pancho","barraza","mota"));
-        estudiantes.add(new Student(2,"paco","el","chato"));
-        estudiantes.add(new Student(3,"jorgito","el","vergasa"));
-        estudiantes.add(new Student(4,"el","pinche","nan"));
+        estudiantes.add(new Student(1,"pancho","barraza","mota",null,null,null));
+        estudiantes.add(new Student(2,"paco","el","chato",null,null,null));
+        estudiantes.add(new Student(3,"jorgito","el","vergasa",null,null,null));
+        estudiantes.add(new Student(4,"el","pinche","nan",null,null,null));
     }
+
+    public static void quitarEstudiantes(){estudiantes.clear();}
     public static void initReportes(){ reportes = new ArrayList<>(); }
     public static void initJuntas(){ juntas = new ArrayList<>(); }
 
@@ -57,6 +59,10 @@ public class ResourcesMan {
     public static void addReporte(Reporte reporte){
         reportes.add(reporte);
 
+    }
+
+    public static void addStudent(Student student){
+        estudiantes.add(student);
     }
 
     public static void addJunta(Junta junta){
