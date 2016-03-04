@@ -894,7 +894,9 @@ public class LoginActivity extends Activity
                 .putString(SMEDClient.KEY_EMAIL, result.get(SMEDClient.KEY_EMAIL))
                 .putInt(SMEDClient.KEY_ACCOUNT_TYPE, accountType)
                 .putInt(specificKey, Integer.parseInt(result.get(specificKey)))
+                .putInt(SMEDClient.KEY_ID_GROUP, Integer.parseInt(result.get(SMEDClient.KEY_ID_GROUP)))
                 .apply();
+
         //startActivity(main);
         setResult(RESULT_OK, main);
         finish();

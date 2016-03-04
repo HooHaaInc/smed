@@ -151,6 +151,7 @@ public class SMEDClient {
             datosPersona.put(KEY_LASTNAME1,result.getString("apellido_paterno"));
             datosPersona.put(KEY_LASTNAME2,result.getString("apellido_materno"));
             datosPersona.put(KEY_ACCOUNT_TYPE, result.getString("tipo_persona"));
+            datosPersona.put(KEY_ID_GROUP,result.getString("id_grupo"));
             if(result.getString("tipo_persona").equals("2")) datosPersona.put(KEY_ID_TEACHER,result.getString("id_maestro"));
             if(result.getString("tipo_persona").equals("1")) datosPersona.put(KEY_ID_STUDENT,result.getString("id_alumno"));
             if(result.getString("tipo_persona").equals("3")) datosPersona.put(KEY_ID_PARENT, result.getString("id_padre"));

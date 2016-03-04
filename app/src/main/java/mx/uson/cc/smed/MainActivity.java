@@ -96,16 +96,17 @@ public class MainActivity extends AppCompatActivity {
             Intent login = new Intent(this, LoginActivity.class);
             startActivityForResult(login, REQUEST_LOGIN);
         }
-            try{
-                if(preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE,-1) == 2) {
-                    Object result = new getGroupID(preferences.getInt(SMEDClient.KEY_ID_TEACHER, -1), preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1)).execute().get();
-                }else if(preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE,-1) == 3){
-                    Object result = new getGroupID(preferences.getInt(SMEDClient.KEY_ID_PARENT, -1), preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1)).execute().get();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+
+        try{
+            if(preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE,-1) == 2) {
+                Object result = new getGroupID(preferences.getInt(SMEDClient.KEY_ID_TEACHER, -1), preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1)).execute().get();
+            }else if(preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE,-1) == 3){
+                Object result = new getGroupID(preferences.getInt(SMEDClient.KEY_ID_PARENT, -1), preferences.getInt(SMEDClient.KEY_ACCOUNT_TYPE, -1)).execute().get();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
 
         setupNavigation();
