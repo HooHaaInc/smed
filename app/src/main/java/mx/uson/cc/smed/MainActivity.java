@@ -312,13 +312,13 @@ public class MainActivity extends AppCompatActivity {
                 menu.removeItem(R.id.action_view_report);
                 menu.removeItem(R.id.action_view_meeting);
                 menu.removeItem(R.id.action_add_meeting);
-                //menu.removeItem(R.id.action_students_list);
+                menu.removeItem(R.id.action_students_list);
                 break;
             case SMEDClient.PARENT:
                 menu.removeItem(R.id.action_find_students);
                 menu.removeItem(R.id.action_add_report);
                 menu.removeItem(R.id.action_add_meeting);
-                //menu.removeItem(R.id.action_students_list);
+                menu.removeItem(R.id.action_students_list);
         }
     }
 

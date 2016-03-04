@@ -121,7 +121,7 @@
     <string name="action_create">Crear</string>
     <string name="group_shift">Turno</string>
     <string name="action_view_homework">Ver tareas</string>
-    <string name="action_complaint">Complaint</string>
+    <string name="action_complaint">Queja</string>
     <string name="action_expel">Expulsar</string>
     <string name="action_meeting">Junta</string>
     <string name="action_message">Mensaje</string>
