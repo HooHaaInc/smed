@@ -273,6 +273,20 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(i, ADD_MEETING);
 
                 }
+                if(id == R.id.action_students_list){
+                    Bundle b = new Bundle();
+                    b.putSerializable("frag", GroupListFragment.class);
+                    b.putSerializable("frag2", ReadStudentFragment.class);
+                    b.putBoolean("list", true);
+                    try {
+                        changeFragments(b, null);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InstantiationException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return true;
                 return true;
             }
         });

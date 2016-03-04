@@ -9,6 +9,8 @@
 
     <item android:id="@+id/action_log_out" android:icon="@drawable/ic_power_settings_new_black_24dp" android:title="@string/action_log_out"
         android:orderInCategory="700" app:showAsAction="never" />
+    <item android:id="@+id/action_students_list" android:icon="@drawable/ic_search_black_24dp" android:title="@string/action_find_students"
+        android:orderInCategory="200" app:showAsAction="never" />
     <item android:id="@+id/action_settings" android:icon="@drawable/ic_settings_black_24dp" android:title="@string/action_settings"
         android:orderInCategory="600" app:showAsAction="never" />
     <group android:checkableBehavior="single"

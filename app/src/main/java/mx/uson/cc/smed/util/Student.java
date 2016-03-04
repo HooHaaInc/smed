@@ -7,6 +7,10 @@ public class Student {
     private String name, lastName1, lastName2;
     private int id;
 
+    private String tutor = "Don Vergas";
+    private String noTutor = "01800PITOS";
+    private String correoT = "batito@gmail.com";
+
     public Student(int id, String n, String l1, String l2){
         this.id = id;
         name = n;
@@ -32,6 +36,18 @@ public class Student {
 
     public String getInitials(){
         return ""+name.charAt(0) + lastName1.charAt(0);
+    }
+
+     public String getTutor(){
+        return tutor;
+    }
+
+    public String getNumero(){
+        return noTutor;
+    }
+
+    public String getCorreoT(){
+        return correoT;
     }
 
     @Override

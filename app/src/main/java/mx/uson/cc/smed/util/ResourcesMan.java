@@ -30,10 +30,21 @@ public class ResourcesMan {
     private static ArrayList<Tarea> tareas = new ArrayList<>();
     private static ArrayList<Reporte> reportes;
     private static ArrayList<Junta> juntas;
+    private static ArrayList<Student> estudiantes = new ArrayList<>();
+    static{
 
+        estudiantes.add(new Student(1,"pancho","barraza","mota"));
+        estudiantes.add(new Student(2,"paco","el","chato"));
+        estudiantes.add(new Student(3,"jorgito","el","vergasa"));
+        estudiantes.add(new Student(4,"el","pinche","nan"));
+    }
     public static void initReportes(){ reportes = new ArrayList<>(); }
     public static void initJuntas(){ juntas = new ArrayList<>(); }
 
+
+    public static ArrayList<Student> getEstudiantes(){
+        return estudiantes;
+    }
     public static ArrayList<Reporte> getReportes() {
         return reportes;
     }
